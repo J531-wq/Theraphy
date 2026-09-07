@@ -124,6 +124,11 @@ except (ValueError, dj_database_url.UnknownSchemeError) as exc:
     ) from exc
 
 DATABASES = {'default': database_config}
+if database_url and not database_config.get('NAME'):
+    raise ImproperlyConfigured(
+        'DATABASE_URL must include a database name, for example '
+        'postgresql://user:password@host:5432/database.'
+    )
 
 
 # Password validation

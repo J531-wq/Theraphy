@@ -1,7 +1,3 @@
-databases:
-  - name: therapy-db
-    plan: free
-
 services:
   - type: web
     name: therapy-site
@@ -10,9 +6,7 @@ services:
     startCommand: gunicorn therapy_site.wsgi:application
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: therapy-db
-          property: connectionString
+        sync: false
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG

@@ -15,6 +15,10 @@ import os
 
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
+
+
+load_dotenv(Path(__file__).resolve().parents[2] / '.env')
 
 
 def env_bool(name, default=False):
@@ -94,13 +98,32 @@ WSGI_APPLICATION = 'therapy_site.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=600,
-        conn_health_checks=True,
+database_url = os.getenv('DATABASE_URL', '').strip()
+if database_url.lower() in {'', 'none', 'null'}:
+    database_url = ''
+if database_url.startswith('postgres://'):
+    database_url = 'postgresql://' + database_url.removeprefix('postgres://')
+
+try:
+    database_config = (
+        dj_database_url.parse(
+            database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+        if database_url else
+        dj_database_url.config(
+            default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     )
-}
+except (ValueError, dj_database_url.UnknownSchemeError) as exc:
+    raise ImproperlyConfigured(
+        'DATABASE_URL is invalid. Set it to a PostgreSQL connection URL.'
+    ) from exc
+
+DATABASES = {'default': database_config}
 
 
 # Password validation

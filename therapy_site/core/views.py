@@ -780,3 +780,27 @@ def reset_users(request):
 
     # After deletion, redirect back to welcome page
     return redirect('welcome')
+
+
+# =========================
+# ERROR HANDLER VIEWS
+# =========================
+
+def error_400(request, exception=None):
+    """Custom 400 Bad Request error page."""
+    return render(request, 'core/400.html', status=400)
+
+
+def error_403(request, exception=None):
+    """Custom 403 Forbidden error page."""
+    return render(request, 'core/403.html', status=403)
+
+
+def error_404(request, exception=None):
+    """Custom 404 Page Not Found error page."""
+    return render(request, 'core/404.html', status=404)
+
+
+def error_500(request):
+    """Custom 500 Server Error page."""
+    return render(request, 'core/500.html', status=500)

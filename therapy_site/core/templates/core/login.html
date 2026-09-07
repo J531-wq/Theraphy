@@ -1,6 +1,7 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Therapy Site</title>{% load static %}
 
   <style>
@@ -152,7 +153,9 @@
       background: #5a6268;
     }
 
-  </style></head><body>  <!-- Back button --><button class="back-button" onclick="goBack()">Back to Welcome</button>
+  </style>
+  <link rel="stylesheet" href="{% static 'core/responsive.css' %}">
+</head><body>  <!-- Back button --><button class="back-button" onclick="goBack()">Back to Welcome</button>
 
   <div class="login-box">
     <h2>Login</h2><form method="POST" id="login-form">

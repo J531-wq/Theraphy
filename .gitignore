@@ -1,4 +1,5 @@
 .env
+.venv/
 therapy_site/.env
 therapy_site/__pycache__/
 therapy_site/**/__pycache__/

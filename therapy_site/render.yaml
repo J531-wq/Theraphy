@@ -27,3 +27,9 @@ services:
         sync: false
       - key: DEFAULT_FROM_EMAIL
         sync: false
+      - key: EMAIL_HOST
+        value: smtp.gmail.com
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_USE_TLS
+        value: "True"

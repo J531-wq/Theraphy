@@ -198,6 +198,17 @@ EMAIL_BACKEND = os.getenv(
     'django.core.mail.backends.console.EmailBackend'
 )
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '20'))
+
+if not DEBUG and (
+    not EMAIL_HOST_USER or
+    not EMAIL_HOST_PASSWORD or
+    EMAIL_BACKEND.endswith('console.EmailBackend')
+):
+    raise ImproperlyConfigured(
+        'Production email is not configured. Set EMAIL_HOST_USER and '
+        'EMAIL_HOST_PASSWORD in Render.'
+    )
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = not DEBUG

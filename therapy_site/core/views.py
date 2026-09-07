@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db import transaction
+from smtplib import SMTPException
 from .models import User, ChatMessage
 from .forms import (
     RegisterForm,
@@ -367,24 +369,31 @@ def register_view(request):
             request.session['verification_code'] = verification_code
             request.session['verification_username'] = user.username
 
-            # Save the user first
-            user.save()
-
-            # Send verification code to the registered email
-            send_mail(
-                subject='Therapy Portal - Email Verification Code',
-                message=(
-                    f'Hello {user.full_name},\n\n'
-                    f'Your Therapy Portal verification code is: '
-                    f'{verification_code}\n\n'
-                    f'Enter this code on the verification page to confirm '
-                    f'your email address.\n\n'
-                    f'If you did not create this account, please ignore this email.'
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=False,
-            )
+            try:
+                with transaction.atomic():
+                    user.save()
+                    send_mail(
+                        subject='Therapy Portal - Email Verification Code',
+                        message=(
+                            f'Hello {user.full_name},\n\n'
+                            f'Your Therapy Portal verification code is: '
+                            f'{verification_code}\n\n'
+                            f'Enter this code on the verification page to confirm '
+                            f'your email address.\n\n'
+                            f'If you did not create this account, please ignore this email.'
+                        ),
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                    )
+            except (SMTPException, OSError):
+                return render(request, 'core/register.html', {
+                    'form': form,
+                    'error': (
+                        'We could not send the verification email. '
+                        'Please check the email address and try again.'
+                    )
+                })
 
             return redirect('verify_email')
 
@@ -516,26 +525,33 @@ def forgot_password(request):
                     random.randint(100000, 999999)
                 )
 
-                # Store recovery information in session
+                try:
+                    send_mail(
+                        subject='Therapy Portal - Account Recovery Code',
+                        message=(
+                            f'Hello {user.full_name},\n\n'
+                            f'Your Therapy Portal account recovery verification '
+                            f'code is: {verification_code}\n\n'
+                            f'Enter this code on the verification page to '
+                            f'continue recovering your account.\n\n'
+                            f'If you did not request account recovery, '
+                            f'please ignore this email.'
+                        ),
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[user.email],
+                        fail_silently=False,
+                    )
+                except (SMTPException, OSError):
+                    return render(request, 'core/forgot_password.html', {
+                        'form': form,
+                        'error': (
+                            'We could not send the recovery email. '
+                            'Please try again later.'
+                        )
+                    })
+
                 request.session['reset_username'] = user.username
                 request.session['reset_code'] = verification_code
-
-                # Send code automatically to the registered email
-                send_mail(
-                    subject='Therapy Portal - Account Recovery Code',
-                    message=(
-                        f'Hello {user.full_name},\n\n'
-                        f'Your Therapy Portal account recovery verification '
-                        f'code is: {verification_code}\n\n'
-                        f'Enter this code on the verification page to '
-                        f'continue recovering your account.\n\n'
-                        f'If you did not request account recovery, '
-                        f'please ignore this email.'
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[user.email],
-                    fail_silently=False,
-                )
 
                 return redirect('verify_reset_code')
 

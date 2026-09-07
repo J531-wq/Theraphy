@@ -4,6 +4,13 @@ from .models import User
 
 
 class RegisterForm(forms.ModelForm):
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'Enter your email address'
+        })
+    )
+
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
             'placeholder': 'Enter your password'

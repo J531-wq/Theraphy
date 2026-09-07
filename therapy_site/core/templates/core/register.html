@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register - Therapy Site</title>
+
+  {% load static %}
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
+        url("{% static 'core/Register.jpg.jpeg' %}") no-repeat center center fixed;
+
+      background-size: cover;
+
+      text-align: center;
+      margin: 0;
+      padding: 0;
+
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+
+      overflow: hidden;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      /* Smooth page transition */
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+
+
+    /* =========================
+       PAGE FADE IN
+       ========================= */
+
+    body.page-loaded {
+      opacity: 1;
+    }
+
+
+    /* =========================
+       PAGE FADE OUT
+       ========================= */
+
+    body.page-exit {
+      opacity: 0;
+    }
+
+
+    .register-box {
+      color: white;
+      background: black;
+      width: 350px;
+      margin: 100px auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+
+    /* =========================
+       INPUT PLACEHOLDER TEXT
+       ========================= */
+
+    input::placeholder {
+      color: #888;
+      opacity: 1;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1e7e34;
+    }
+
+
+    /* =========================
+       BACK TO WELCOME BUTTON
+       ========================= */
+
+    .back-button {
+      position: fixed;
+
+      top: 20px;
+      left: 20px;
+
+      padding: 10px 18px;
+
+      border: none;
+      border-radius: 6px;
+
+      background: #6c757d;
+      color: white;
+
+      cursor: pointer;
+
+      z-index: 1000;
+    }
+
+    .back-button:hover {
+      background: #5a6268;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Back button -->
+  <button class="back-button" onclick="goBack()">Back to Welcome</button>
+
+
+  <div class="register-box">
+    <h2>Create Account</h2>
+
+    <form method="POST" id="register-form">
+      {% csrf_token %}
+
+      {{ form.username }}
+      {{ form.full_name }}
+      {{ form.email }}
+      {{ form.password }}
+      {{ form.confirm_password }}
+
+      <button type="submit">Register</button>
+    </form>
+
+  </div>
+
+
+  <!-- =========================
+       SMOOTH PAGE TRANSITION
+       ========================= -->
+
+  <script>
+
+    /* Fade in when Register page loads */
+    window.addEventListener("load", function() {
+      document.body.classList.add("page-loaded");
+    });
+
+
+    /* Fade out before going back to Welcome */
+    function goBack() {
+
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+
+      setTimeout(function() {
+        window.location.href = "{% url 'welcome' %}";
+      }, 450);
+
+    }
+
+
+    /* Fade out when Register button is submitted */
+    document.getElementById("register-form").addEventListener("submit", function() {
+
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+
+    });
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+.env
+therapy_site/.env
+therapy_site/__pycache__/
+therapy_site/**/__pycache__/
+therapy_site/*.py[cod]
+therapy_site/**/*.py[cod]
+therapy_site/staticfiles/
+therapy_site/*.log

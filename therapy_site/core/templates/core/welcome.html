@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Therapy Site - Welcome</title>
+
+  {% load static %}
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
+        url("{% static 'core/welcome.jpg.jpeg' %}") no-repeat center center fixed;
+
+      background-size: cover;
+
+      margin: 0;
+      padding: 0;
+
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+
+      overflow: hidden;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      color: white;
+
+      /* Smooth page transition */
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+
+
+    /* =========================
+       PAGE FADE IN
+       ========================= */
+
+    body.page-loaded {
+      opacity: 1;
+    }
+
+
+    /* =========================
+       PAGE FADE OUT
+       ========================= */
+
+    body.page-exit {
+      opacity: 0;
+    }
+
+
+    /* =========================
+       MAIN WELCOME CONTENT
+       ========================= */
+
+    .welcome-section {
+      width: 90%;
+      max-width: 800px;
+
+      text-align: center;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      padding: 30px 20px;
+    }
+
+
+    /* =========================
+       WELCOME HEADING
+       ========================= */
+
+    .welcome-section h1 {
+      margin: 0 0 15px 0;
+
+      font-size: 52px;
+      font-weight: bold;
+
+      font-family: 'Playfair Display', Georgia, serif;
+
+      text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.8);
+    }
+
+
+    /* =========================
+       WELCOME DESCRIPTION
+       ========================= */
+
+    .welcome-section > p {
+      margin: 0 0 30px 0;
+
+      max-width: 600px;
+
+      font-size: 19px;
+      line-height: 1.6;
+
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.8);
+    }
+
+
+    /* =========================
+       LOGIN / REGISTER
+       ========================= */
+
+    .auth-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      gap: 18px;
+
+      margin-bottom: 40px;
+    }
+
+    .auth-buttons form {
+      margin: 0;
+    }
+
+    button {
+      width: 140px;
+
+      padding: 13px 20px;
+
+      border: none;
+      border-radius: 6px;
+
+      background: #007BFF;
+
+      color: white;
+
+      font-size: 16px;
+      font-weight: bold;
+
+      cursor: pointer;
+
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      background: #0056b3;
+
+      transform: translateY(-2px);
+    }
+
+
+    /* =========================
+       STATISTICS
+       ========================= */
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      gap: 18px;
+
+      margin: 0;
+    }
+
+    .box {
+      width: 145px;
+
+      padding: 16px 20px;
+
+      background: rgba(0, 0, 0, 0.45);
+
+      border-radius: 8px;
+
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+      backdrop-filter: blur(3px);
+    }
+
+    .box h3 {
+      margin: 0 0 8px 0;
+
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    .box p {
+      margin: 0;
+
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    @media (max-width: 600px) {
+
+      .welcome-section {
+        width: 92%;
+        padding: 20px 10px;
+      }
+
+      .welcome-section h1 {
+        font-size: 38px;
+      }
+
+      .welcome-section > p {
+        font-size: 16px;
+        margin-bottom: 25px;
+      }
+
+      .auth-buttons {
+        gap: 10px;
+        margin-bottom: 30px;
+      }
+
+      button {
+        width: 120px;
+        padding: 11px 15px;
+      }
+
+      .stats {
+        gap: 10px;
+      }
+
+      .box {
+        width: 115px;
+        padding: 13px 10px;
+      }
+
+      .box h3 {
+        font-size: 13px;
+      }
+
+      .box p {
+        font-size: 21px;
+      }
+    }
+
+
+    /* =========================
+       SMALL PHONES
+       ========================= */
+
+    @media (max-width: 400px) {
+
+      .welcome-section h1 {
+        font-size: 32px;
+      }
+
+      .welcome-section > p {
+        font-size: 15px;
+      }
+
+      button {
+        width: 110px;
+      }
+
+      .box {
+        width: 105px;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="welcome-section">
+
+    <!-- Welcome Section -->
+    <h1>Welcome to Therapy Portal</h1>
+
+    <p>
+      A safe and supportive space to begin your journey toward
+      better emotional and mental well-being.
+    </p>
+
+
+    <!-- Login & Register Buttons -->
+    <div class="auth-buttons">
+
+      <form action="{% url 'login' %}">
+        <button type="submit">Login</button>
+      </form>
+
+      <form action="{% url 'register' %}">
+        <button type="submit">Register</button>
+      </form>
+
+    </div>
+
+
+    <!-- Stats Section -->
+    <div class="stats">
+
+      <div class="box">
+        <h3>Total Users</h3>
+        <p id="total-users">{{ total_users }}</p>
+      </div>
+
+      <div class="box">
+        <h3>Active Users</h3>
+        <p id="active-users">{{ active_users }}</p>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       SMOOTH PAGE TRANSITION
+       ========================= -->
+
+  <script>
+
+    /* Fade in when the welcome page loads */
+    window.addEventListener("load", function() {
+      document.body.classList.add("page-loaded");
+    });
+
+
+    /* Fade out before going to Login/Register */
+    document.querySelectorAll(".auth-buttons form").forEach(function(form) {
+
+      form.addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        const destination = this.action;
+
+        document.body.classList.remove("page-loaded");
+        document.body.classList.add("page-exit");
+
+        setTimeout(function() {
+          window.location.href = destination;
+        }, 450);
+
+      });
+
+    });
+
+  </script>
+
+</body>
+</html>

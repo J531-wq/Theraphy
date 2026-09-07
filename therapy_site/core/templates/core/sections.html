@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Therapy Sections</title>
+  {% load static %}
+
+  <style>
+
+    /* Playfair Display - custom font for the heading only */
+    @font-face {
+      font-family: 'Playfair Display';
+      src: url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype');
+      font-weight: 600;
+      font-style: italic;
+      font-display: swap;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      min-width: 100vw;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
+        url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center fixed;
+
+      background-size: cover;
+
+      /* Smooth page transition */
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+
+    /* Fade the section page in when it loads */
+    body.page-loaded {
+      opacity: 1;
+    }
+
+    /* Fade the section page out before navigating */
+    body.page-exit {
+      opacity: 0;
+    }
+
+    .menu {
+      background: transparent;
+      padding: 40px;
+      border-radius: 0;
+      box-shadow: none;
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      font-size: 52px;
+      font-weight: 600;
+      font-style: italic;
+      font-family: 'Playfair Display', Georgia, serif;
+      color: white;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      margin: 18px 0;
+    }
+
+    a {
+      text-decoration: none;
+      font-size: 24px;
+      color: white;
+      font-weight: bold;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+      transition: color 0.2s ease;
+    }
+
+    a:hover {
+      color: #d81515;
+    }
+
+
+    /* =========================
+       LOGOUT BUTTON
+       ========================= */
+
+    .logout-button {
+      margin-top: 25px;
+
+      padding: 10px 22px;
+
+      border: none;
+      border-radius: 6px;
+
+      background: #dc3545;
+      color: white;
+
+      font-size: 16px;
+      font-weight: bold;
+
+      cursor: pointer;
+
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+
+      transition: 0.2s ease;
+    }
+
+    .logout-button:hover {
+      background: #b02a37;
+
+      transform: translateY(-2px);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="menu">
+
+    <h1>Select a Therapy Section</h1>
+
+    <ul>
+      <li><a href="{% url 'therapy_section' 'child' %}">Child Therapy</a></li>
+      <li><a href="{% url 'therapy_section' 'teen' %}">Teen Therapy</a></li>
+      <li><a href="{% url 'therapy_section' 'relationship' %}">Relationship Therapy</a></li>
+      <li><a href="{% url 'therapy_section' 'family' %}">Family Therapy</a></li>
+      <li><a href="{% url 'therapy_section' 'trauma' %}">Trauma Therapy</a></li>
+      <li><a href="{% url 'therapy_section' 'addiction' %}">Addiction Therapy</a></li>
+      <li><a href="{% url 'therapy_section' 'stress' %}">General AI search</a></li>
+    </ul>
+
+
+    <!-- Logout Button -->
+    <button class="logout-button" onclick="logout()">Logout</button>
+
+  </div>
+
+
+  <!-- Smooth navigation JavaScript -->
+  <script>
+
+    /* =========================
+       FADE IN WHEN PAGE LOADS
+       ========================= */
+
+    window.addEventListener("load", function() {
+      document.body.classList.add("page-loaded");
+    });
+
+
+    /* =========================
+       FADE OUT WHEN LEAVING
+       ========================= */
+
+    document.querySelectorAll("a").forEach(function(link) {
+
+      link.addEventListener("click", function(event) {
+
+        /* Allow special browser clicks */
+        if (
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.metaKey ||
+          event.button !== 0
+        ) {
+          return;
+        }
+
+        event.preventDefault();
+
+        const destination = this.href;
+
+        /* Prevent multiple clicks */
+        if (document.body.classList.contains("page-exit")) {
+          return;
+        }
+
+        /* Fade section page out */
+        document.body.classList.remove("page-loaded");
+        document.body.classList.add("page-exit");
+
+        /* Navigate after fade-out finishes */
+        setTimeout(function() {
+          window.location.href = destination;
+        }, 450);
+
+      });
+
+    });
+
+
+    /* =========================
+       LOGOUT
+       ========================= */
+
+    function logout() {
+
+      /* Prevent multiple clicks */
+      if (document.body.classList.contains("page-exit")) {
+        return;
+      }
+
+      /* Fade section page out */
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+
+      /* Go directly to Welcome page */
+      setTimeout(function() {
+        window.location.href = "{% url 'welcome' %}";
+      }, 450);
+
+    }
+
+  </script>
+
+</body>
+</html>

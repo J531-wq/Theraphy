@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Recovery Code - Therapy Site</title>
+
+  {% load static %}
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
+        url("{% static 'core/Login.jpg.jpeg' %}") no-repeat center center fixed;
+
+      background-size: cover;
+
+      text-align: center;
+      margin: 0;
+      padding: 0;
+
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+
+      overflow: hidden;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      /* Smooth page transition */
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+
+
+    /* =========================
+       PAGE FADE IN
+       ========================= */
+
+    body.page-loaded {
+      opacity: 1;
+    }
+
+
+    /* =========================
+       PAGE FADE OUT
+       ========================= */
+
+    body.page-exit {
+      opacity: 0;
+    }
+
+
+    /* =========================
+       VERIFICATION BOX
+       ========================= */
+
+    .verify-box {
+      color: white;
+
+      background: black;
+
+      width: 350px;
+
+      margin: 100px auto;
+
+      padding: 25px 20px;
+
+      border-radius: 8px;
+
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+      box-sizing: border-box;
+    }
+
+
+    .verify-box h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+
+
+    .notification {
+      font-size: 15px;
+
+      line-height: 1.5;
+
+      margin-bottom: 10px;
+    }
+
+
+    .email {
+      color: #007BFF;
+
+      font-weight: bold;
+
+      word-break: break-word;
+
+      margin-bottom: 20px;
+    }
+
+
+    input {
+      width: 90%;
+
+      padding: 10px;
+
+      margin: 10px 0;
+
+      border: 1px solid #ccc;
+
+      border-radius: 5px;
+
+      box-sizing: border-box;
+
+      text-align: center;
+
+      font-size: 16px;
+
+      letter-spacing: 2px;
+    }
+
+
+    button {
+      padding: 10px 20px;
+
+      border: none;
+
+      border-radius: 5px;
+
+      background: #007BFF;
+
+      color: white;
+
+      cursor: pointer;
+    }
+
+
+    button:hover {
+      background: #0056b3;
+    }
+
+
+    .error {
+      color: red;
+
+      margin-top: 10px;
+
+      font-weight: bold;
+    }
+
+
+    /* =========================
+       MOBILE
+       ========================= */
+
+    @media (max-width: 600px) {
+
+      .verify-box {
+        width: 90%;
+
+        padding: 22px 15px;
+      }
+
+      .verify-box h2 {
+        font-size: 24px;
+      }
+
+      .notification {
+        font-size: 14px;
+      }
+
+      .email {
+        font-size: 14px;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="verify-box">
+
+    <h2>Verify Recovery Code</h2>
+
+    <p class="notification">
+      A verification code has been sent to your registered email address.
+    </p>
+
+    <p class="email">
+      {{ email }}
+    </p>
+
+
+    <form method="POST" id="verify-reset-form">
+
+      {% csrf_token %}
+
+      {{ form.verification_code }}
+
+      <br>
+
+      <button type="submit">Confirm</button>
+
+    </form>
+
+
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+
+  </div>
+
+
+  <!-- =========================
+       SMOOTH PAGE TRANSITION
+       ========================= -->
+
+  <script>
+
+    /* Fade in when recovery verification page loads */
+    window.addEventListener("load", function() {
+      document.body.classList.add("page-loaded");
+    });
+
+
+    /* Fade out when verification form is submitted */
+    document.getElementById("verify-reset-form").addEventListener("submit", function() {
+
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+
+    });
+
+  </script>
+
+</body>
+</html>

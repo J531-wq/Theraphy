@@ -138,6 +138,29 @@
     function appendTyping(){const id="t"+Date.now();const d=document.createElement("div");d.className="msg ai typing";d.id=id;d.innerHTML=`<div class="msg-meta">AI Assistant</div><div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;cm.appendChild(d);cm.scrollTop=cm.scrollHeight;return id;}
     function removeTyping(id){const el=document.getElementById(id);if(el)el.remove();}
     function escHtml(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");}
+    // ── Voice input ──
+    let recognition=null,isListening=false;
+    function toggleVoice(){
+      if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert("Sorry, your browser doesn't support voice input. Try Chrome.");return;}
+      if(isListening){recognition.stop();return;}
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      recognition=new SR();recognition.lang='en-US';recognition.interimResults=true;recognition.continuous=false;
+      const btn=document.getElementById('mic-btn');
+      recognition.onstart=()=>{isListening=true;btn.classList.add('listening');document.getElementById('user-input').placeholder='Listening…';};
+      recognition.onresult=e=>{
+        let interim='',final='';
+        for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript;}
+        document.getElementById('user-input').value=final||interim;
+        if(final){recognition.stop();}
+      };
+      recognition.onerror=()=>{recognition.stop();};
+      recognition.onend=()=>{
+        isListening=false;btn.classList.remove('listening');document.getElementById('user-input').placeholder='Ask anything…';
+        const val=document.getElementById('user-input').value.trim();
+        if(val){setTimeout(()=>sendMessage(),120);}
+      };
+      recognition.start();
+    }
   </script>
 </body>
 </html>

@@ -4,7 +4,9 @@
 #   sudo systemctl enable --now therapy_site
 #   sudo systemctl status therapy_site      # check it's running
 #
-# NOTE: adjust User= and paths if your username/deploy path differs.
+# PATHS: after cloning, the Django project root (with manage.py) lives at
+#   /home/deploy/therapy_site/therapy_site
+# Adjust User= and paths if your username/deploy path differs.
 
 [Unit]
 Description=MyTherapyDoctor Django app (Gunicorn)
@@ -13,9 +15,9 @@ After=network.target postgresql.service
 [Service]
 User=deploy
 Group=www-data
-WorkingDirectory=/home/deploy/therapy_site
-EnvironmentFile=/home/deploy/therapy_site/.env
-ExecStart=/home/deploy/therapy_site/venv/bin/gunicorn \
+WorkingDirectory=/home/deploy/therapy_site/therapy_site
+EnvironmentFile=/home/deploy/therapy_site/therapy_site/.env
+ExecStart=/home/deploy/therapy_site/therapy_site/venv/bin/gunicorn \
     --workers 3 \
     --bind 127.0.0.1:8000 \
     --access-logfile - \

@@ -4,6 +4,7 @@ import random
 from django.contrib.auth.hashers import check_password, make_password
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 
 from .forms import (
     ForgotPasswordForm,
@@ -95,6 +96,16 @@ SECTION_META = {
 
 def therapy_section(request, section):
     user = get_chat_user(request)
+
+    # ── Login required ─────────────────────────────────────────────────────
+    if not user:
+        login_url = f"{reverse('login')}?next={request.path}"
+        if request.method == "POST":
+            return JsonResponse(
+                {"error": "Please sign in to continue.", "redirect": login_url},
+                status=401,
+            )
+        return redirect(login_url)
 
     # ── POST — send a message ──────────────────────────────────────────────
     if request.method == "POST":
@@ -279,6 +290,7 @@ def verify_email(request):
 
 
 def login_view(request):
+    next_url = request.GET.get("next") or request.POST.get("next") or "sections"
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -290,22 +302,25 @@ def login_view(request):
                     return render(request, "core/login.html", {
                         "form": form,
                         "error": "Please verify your email before logging in.",
+                        "next": next_url,
                     })
                 if check_password(password, user.password):
                     request.session["user_id"] = user.id
                     request.session.modified = True
-                    return redirect("sections")
+                    return redirect(next_url)
                 return render(request, "core/login.html", {
                     "form": form, "error": "Incorrect password.",
+                    "next": next_url,
                 })
             except User.DoesNotExist:
                 return render(request, "core/login.html", {
                     "form": form,
                     "error": "Invalid credentials. Kindly register an account.",
+                    "next": next_url,
                 })
     else:
         form = LoginForm()
-    return render(request, "core/login.html", {"form": form})
+    return render(request, "core/login.html", {"form": form, "next": next_url})
 
 
 def forgot_password(request):

@@ -58,6 +58,10 @@
     .input-bar input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
     .send-btn{flex-shrink:0;width:46px;height:46px;background:linear-gradient(135deg,var(--accent-dark),var(--accent));border:none;border-radius:11px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity 0.2s,transform 0.15s;box-shadow:0 4px 14px var(--accent-glow)}
     .send-btn:hover{opacity:0.85;transform:scale(1.05)}
+    .mic-btn{flex-shrink:0;width:46px;height:46px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:11px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s,transform 0.15s,box-shadow 0.2s;backdrop-filter:blur(8px)}
+    .mic-btn:hover{background:rgba(255,255,255,0.13)}
+    .mic-btn.listening{background:rgba(86,193,122,0.18);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);animation:micPulse 1.2s ease-in-out infinite}
+    @keyframes micPulse{0%,100%{box-shadow:0 0 0 3px var(--accent-glow)}50%{box-shadow:0 0 0 7px rgba(86,193,122,0.08)}}
     @media(max-width:700px){.sidebar{position:fixed;top:0;left:0;height:100%;z-index:200;transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.menu-btn{display:flex}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199}.sidebar-overlay.open{display:block}.chat-wrap{padding:12px 12px 0}.topbar{padding:12px 14px}.bubble{font-size:13px}.msg{max-width:90%}}
   </style>
 </head>
@@ -100,6 +104,9 @@
       </div>
       <div class="input-bar">
         <input type="text" id="user-input" placeholder="Type your message…" autocomplete="off">
+        <button class="mic-btn" id="mic-btn" onclick="toggleVoice()" aria-label="Voice input">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
         <button class="send-btn" onclick="sendMessage()" aria-label="Send"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
       </div>
     </div>
@@ -119,6 +126,29 @@
     function appendTyping(){const id="t"+Date.now();const d=document.createElement("div");d.className="msg ai typing";d.id=id;d.innerHTML=`<div class="msg-meta">James Anderson</div><div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;cm.appendChild(d);cm.scrollTop=cm.scrollHeight;return id;}
     function removeTyping(id){const el=document.getElementById(id);if(el)el.remove();}
     function escHtml(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");}
+    // ── Voice input ──
+    let recognition=null,isListening=false;
+    function toggleVoice(){
+      if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert("Sorry, your browser doesn't support voice input. Try Chrome.");return;}
+      if(isListening){recognition.stop();return;}
+      const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+      recognition=new SR();recognition.lang='en-US';recognition.interimResults=true;recognition.continuous=false;
+      const btn=document.getElementById('mic-btn');
+      recognition.onstart=()=>{isListening=true;btn.classList.add('listening');document.getElementById('user-input').placeholder='Listening…';};
+      recognition.onresult=e=>{
+        let interim='',final='';
+        for(let i=e.resultIndex;i<e.results.length;i++){if(e.results[i].isFinal)final+=e.results[i][0].transcript;else interim+=e.results[i][0].transcript;}
+        document.getElementById('user-input').value=final||interim;
+        if(final){recognition.stop();}
+      };
+      recognition.onerror=()=>{recognition.stop();};
+      recognition.onend=()=>{
+        isListening=false;btn.classList.remove('listening');document.getElementById('user-input').placeholder='Type your message…';
+        const val=document.getElementById('user-input').value.trim();
+        if(val){setTimeout(()=>sendMessage(),120);}
+      };
+      recognition.start();
+    }
   </script>
 </body>
 </html>

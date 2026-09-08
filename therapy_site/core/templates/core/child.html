@@ -57,7 +57,8 @@
       border-bottom:1px solid var(--border);
       display:flex; flex-direction:column; gap:10px;
     }
-    .sidebar-brand{font-size:11px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent);opacity:0.8}
+    .sidebar-brand{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;color:var(--accent);opacity:0.8}
+    .sidebar-brand img{width:16px;height:16px;object-fit:contain}
     .sidebar-title{font-size:14px;font-weight:700;color:var(--text);font-family:'Playfair Display',Georgia,serif;font-style:italic}
     .btn-new-chat{
       display:flex; align-items:center; gap:7px;
@@ -181,7 +182,7 @@
   <!-- ── Sidebar ── -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-brand">MyTherapyDoctor</span>
+      <span class="sidebar-brand"><img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor logo">MyTherapyDoctor</span>
       <span class="sidebar-title">Child Therapy</span>
       <button class="btn-new-chat" onclick="newChat()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

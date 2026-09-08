@@ -19,9 +19,12 @@
   <meta property="og:description" content="Confidential AI-powered therapy support available any time. Speak with specialised AI therapists across 7 therapy areas.">
   <meta property="og:url" content="https://mytherapydoctor.com/">
   <meta property="og:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
+  <meta property="og:image:secure_url" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
   <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="MyTherapyDoctor — AI-powered online therapy">
+  <meta itemprop="image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="MyTherapyDoctor — Your Mental Wellness Companion">
@@ -85,8 +88,11 @@
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--glass-border);
     }
-    .nav-brand {
+        .nav-brand {
       display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo {
+      width: 26px; height: 26px; object-fit: contain;
     }
     .brand-dot {
       width: 9px; height: 9px; border-radius: 50%;
@@ -279,14 +285,19 @@
 <body>
 
   <!-- ── Navigation ── -->
-  <nav>
+    <nav>
     <div class="nav-brand">
+      <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor" class="nav-logo">
       <div class="brand-dot"></div>
       <span class="brand-name">MyTherapyDoctor</span>
     </div>
     <div class="nav-actions">
-      <button class="btn-ghost" onclick="navTo('{% url 'login' %}')">Sign In</button>
-      <button class="btn-primary-sm" onclick="navTo('{% url 'register' %}')">Get Started</button>
+      {% if request.user.is_authenticated %}
+        <button class="btn-primary-sm" onclick="navTo('{% url 'sections' %}')">Dashboard</button>
+      {% else %}
+        <button class="btn-ghost" onclick="navTo('{% url 'login' %}')">Sign In</button>
+        <button class="btn-primary-sm" onclick="navTo('{% url 'register' %}')">Get Started</button>
+      {% endif %}
     </div>
   </nav>
 

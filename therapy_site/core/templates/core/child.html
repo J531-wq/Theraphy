@@ -248,12 +248,15 @@
       .then(()=>window.location.reload());
     }
 
-    document.getElementById("user-input").addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();} });
+    const userInput=document.getElementById("user-input");
+    function autoGrow(){userInput.style.height="auto";userInput.style.height=Math.min(userInput.scrollHeight,140)+"px";}
+    userInput.addEventListener("keydown", e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();} });
+    userInput.addEventListener("input", autoGrow);
 
     function sendMessage(){
       const input=document.getElementById("user-input");
       const msg=input.value.trim(); if(!msg) return;
-      appendMsg("user","You",msg); input.value="";
+      appendMsg("user","You",msg); input.value=""; input.style.height="auto";
       const tid=appendTyping();
       fetch("",{method:"POST",headers:{"X-CSRFToken":"{{ csrf_token }}"},body:new URLSearchParams({message:msg})})
       .then(r=>r.json())
@@ -287,7 +290,7 @@
           if(e.results[i].isFinal)voiceTranscript+=e.results[i][0].transcript+' ';
           else interim+=e.results[i][0].transcript;
         }
-        input.value=(voiceTranscript+interim).trim();
+        input.value=(voiceTranscript+interim).trim();autoGrow();
       };
       recognition.onerror=()=>{recognition.stop();};
       recognition.onend=()=>{

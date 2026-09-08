@@ -131,8 +131,11 @@
     function closeSidebar(){document.getElementById("sidebar").classList.remove("open");document.getElementById("overlay").classList.remove("open");}
     function newChat(){fetch("",{method:"POST",headers:{"X-CSRFToken":"{{ csrf_token }}"},body:new URLSearchParams({action:"new_chat"})}).then(()=>window.location.reload());}
     function useSuggestion(el){document.getElementById("user-input").value=el.textContent;const s=document.getElementById("suggestions");if(s)s.style.display="none";sendMessage();}
-    document.getElementById("user-input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}});
-    function sendMessage(){const input=document.getElementById("user-input");const msg=input.value.trim();if(!msg)return;const s=document.getElementById("suggestions");if(s)s.style.display="none";appendMsg("user","You",msg);input.value="";const tid=appendTyping();fetch("",{method:"POST",headers:{"X-CSRFToken":"{{ csrf_token }}"},body:new URLSearchParams({message:msg})}).then(r=>r.json()).then(data=>{removeTyping(tid);if(data.reply)appendMsg("ai","AI Assistant",data.reply);else appendError(data.error||"Something went wrong.");}).catch(err=>{removeTyping(tid);appendError("Network error: "+err.message);});}
+    const userInput=document.getElementById("user-input");
+    function autoGrow(){userInput.style.height="auto";userInput.style.height=Math.min(userInput.scrollHeight,140)+"px";}
+    userInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}});
+    userInput.addEventListener("input",autoGrow);
+    function sendMessage(){const input=document.getElementById("user-input");const msg=input.value.trim();if(!msg)return;const s=document.getElementById("suggestions");if(s)s.style.display="none";appendMsg("user","You",msg);input.value="";input.style.height="auto";const tid=appendTyping();fetch("",{method:"POST",headers:{"X-CSRFToken":"{{ csrf_token }}"},body:new URLSearchParams({message:msg})}).then(r=>r.json()).then(data=>{removeTyping(tid);if(data.reply)appendMsg("ai","AI Assistant",data.reply);else appendError(data.error||"Something went wrong.");}).catch(err=>{removeTyping(tid);appendError("Network error: "+err.message);});}
     function appendMsg(role,name,text){const d=document.createElement("div");d.className="msg "+role;d.innerHTML=`<div class="msg-meta">${name}</div><div class="bubble">${escHtml(text)}</div>`;cm.appendChild(d);cm.scrollTop=cm.scrollHeight;}
     function appendError(msg){const d=document.createElement("div");d.className="msg ai";d.innerHTML=`<div class="msg-meta" style="color:#f88">Error</div><div class="bubble" style="border-color:rgba(255,100,100,0.3);color:#faa">${escHtml(msg)}</div>`;cm.appendChild(d);cm.scrollTop=cm.scrollHeight;}
     function appendTyping(){const id="t"+Date.now();const d=document.createElement("div");d.className="msg ai typing";d.id=id;d.innerHTML=`<div class="msg-meta">AI Assistant</div><div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;cm.appendChild(d);cm.scrollTop=cm.scrollHeight;return id;}
@@ -155,7 +158,7 @@
           if(e.results[i].isFinal)voiceTranscript+=e.results[i][0].transcript+' ';
           else interim+=e.results[i][0].transcript;
         }
-        input.value=(voiceTranscript+interim).trim();
+        input.value=(voiceTranscript+interim).trim();autoGrow();
       };
       recognition.onerror=()=>{recognition.stop();};
       recognition.onend=()=>{

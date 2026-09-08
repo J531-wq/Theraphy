@@ -242,16 +242,23 @@
   </div>
 
   <script>
-    window.addEventListener("load", () => document.body.classList.add("page-loaded"));
-
+    document.addEventListener("DOMContentLoaded", () => {
+      requestAnimationFrame(() => document.body.classList.add("page-loaded"));
+    });
+    window.addEventListener("pageshow", () => {
+      document.body.classList.remove("page-exit");
+      document.body.classList.add("page-loaded");
+    });
     function goBack() {
-      document.body.classList.replace("page-loaded","page-exit");
-      setTimeout(() => window.location.href = "{% url 'welcome' %}", 450);
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+      setTimeout(() => window.location.href = "{% url 'welcome' %}", 380);
     }
     function navTo(e, href) {
       e.preventDefault();
-      document.body.classList.replace("page-loaded","page-exit");
-      setTimeout(() => window.location.href = href, 450);
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+      setTimeout(() => window.location.href = href, 380);
     }
   </script>
 </body>

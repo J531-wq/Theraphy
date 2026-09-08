@@ -38,10 +38,13 @@
       align-items: center;
       padding: 60px 20px 48px;
       opacity: 0;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.45s ease;
+      /* CSS fallback: if JS is delayed, fade in automatically after 600ms */
+      animation: fallback-show 0s 0.6s forwards;
     }
-    body.page-loaded { opacity: 1; }
-    body.page-exit   { opacity: 0; }
+    @keyframes fallback-show { to { opacity: 1; } }
+    body.page-loaded { opacity: 1; animation: none; }
+    body.page-exit   { opacity: 0; animation: none; transition: opacity 0.35s ease; }
 
     /* ── Header ── */
     .page-header {
@@ -238,18 +241,32 @@
   </div>
 
   <script>
-    window.addEventListener("load", () => document.body.classList.add("page-loaded"));
+    // DOMContentLoaded + rAF is more reliable than 'load' — fires before
+    // images finish loading so the page is never invisible waiting for assets.
+    document.addEventListener("DOMContentLoaded", () => {
+      requestAnimationFrame(() => document.body.classList.add("page-loaded"));
+    });
+
+    // Handle browser back-forward cache restores (bfcache).
+    // When the browser restores a cached page the 'load' event does NOT fire,
+    // so we listen for 'pageshow' and force the visible state.
+    window.addEventListener("pageshow", (e) => {
+      document.body.classList.remove("page-exit");
+      document.body.classList.add("page-loaded");
+    });
 
     function navTo(e, href) {
       e.preventDefault();
       if (document.body.classList.contains("page-exit")) return;
-      document.body.classList.replace("page-loaded","page-exit");
-      setTimeout(() => window.location.href = href, 420);
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+      setTimeout(() => window.location.href = href, 380);
     }
     function logout() {
       if (document.body.classList.contains("page-exit")) return;
-      document.body.classList.replace("page-loaded","page-exit");
-      setTimeout(() => window.location.href = "{% url 'welcome' %}", 420);
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+      setTimeout(() => window.location.href = "{% url 'welcome' %}", 380);
     }
   </script>
 </body>

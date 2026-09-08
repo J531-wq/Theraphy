@@ -6,9 +6,57 @@ Stack: **Nginx** (reverse proxy + static files) → **Gunicorn** (app server) �
 
 ## 0. Prerequisites
 
-- A VPS running Ubuntu with root access
+- A VPS running Ubuntu, Debian, CentOS/Rocky/AlmaLinux, Alibaba Cloud Linux, or Alpine
 - A domain name (e.g. `mytherapydoctor.com`) with an **A record** pointing to the VPS IP
 - Your secrets ready: `SECRET_KEY`, `GROQ_API_KEY`, ZeptoMail `EMAIL_HOST_PASSWORD`
+
+> **First, identify your OS** → `cat /etc/os-release`
+>
+> - **Debian/Ubuntu** → use the commands below (`apt`, `ufw`, `sudo` group)
+> - **CentOS/Rocky/AlmaLinux/Alibaba Cloud Linux** → see **RHEL-family variant** below
+>   (`dnf` instead of `apt`, `wheel` group instead of `sudo`, `firewalld` instead of `ufw`)
+> - **Alpine** → see **Alpine variant** below (`apk` instead of `apt`, no `ufw`)
+>
+> The Django / gunicorn / nginx / certbot steps (steps 5–12) are identical on
+> RHEL-family and Alpine **except** nginx config goes in `/etc/nginx/conf.d/`
+> on those systems (not `sites-available/`), and you must
+> `setsebool -P httpd_can_network_connect 1` on RHEL-family to let nginx proxy.
+
+---
+
+### RHEL-family variant (CentOS 9 / Rocky / Alma / Alibaba Cloud Linux 3)
+Run as **root** — no deployment user is created (run the app as root or `deploy`):
+
+```bash
+dnf update -y
+dnf install -y epel-release
+dnf install -y python3 python3-pip python3-venv glibc-langpack-en git nginx postgresql-server firewalld
+systemctl enable --now postgresql
+systemctl enable --now firewalld
+systemctl enable --now nginx
+# app user (replaces ufw; firewalld):
+adduser deploy && passwd deploy
+usermod -aG wheel deploy
+echo 'deploy ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/deploy
+mkdir -p /home/deploy/therapy_site && chown -R deploy:deploy /home/deploy/therapy_site
+# SELinux: allow nginx to proxy to gunicorn
+setsebool -P httpd_can_network_connect 1
+firewall-cmd --permanent --add-service=ssh --add-service=http --add-service=https
+firewall-cmd --reload
+```
+
+Continue at **Step 5** below, but use `yum`/`dnf` instead of `apt` when installing,
+place the nginx config at `/etc/nginx/conf.d/therapy_site.conf`, and restart with
+`systemctl restart nginx`. PostgreSQL version on RHEL/CentOS 9: `postgresql-server`
+(currently 15). Adjust the `CREATE USER` syntax if psql gives an error — modern
+psql is fine with `CREATE USER ... WITH PASSWORD;`.
+
+### Alpine variant
+Use `apk add` instead of `apt`/`ufw` (no ufw on Alpine; use `iptables` or the
+cloud provider firewall). Install with: `apk add --no-cache python3 py3-pip git nginx postgresql py3-virtualenv`.
+Create the user with `adduser -D deploy` and add to wheel: `addgroup deploy wheel`.
+Configure nginx the same way as RHEL (drop config in `/etc/nginx/http.d/` on
+Alpine), and start services with `rc-service` instead of `systemctl`.
 
 ---
 

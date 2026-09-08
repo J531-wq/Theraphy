@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Create Account — MyTherapyDoctor</title>
-  <meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="noindex, nofollow">
   {% load static %}
+  <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -56,7 +57,8 @@
       to   { opacity:1; transform:translateY(0); }
     }
 
-    .brand { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+            .brand { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+    .brand-logo { width:32px; height:32px; object-fit:contain; }
     .brand-dot { width:10px; height:10px; border-radius:50%; background:var(--teal); box-shadow:0 0 10px var(--teal-glow); }
     .brand-name { font-size:13px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--teal-light); }
 
@@ -113,8 +115,9 @@
     Back
   </button>
 
-  <div class="card">
+    <div class="card">
     <div class="brand">
+      <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor" class="brand-logo">
       <div class="brand-dot"></div>
       <span class="brand-name">MyTherapyDoctor</span>
     </div>

@@ -30,7 +30,11 @@ Run as **root** — no deployment user is created (run the app as root or `deplo
 ```bash
 dnf update -y
 dnf install -y epel-release
-dnf install -y python3 python3-pip python3-venv glibc-langpack-en git nginx postgresql-server firewalld
+dnf install -y python3 python3-pip glibc-langpack-en git nginx postgresql-server firewalld
+# Django 5.2 needs Python 3.10+ — AlmaLinux 8 ships Python 3.6 by default but
+# provides a python311 module. Use it for the venv (step 6) instead of python3:
+dnf module enable -y python311
+dnf install -y python311 python311-pip
 systemctl enable --now postgresql
 systemctl enable --now firewalld
 systemctl enable --now nginx
@@ -45,11 +49,14 @@ firewall-cmd --permanent --add-service=ssh --add-service=http --add-service=http
 firewall-cmd --reload
 ```
 
-Continue at **Step 5** below, but use `yum`/`dnf` instead of `apt` when installing,
-place the nginx config at `/etc/nginx/conf.d/therapy_site.conf`, and restart with
-`systemctl restart nginx`. PostgreSQL version on RHEL/CentOS 9: `postgresql-server`
-(currently 15). Adjust the `CREATE USER` syntax if psql gives an error — modern
-psql is fine with `CREATE USER ... WITH PASSWORD;`.
+Continue at **Step 5** below, but use `python3.11 -m venv venv` in step 6
+instead of `python3` (see the note right above), use `yum`/`dnf` instead of
+`apt` when installing, place the nginx config at
+`/etc/nginx/conf.d/therapy_site.conf`, and restart with
+`systemctl restart nginx`. PostgreSQL version on RHEL/CentOS 8: `postgresql-server`
+via `dnf module enable -y postgresql:15` (the default PG 13 is too old for
+Django 5.2, which supports PostgreSQL 14+). Adjust the `CREATE USER` syntax if
+psql gives an error — modern psql is fine with `CREATE USER ... WITH PASSWORD;`.
 
 ### Alpine variant
 Use `apk add` instead of `apt`/`ufw` (no ufw on Alpine; use `iptables` or the

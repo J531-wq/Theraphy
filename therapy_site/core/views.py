@@ -2,7 +2,7 @@ import logging
 import random
 
 from django.contrib.auth.hashers import check_password, make_password
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 
 from .forms import (
@@ -418,3 +418,58 @@ def error_404(request, exception=None):
 
 def error_500(request):
     return render(request, "core/500.html", status=500)
+
+
+# ---------------------------------------------------------------------------
+# SEO endpoints (robots.txt + sitemap.xml)
+# ---------------------------------------------------------------------------
+
+BASE_URL = "https://mytherapydoctor.com"
+
+
+def robots_txt(request):
+    """Serve a standard robots.txt that points crawlers to the sitemap."""
+    content = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /admin/\n"
+        "Disallow: /login/\n"
+        "Disallow: /register/\n"
+        "Disallow: /verify-email/\n"
+        "Disallow: /forgot-password/\n"
+        "Disallow: /verify-reset-code/\n"
+        "Disallow: /reset-password/\n"
+        "Disallow: /reset/\n"
+        f"Sitemap: {BASE_URL}/sitemap.xml\n"
+    )
+    return HttpResponse(content, content_type="text/plain")
+
+
+def sitemap_xml(request):
+    """Generate an XML sitemap of all public, indexable pages."""
+    pages = [
+        ("/", "1.0", "daily"),
+        ("/sections/", "0.9", "weekly"),
+        ("/therapy/child/", "0.8", "weekly"),
+        ("/therapy/teen/", "0.8", "weekly"),
+        ("/therapy/trauma/", "0.8", "weekly"),
+        ("/therapy/addiction/", "0.8", "weekly"),
+        ("/therapy/family/", "0.8", "weekly"),
+        ("/therapy/relationship/", "0.8", "weekly"),
+        ("/therapy/general/", "0.8", "weekly"),
+    ]
+    url_entries = "\n".join(
+        f"  <url>\n"
+        f"    <loc>{BASE_URL}{path}</loc>\n"
+        f"    <changefreq>{freq}</changefreq>\n"
+        f"    <priority>{prio}</priority>\n"
+        f"  </url>"
+        for path, prio, freq in pages
+    )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        f"{url_entries}\n"
+        "</urlset>\n"
+    )
+    return HttpResponse(xml, content_type="application/xml")

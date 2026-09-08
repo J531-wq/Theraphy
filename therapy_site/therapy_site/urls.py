@@ -28,6 +28,10 @@ urlpatterns = [
 
     path('', views.welcome, name='welcome'),
 
+    # SEO
+    path('robots.txt', views.robots_txt, name='robots_txt'),
+    path('sitemap.xml', views.sitemap_xml, name='sitemap_xml'),
+
     path('login/', views.login_view, name='login'),
 
     path('register/', views.register_view, name='register'),

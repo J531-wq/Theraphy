@@ -161,12 +161,13 @@
       const input=document.getElementById('user-input');
       recognition.onstart=()=>{isListening=true;btn.classList.add('listening');input.placeholder='Listening… tap mic again to send';};
       recognition.onresult=e=>{
-        let interim='';
-        for(let i=e.resultIndex;i<e.results.length;i++){
-          if(e.results[i].isFinal)voiceTranscript+=e.results[i][0].transcript+' ';
-          else interim+=e.results[i][0].transcript;
+        let final='',interim='';
+        for(let i=0;i<e.results.length;i++){
+          const t=e.results[i][0].transcript;
+          if(e.results[i].isFinal)final+=t+' ';
+          else interim+=t;
         }
-        input.value=(voiceTranscript+interim).trim();autoGrow();
+        input.value=(final+interim).trim();autoGrow();
       };
       recognition.onerror=()=>{recognition.stop();};
       recognition.onend=()=>{

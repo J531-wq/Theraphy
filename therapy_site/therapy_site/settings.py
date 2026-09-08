@@ -18,7 +18,7 @@ from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 
-load_dotenv(Path(__file__).resolve().parents[2] / '.env')
+load_dotenv(Path(__file__).resolve().parent.parent / '.env')
 
 
 def env_bool(name, default=False):
@@ -99,36 +99,40 @@ WSGI_APPLICATION = 'therapy_site.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 database_url = os.getenv('DATABASE_URL', '').strip()
+# Normalise empty / null / none values
 if database_url.lower() in {'', 'none', 'null'}:
     database_url = ''
+# Render / old Heroku use postgres:// — SQLAlchemy / dj-database-url want postgresql://
 if database_url.startswith('postgres://'):
     database_url = 'postgresql://' + database_url.removeprefix('postgres://')
 
-try:
-    database_config = (
-        dj_database_url.parse(
+if database_url:
+    # Production: use the provided PostgreSQL URL
+    try:
+        database_config = dj_database_url.parse(
             database_url,
             conn_max_age=600,
             conn_health_checks=True,
         )
-        if database_url else
-        dj_database_url.config(
-            default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-            conn_max_age=600,
-            conn_health_checks=True,
+    except Exception as exc:
+        raise ImproperlyConfigured(
+            'DATABASE_URL is invalid. Set it to a valid PostgreSQL URL, '
+            'e.g. postgresql://user:password@host:5432/dbname'
+        ) from exc
+
+    if not database_config.get('NAME'):
+        raise ImproperlyConfigured(
+            'DATABASE_URL must include a database name, for example '
+            'postgresql://user:password@host:5432/database.'
         )
-    )
-except (ValueError, dj_database_url.UnknownSchemeError) as exc:
-    raise ImproperlyConfigured(
-        'DATABASE_URL is invalid. Set it to a PostgreSQL connection URL.'
-    ) from exc
+else:
+    # Development: fall back to local SQLite
+    database_config = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 
 DATABASES = {'default': database_config}
-if database_url and not database_config.get('NAME'):
-    raise ImproperlyConfigured(
-        'DATABASE_URL must include a database name, for example '
-        'postgresql://user:password@host:5432/database.'
-    )
 
 
 # Password validation
@@ -183,31 +187,31 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # =========================
-# EMAIL CONFIGURATION
+# EMAIL CONFIGURATION (ZeptoMail SMTP)
 # =========================
 
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.zeptomail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = env_bool('EMAIL_USE_TLS', True)
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_USE_SSL = env_bool('EMAIL_USE_SSL', False)
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'emailapikey')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-EMAIL_BACKEND = os.getenv(
-    'EMAIL_BACKEND',
-    'django.core.mail.backends.smtp.EmailBackend'
-    if EMAIL_HOST_USER else
-    'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = os.getenv(
+    'DEFAULT_FROM_EMAIL', 'info@mytherapydoctor.com'
 )
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '20'))
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'info@mytherapydoctor.com')
+EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '30'))
 
-if not DEBUG and (
-    not EMAIL_HOST_USER or
-    not EMAIL_HOST_PASSWORD or
-    EMAIL_BACKEND.endswith('console.EmailBackend')
-):
+# Fall back to console backend only in DEBUG when no password is set
+if DEBUG and not EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+if not DEBUG and not EMAIL_HOST_PASSWORD:
     raise ImproperlyConfigured(
-        'Production email is not configured. Set EMAIL_HOST_USER and '
-        'EMAIL_HOST_PASSWORD in Render.'
+        'Production email is not configured. Set EMAIL_HOST_PASSWORD '
+        'in your environment variables.'
     )
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

@@ -3,193 +3,174 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register - Therapy Site</title>
-
+  <title>Create Account — MyTherapyDoctor</title>
   {% load static %}
-
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:       #2e7d6e;
+      --teal-light: #3d9e8c;
+      --teal-glow:  rgba(46,125,110,0.35);
+      --glass-bg:   rgba(10,18,16,0.72);
+      --glass-border: rgba(255,255,255,0.08);
+      --input-bg:   rgba(255,255,255,0.05);
+      --input-border: rgba(255,255,255,0.12);
+      --text:       #f0f4f3;
+      --muted:      rgba(240,244,243,0.5);
+    }
+
+    html, body { width:100%; height:100%; font-family:'Inter',sans-serif; }
+
     body {
-      font-family: Arial, sans-serif;
-
-      background:
-        linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
-        url("{% static 'core/Register.jpg.jpeg' %}") no-repeat center center fixed;
-
-      background-size: cover;
-
-      text-align: center;
-      margin: 0;
-      padding: 0;
-
-      width: 100%;
-      height: 100vh;
-      height: 100dvh;
-
-      overflow: hidden;
-
       display: flex;
-      justify-content: center;
       align-items: center;
-
-      /* Smooth page transition */
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      background:
+        linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.35) 100%),
+        url("{% static 'core/Register.jpg.jpeg' %}") no-repeat center center / cover fixed;
       opacity: 0;
-      transition: opacity 0.45s ease;
+      transition: opacity 0.5s ease;
+    }
+    body.page-loaded { opacity: 1; }
+    body.page-exit   { opacity: 0; }
+
+    .card {
+      width: min(460px, 94vw);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      padding: 32px 40px 28px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+      animation: slideUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(28px); }
+      to   { opacity:1; transform:translateY(0); }
     }
 
+    .brand { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+    .brand-dot { width:10px; height:10px; border-radius:50%; background:var(--teal); box-shadow:0 0 10px var(--teal-glow); }
+    .brand-name { font-size:13px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--teal-light); }
 
-    /* =========================
-       PAGE FADE IN
-       ========================= */
+    h1 { font-size:24px; font-weight:700; color:var(--text); margin-bottom:4px; }
+    .subtitle { font-size:13px; color:var(--muted); margin-bottom:20px; }
 
-    body.page-loaded {
-      opacity: 1;
+    .field { margin-bottom: 11px; }
+    .field label { display:block; font-size:11px; font-weight:500; color:var(--muted); letter-spacing:0.6px; text-transform:uppercase; margin-bottom:5px; }
+    .field input {
+      width:100%; padding:11px 16px;
+      background:var(--input-bg); border:1px solid var(--input-border);
+      border-radius:10px; color:var(--text); font-size:14px; font-family:inherit;
+      outline:none; transition:border-color 0.2s, box-shadow 0.2s;
     }
+    .field input::placeholder { color:rgba(255,255,255,0.25); }
+    .field input:focus { border-color:var(--teal); box-shadow:0 0 0 3px var(--teal-glow); }
 
-
-    /* =========================
-       PAGE FADE OUT
-       ========================= */
-
-    body.page-exit {
-      opacity: 0;
+    .btn-primary {
+      width:100%; padding:12px; margin-top:6px;
+      background:linear-gradient(135deg,var(--teal),var(--teal-light));
+      border:none; border-radius:10px; color:#fff;
+      font-size:15px; font-weight:600; font-family:inherit; cursor:pointer;
+      transition:opacity 0.2s,transform 0.15s;
+      box-shadow:0 4px 20px var(--teal-glow);
     }
+    .btn-primary:hover { opacity:0.88; transform:translateY(-1px); }
 
+    .divider { border:none; border-top:1px solid var(--glass-border); margin:18px 0 14px; }
+    .login-row { text-align:center; font-size:13px; color:var(--muted); }
+    .login-row a { color:var(--teal-light); text-decoration:none; font-weight:500; }
+    .login-row a:hover { color:#fff; }
 
-    .register-box {
-      color: white;
-      background: black;
-      width: 350px;
-      margin: 100px auto;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    .error-box {
+      background:rgba(220,53,69,0.12); border:1px solid rgba(220,53,69,0.35);
+      border-radius:8px; padding:10px 14px; margin-top:14px; font-size:13px; color:#f88;
     }
+    .error-box p { margin: 3px 0; }
 
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
+    .back-btn {
+      position:fixed; top:20px; left:20px;
+      display:flex; align-items:center; gap:6px;
+      padding:9px 16px;
+      background:rgba(0,0,0,0.45); border:1px solid var(--glass-border);
+      border-radius:8px; color:var(--text); font-size:13px; font-family:inherit;
+      cursor:pointer; backdrop-filter:blur(10px); transition:background 0.2s; z-index:100;
     }
-
-    /* =========================
-       INPUT PLACEHOLDER TEXT
-       ========================= */
-
-    input::placeholder {
-      color: #888;
-      opacity: 1;
-    }
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      background: #28a745;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #1e7e34;
-    }
-
-
-    /* =========================
-       BACK TO WELCOME BUTTON
-       ========================= */
-
-    .back-button {
-      position: fixed;
-
-      top: 20px;
-      left: 20px;
-
-      padding: 10px 18px;
-
-      border: none;
-      border-radius: 6px;
-
-      background: #6c757d;
-      color: white;
-
-      cursor: pointer;
-
-      z-index: 1000;
-    }
-
-    .back-button:hover {
-      background: #5a6268;
-    }
-
+    .back-btn:hover { background:rgba(255,255,255,0.1); }
   </style>
-  <link rel="stylesheet" href="{% static 'core/responsive.css' %}">
 </head>
-
 <body>
 
-  <!-- Back button -->
-  <button class="back-button" onclick="goBack()">Back to Welcome</button>
+  <button class="back-btn" onclick="goBack()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </button>
 
+  <div class="card">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <span class="brand-name">MyTherapyDoctor</span>
+    </div>
 
-  <div class="register-box">
-    <h2>Create Account</h2>
+    <h1>Create your account</h1>
+    <p class="subtitle">Start your mental wellness journey today</p>
 
     <form method="POST" id="register-form">
       {% csrf_token %}
-
-      {{ form.username }}
-      {{ form.full_name }}
-      {{ form.email }}
-      {{ form.password }}
-      {{ form.confirm_password }}
-
-      <button type="submit">Register</button>
+      <div class="field">
+        <label for="id_full_name">Full Name</label>
+        <input type="text" name="full_name" id="id_full_name" placeholder="Jane Doe" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="id_username">Username</label>
+        <input type="text" name="username" id="id_username" placeholder="Choose a username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="id_email">Email Address</label>
+        <input type="email" name="email" id="id_email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="id_password">Password</label>
+        <input type="password" name="password" id="id_password" placeholder="••••••••" autocomplete="new-password" required>
+      </div>
+      <div class="field">
+        <label for="id_confirm_password">Confirm Password</label>
+        <input type="password" name="confirm_password" id="id_confirm_password" placeholder="••••••••" autocomplete="new-password" required>
+      </div>
+      <button type="submit" class="btn-primary">Create Account</button>
     </form>
 
     {% if error %}
-      <p class="error">{{ error }}</p>
+      <div class="error-box"><p>{{ error }}</p></div>
+    {% endif %}
+    {% if form.errors %}
+      <div class="error-box">
+        {% for field in form %}{% for err in field.errors %}<p>{{ field.label }}: {{ err }}</p>{% endfor %}{% endfor %}
+        {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
+      </div>
     {% endif %}
 
+    <hr class="divider">
+    <p class="login-row">Already have an account? <a href="{% url 'login' %}" onclick="navTo(event,this.href)">Sign in</a></p>
   </div>
 
-
-  <!-- =========================
-       SMOOTH PAGE TRANSITION
-       ========================= -->
-
   <script>
-
-    /* Fade in when Register page loads */
-    window.addEventListener("load", function() {
-      document.body.classList.add("page-loaded");
-    });
-
-
-    /* Fade out before going back to Welcome */
+    window.addEventListener("load", () => document.body.classList.add("page-loaded"));
     function goBack() {
-
-      document.body.classList.remove("page-loaded");
-      document.body.classList.add("page-exit");
-
-      setTimeout(function() {
-        window.location.href = "{% url 'welcome' %}";
-      }, 450);
-
+      document.body.classList.replace("page-loaded","page-exit");
+      setTimeout(() => window.location.href = "{% url 'welcome' %}", 450);
     }
-
-
-    /* Fade out when Register button is submitted */
-    document.getElementById("register-form").addEventListener("submit", function() {
-
-      document.body.classList.remove("page-loaded");
-      document.body.classList.add("page-exit");
-
-    });
-
+    function navTo(e, href) {
+      e.preventDefault();
+      document.body.classList.replace("page-loaded","page-exit");
+      setTimeout(() => window.location.href = href, 450);
+    }
   </script>
-
 </body>
 </html>

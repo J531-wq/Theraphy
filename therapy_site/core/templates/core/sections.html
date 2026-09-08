@@ -3,226 +3,254 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Therapy Sections</title>
+  <title>Therapy Sections — MyTherapyDoctor</title>
   {% load static %}
-
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    /* Playfair Display - custom font for the heading only */
     @font-face {
       font-family: 'Playfair Display';
       src: url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype');
-      font-weight: 600;
-      font-style: italic;
-      font-display: swap;
+      font-weight: 600; font-style: italic; font-display: swap;
     }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:         #2e7d6e;
+      --teal-light:   #3d9e8c;
+      --teal-glow:    rgba(46,125,110,0.3);
+      --glass-bg:     rgba(8,16,14,0.65);
+      --glass-border: rgba(255,255,255,0.08);
+      --text:         #f0f4f3;
+      --muted:        rgba(240,244,243,0.5);
+    }
+
+    html, body { width:100%; min-height:100%; font-family:'Inter',sans-serif; }
 
     body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
       min-height: 100vh;
-      min-width: 100vw;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
       background:
-        linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
-        url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center fixed;
-
-      background-size: cover;
-
-      /* Smooth page transition */
+        linear-gradient(160deg, rgba(0,0,0,0.68) 0%, rgba(0,12,10,0.5) 100%),
+        url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 48px;
       opacity: 0;
-      transition: opacity 0.45s ease;
+      transition: opacity 0.5s ease;
     }
+    body.page-loaded { opacity: 1; }
+    body.page-exit   { opacity: 0; }
 
-    /* Fade the section page in when it loads */
-    body.page-loaded {
-      opacity: 1;
-    }
-
-    /* Fade the section page out before navigating */
-    body.page-exit {
-      opacity: 0;
-    }
-
-    .menu {
-      background: transparent;
-      padding: 40px;
-      border-radius: 0;
-      box-shadow: none;
+    /* ── Header ── */
+    .page-header {
       text-align: center;
+      margin-bottom: 48px;
     }
-
-    h1 {
-      margin-bottom: 30px;
-      font-size: 52px;
+    .brand-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--teal-light);
+      margin-bottom: 14px;
+    }
+    .page-header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(32px, 5vw, 52px);
       font-weight: 600;
       font-style: italic;
-      font-family: 'Playfair Display', Georgia, serif;
-      color: white;
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
+      color: var(--text);
+      text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+      line-height: 1.15;
+    }
+    .page-header p {
+      margin-top: 12px;
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
     }
 
-    ul {
-      list-style: none;
-      padding: 0;
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+      width: 100%;
+      max-width: 1100px;
     }
 
-    li {
-      margin: 18px 0;
-    }
-
-    a {
+    /* ── Card ── */
+    .therapy-card {
+      display: flex;
+      flex-direction: column;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 28px 26px 22px;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
       text-decoration: none;
-      font-size: 24px;
-      color: white;
-      font-weight: bold;
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
-      transition: color 0.2s ease;
-    }
-
-    a:hover {
-      color: #d81515;
-    }
-
-
-    /* =========================
-       LOGOUT BUTTON
-       ========================= */
-
-    .logout-button {
-      margin-top: 25px;
-
-      padding: 10px 22px;
-
-      border: none;
-      border-radius: 6px;
-
-      background: #dc3545;
-      color: white;
-
-      font-size: 16px;
-      font-weight: bold;
-
       cursor: pointer;
-
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-
-      transition: 0.2s ease;
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    }
+    .therapy-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--teal);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.45), 0 0 0 1px var(--teal-glow);
     }
 
-    .logout-button:hover {
-      background: #b02a37;
+    .card-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+      line-height: 1;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .card-arrow {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--teal-light);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: gap 0.2s;
+    }
+    .therapy-card:hover .card-arrow { gap: 10px; }
 
-      transform: translateY(-2px);
+    /* ── Logout ── */
+    .footer-actions {
+      margin-top: 44px;
+      display: flex;
+      justify-content: center;
+    }
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: rgba(220,53,69,0.15);
+      border: 1px solid rgba(220,53,69,0.3);
+      border-radius: 10px;
+      color: #f88;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(220,53,69,0.28);
+      border-color: rgba(220,53,69,0.55);
     }
 
+    @media (max-width: 540px) {
+      body { padding: 48px 14px 40px; }
+      .grid { grid-template-columns: 1fr; }
+    }
   </style>
-  <link rel="stylesheet" href="{% static 'core/responsive.css' %}">
 </head>
-
 <body>
 
-  <div class="menu">
+  <header class="page-header">
+    <p class="brand-label">MyTherapyDoctor</p>
+    <h1>How can we help you today?</h1>
+    <p>Choose a therapy section and start a confidential conversation with your AI therapist.</p>
+  </header>
 
-    <h1>Select a Therapy Section</h1>
+  <div class="grid">
 
-    <ul>
-      <li><a href="{% url 'therapy_section' 'child' %}">Child Therapy</a></li>
-      <li><a href="{% url 'therapy_section' 'teen' %}">Teen Therapy</a></li>
-      <li><a href="{% url 'therapy_section' 'relationship' %}">Relationship Therapy</a></li>
-      <li><a href="{% url 'therapy_section' 'family' %}">Family Therapy</a></li>
-      <li><a href="{% url 'therapy_section' 'trauma' %}">Trauma Therapy</a></li>
-      <li><a href="{% url 'therapy_section' 'addiction' %}">Addiction Therapy</a></li>
-      <li><a href="{% url 'therapy_section' 'stress' %}">General AI search</a></li>
-    </ul>
+    <a class="therapy-card" href="{% url 'therapy_section' 'child' %}" onclick="navTo(event,this.href)">
+      <div class="card-icon">🧒</div>
+      <div class="card-title">Child Therapy</div>
+      <div class="card-desc">Supportive guidance for children navigating emotional, behavioral, and developmental challenges.</div>
+      <div class="card-arrow">Begin session <span>→</span></div>
+    </a>
 
+    <a class="therapy-card" href="{% url 'therapy_section' 'teen' %}" onclick="navTo(event,this.href)">
+      <div class="card-icon">🧑</div>
+      <div class="card-title">Teen Therapy</div>
+      <div class="card-desc">A safe space for teenagers dealing with peer pressure, identity, academic stress, and more.</div>
+      <div class="card-arrow">Begin session <span>→</span></div>
+    </a>
 
-    <!-- Logout Button -->
-    <button class="logout-button" onclick="logout()">Logout</button>
+    <a class="therapy-card" href="{% url 'therapy_section' 'trauma' %}" onclick="navTo(event,this.href)">
+      <div class="card-icon">💔</div>
+      <div class="card-title">Trauma Therapy</div>
+      <div class="card-desc">Compassionate support for processing painful experiences and building emotional resilience.</div>
+      <div class="card-arrow">Begin session <span>→</span></div>
+    </a>
+
+    <a class="therapy-card" href="{% url 'therapy_section' 'family' %}" onclick="navTo(event,this.href)">
+      <div class="card-icon">👨‍👩‍👧</div>
+      <div class="card-title">Family Therapy</div>
+      <div class="card-desc">Tools to strengthen communication, resolve conflict, and improve family bonds.</div>
+      <div class="card-arrow">Begin session <span>→</span></div>
+    </a>
+
+    <a class="therapy-card" href="{% url 'therapy_section' 'relationship' %}" onclick="navTo(event,this.href)">
+      <div class="card-icon">💞</div>
+      <div class="card-title">Relationship Therapy</div>
+      <div class="card-desc">Guidance for building healthy romantic relationships, improving trust and communication.</div>
+      <div class="card-arrow">Begin session <span>→</span></div>
+    </a>
+
+    <a class="therapy-card" href="{% url 'therapy_section' 'addiction' %}" onclick="navTo(event,this.href)">
+      <div class="card-icon">🌿</div>
+      <div class="card-title">Addiction Support</div>
+      <div class="card-desc">Non-judgmental help navigating addiction, recovery, cravings, and relapse prevention.</div>
+      <div class="card-arrow">Begin session <span>→</span></div>
+    </a>
+
+    <a class="therapy-card" href="{% url 'therapy_section' 'stress' %}" onclick="navTo(event,this.href)">
+      <div class="card-icon">🔍</div>
+      <div class="card-title">General AI Search</div>
+      <div class="card-desc">Ask anything — general knowledge, advice, explanations, and more with full conversation context.</div>
+      <div class="card-arrow">Begin session <span>→</span></div>
+    </a>
 
   </div>
 
+  <div class="footer-actions">
+    <button class="btn-logout" onclick="logout()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign Out
+    </button>
+  </div>
 
-  <!-- Smooth navigation JavaScript -->
   <script>
+    window.addEventListener("load", () => document.body.classList.add("page-loaded"));
 
-    /* =========================
-       FADE IN WHEN PAGE LOADS
-       ========================= */
-
-    window.addEventListener("load", function() {
-      document.body.classList.add("page-loaded");
-    });
-
-
-    /* =========================
-       FADE OUT WHEN LEAVING
-       ========================= */
-
-    document.querySelectorAll("a").forEach(function(link) {
-
-      link.addEventListener("click", function(event) {
-
-        /* Allow special browser clicks */
-        if (
-          event.ctrlKey ||
-          event.shiftKey ||
-          event.metaKey ||
-          event.button !== 0
-        ) {
-          return;
-        }
-
-        event.preventDefault();
-
-        const destination = this.href;
-
-        /* Prevent multiple clicks */
-        if (document.body.classList.contains("page-exit")) {
-          return;
-        }
-
-        /* Fade section page out */
-        document.body.classList.remove("page-loaded");
-        document.body.classList.add("page-exit");
-
-        /* Navigate after fade-out finishes */
-        setTimeout(function() {
-          window.location.href = destination;
-        }, 450);
-
-      });
-
-    });
-
-
-    /* =========================
-       LOGOUT
-       ========================= */
-
-    function logout() {
-
-      /* Prevent multiple clicks */
-      if (document.body.classList.contains("page-exit")) {
-        return;
-      }
-
-      /* Fade section page out */
-      document.body.classList.remove("page-loaded");
-      document.body.classList.add("page-exit");
-
-      /* Go directly to Welcome page */
-      setTimeout(function() {
-        window.location.href = "{% url 'welcome' %}";
-      }, 450);
-
+    function navTo(e, href) {
+      e.preventDefault();
+      if (document.body.classList.contains("page-exit")) return;
+      document.body.classList.replace("page-loaded","page-exit");
+      setTimeout(() => window.location.href = href, 420);
     }
-
+    function logout() {
+      if (document.body.classList.contains("page-exit")) return;
+      document.body.classList.replace("page-loaded","page-exit");
+      setTimeout(() => window.location.href = "{% url 'welcome' %}", 420);
+    }
   </script>
-
 </body>
 </html>

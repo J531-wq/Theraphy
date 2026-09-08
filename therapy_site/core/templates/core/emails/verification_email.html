@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify Your Email – MyTherapyDoctor</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f7f6; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #2e7d6e 0%, #4CAF93 100%); padding: 40px 40px 30px; text-align: center; }
+    .header h1 { margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+    .header p { margin: 8px 0 0; color: rgba(255,255,255,0.85); font-size: 14px; }
+    .body { padding: 40px; }
+    .body p { color: #444; font-size: 15px; line-height: 1.7; margin: 0 0 16px; }
+    .code-box { background: #f0faf7; border: 2px dashed #2e7d6e; border-radius: 10px; text-align: center; padding: 24px 16px; margin: 28px 0; }
+    .code-box span { display: block; font-size: 42px; font-weight: 800; letter-spacing: 10px; color: #2e7d6e; }
+    .code-box small { display: block; margin-top: 8px; font-size: 12px; color: #888; }
+    .footer { background: #f9f9f9; border-top: 1px solid #ececec; padding: 24px 40px; text-align: center; }
+    .footer p { margin: 0; font-size: 12px; color: #aaa; line-height: 1.6; }
+    .footer a { color: #2e7d6e; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1>MyTherapyDoctor</h1>
+      <p>Your mental wellness companion</p>
+    </div>
+    <div class="body">
+      <p>Hi <strong>{{ full_name }}</strong>,</p>
+      <p>Thank you for creating your MyTherapyDoctor account. To complete your registration, please use the verification code below:</p>
+      <div class="code-box">
+        <span>{{ verification_code }}</span>
+        <small>This code expires after use. Do not share it with anyone.</small>
+      </div>
+      <p>Enter this code on the verification page to activate your account and start your wellness journey.</p>
+      <p>If you did not create this account, you can safely ignore this email.</p>
+      <p>Warm regards,<br/><strong>The MyTherapyDoctor Team</strong></p>
+    </div>
+    <div class="footer">
+      <p>
+        &copy; 2025 MyTherapyDoctor &bull;
+        <a href="https://mytherapydoctor.com">mytherapydoctor.com</a><br/>
+        This is an automated message — please do not reply directly to this email.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

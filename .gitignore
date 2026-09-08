@@ -7,3 +7,9 @@ therapy_site/*.py[cod]
 therapy_site/**/*.py[cod]
 therapy_site/staticfiles/
 therapy_site/*.log
+
+# Added by GitGuard
+venv/
+
+# Added by GitGuard
+__pycache__/

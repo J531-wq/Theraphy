@@ -3,553 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>General AI Search</title>
-
+  <title>General AI Search — MyTherapyDoctor</title>
   {% load static %}
-
   <style>
-
-    /* =========================
-       CUSTOM FONT
-       ========================= */
-
-    @font-face {
-      font-family: 'Playfair Display';
-      src: url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype');
-      font-weight: 600;
-      font-style: italic;
-      font-display: swap;
-    }
-
-
-    /* =========================
-       FULL SCREEN / NO PAGE SCROLL
-       ========================= */
-
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: Arial, sans-serif;
-
-      width: 100%;
-      height: 100vh;
-      height: 100dvh;
-
-      margin: 0;
-      padding: 0;
-
-      background-image: url("/static/core/anxity.jpg.jpeg");
-
-      position: fixed;
-      top: 0;
-      left: 0;
-
-      overflow: hidden;
-
-      box-sizing: border-box;
-
-      /* =========================
-         PAGE TRANSITION
-         ========================= */
-
-      opacity: 0;
-      transition: opacity 0.45s ease;
-    }
-
-
-    /* =========================
-       PAGE FADE-IN
-       ========================= */
-
-    body.page-loaded {
-      opacity: 1;
-    }
-
-
-    /* =========================
-       PAGE FADE-OUT
-       ========================= */
-
-    body.page-exit {
-      opacity: 0;
-    }
-
-
-    /* =========================
-       BACK BUTTON
-       ========================= */
-
-    .back-button {
-      position: fixed;
-
-      top: 20px;
-      left: 20px;
-
-      padding: 10px 18px;
-
-      border: none;
-      border-radius: 6px;
-
-      background: #6c757d;
-      color: white;
-
-      cursor: pointer;
-
-      z-index: 1000;
-    }
-
-    .back-button:hover {
-      background: #5a6268;
-    }
-
-
-    /* =========================
-       FULL SCREEN CONTENT
-       ========================= */
-
-    .content {
-      position: fixed;
-
-      top: 0;
-      left: 0;
-
-      width: 100%;
-      height: 100vh;
-      height: 100dvh;
-
-      margin: 0;
-      padding: 80px 40px 30px;
-
-      box-sizing: border-box;
-
-      background-image: url("/static/core/anxity.jpg.jpeg");
-
-      text-align: center;
-
-      display: flex;
-      flex-direction: column;
-
-      overflow: hidden;
-    }
-
-
-    /* =========================
-       TITLE
-       ========================= */
-
-    h1 {
-      flex-shrink: 0;
-
-      margin: 20px 0;
-
-      font-size: 42px;
-
-      color: white;
-
-      font-family: 'Playfair Display', Georgia, serif;
-      font-weight: 600;
-      font-style: italic;
-
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
-    }
-
-
-    /* =========================
-       DESCRIPTION
-       ========================= */
-
-    p {
-      flex-shrink: 0;
-
-      line-height: 1.6;
-
-      max-width: 900px;
-
-      margin: 0 auto;
-
-      font-size: 18px;
-
-      color: white;
-
-      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.8);
-    }
-
-
-    /* =========================
-       CHAT BOX
-       OUTER BOX DOES NOT SCROLL
-       ========================= */
-
-    .chat-box {
-      width: 100%;
-      max-width: 1100px;
-
-      margin: 35px auto 0;
-
-      flex: 1;
-
-      min-height: 0;
-
-      box-sizing: border-box;
-
-      text-align: left;
-
-      border: 1px solid #ccc;
-
-      border-radius: 8px;
-
-      padding: 20px;
-
-      background: #fafafa;
-
-      overflow: hidden;
-
-      display: flex;
-      flex-direction: column;
-    }
-
-
-    /* =========================
-       CHAT MESSAGES
-       ONLY THIS AREA SCROLLS
-       ========================= */
-
-    .chat-messages {
-      flex: 1;
-
-      min-height: 0;
-
-      overflow-y: auto;
-      overflow-x: hidden;
-
-      padding-right: 8px;
-
-      scroll-behavior: smooth;
-    }
-
-
-    /* =========================
-       CHAT INPUT
-       ALWAYS VISIBLE
-       ========================= */
-
-    .chat-input {
-      width: 100%;
-      max-width: 1100px;
-
-      margin: 10px auto 0;
-
-      display: flex;
-
-      gap: 10px;
-
-      flex-shrink: 0;
-
-      box-sizing: border-box;
-    }
-
-
-    .chat-input input {
-      flex: 1;
-
-      min-width: 0;
-
-      padding: 12px;
-
-      border: 1px solid #ccc;
-
-      border-radius: 5px;
-
-      box-sizing: border-box;
-
-      outline: none;
-    }
-
-    .chat-input input:focus {
-      border-color: #007BFF;
-    }
-
-
-    .chat-input button {
-      padding: 10px 20px;
-
-      border: none;
-
-      border-radius: 5px;
-
-      background: #007BFF;
-
-      color: white;
-
-      cursor: pointer;
-
-      flex-shrink: 0;
-    }
-
-    .chat-input button:hover {
-      background: #0056b3;
-    }
-
-
-    /* =========================
-       MESSAGES
-       ========================= */
-
-    .message {
-      margin: 8px 0;
-
-      line-height: 1.5;
-
-      word-wrap: break-word;
-
-      overflow-wrap: anywhere;
-    }
-
-    .user {
-      color: #007BFF;
-      font-weight: bold;
-    }
-
-    .ai {
-      color: #28a745;
-      font-weight: bold;
-    }
-
-
-    /* =========================
-       MOBILE
-       ========================= */
-
-    @media (max-width: 768px) {
-
-      .content {
-        padding: 70px 15px 20px;
-      }
-
-      .back-button {
-        top: 15px;
-        left: 15px;
-
-        padding: 8px 14px;
-
-        font-size: 14px;
-      }
-
-      h1 {
-        font-size: 30px;
-
-        margin: 15px 0;
-      }
-
-      p {
-        font-size: 16px;
-
-        line-height: 1.5;
-      }
-
-      .chat-box {
-        margin-top: 20px;
-
-        padding: 15px;
-
-        border-radius: 8px;
-      }
-
-      .chat-input {
-        gap: 6px;
-      }
-
-      .chat-input input {
-        padding: 10px;
-
-        font-size: 14px;
-      }
-
-      .chat-input button {
-        padding: 10px 15px;
-
-        font-size: 14px;
-      }
-
-      .message {
-        font-size: 14px;
-      }
-    }
-
-
-    /* =========================
-       VERY SMALL PHONES
-       ========================= */
-
-    @media (max-width: 400px) {
-
-      .content {
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-
-      h1 {
-        font-size: 26px;
-      }
-
-      p {
-        font-size: 14px;
-      }
-
-      .chat-box {
-        padding: 10px;
-      }
-
-      .chat-input button {
-        padding: 10px 12px;
-      }
-    }
-
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @font-face { font-family:'Playfair Display'; src:url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype'); font-weight:600; font-style:italic; font-display:swap; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--accent:#60c4ff;--accent-dark:#2980b9;--accent-glow:rgba(96,196,255,0.25);--glass-bg:rgba(4,10,18,0.70);--glass-border:rgba(255,255,255,0.08);--text:#edf4ff;--muted:rgba(237,244,255,0.5);--user-color:#60c4ff;--ai-color:#60c4ff}
+    html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif}
+    body{display:flex;flex-direction:column;height:100vh;height:100dvh;background:linear-gradient(160deg,rgba(0,0,0,0.78) 0%,rgba(4,10,24,0.60) 100%),url("{% static 'core/anxity.jpg.jpeg' %}") no-repeat center center/cover fixed;opacity:0;transition:opacity 0.45s ease}
+    body.page-loaded{opacity:1} body.page-exit{opacity:0}
+    .topbar{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:rgba(0,0,0,0.40);backdrop-filter:blur(14px);border-bottom:1px solid var(--glass-border)}
+    .topbar-left{display:flex;align-items:center;gap:12px}
+    .back-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,0.06);border:1px solid var(--glass-border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;transition:background 0.2s}
+    .back-btn:hover{background:rgba(255,255,255,0.12)}
+    .section-badge{display:flex;align-items:center;gap:8px}
+    .badge-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent-glow);animation:pulse 2.5s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.3)}}
+    .section-name{font-size:15px;font-weight:700;color:var(--text);font-family:'Playfair Display',Georgia,serif;font-style:italic}
+    .therapist-tag{font-size:11px;font-weight:500;color:var(--muted)}
+    .brand-tag{font-size:11px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent);opacity:0.7}
+    .chat-wrap{flex:1;min-height:0;display:flex;flex-direction:column;padding:20px 20px 0;max-width:900px;width:100%;margin:0 auto}
+    .chat-messages{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px 4px 16px;scroll-behavior:smooth;display:flex;flex-direction:column;gap:10px}
+    .chat-messages::-webkit-scrollbar{width:4px} .chat-messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:4px}
+    .msg{display:flex;flex-direction:column;max-width:78%}
+    .msg.user{align-self:flex-end;align-items:flex-end} .msg.ai{align-self:flex-start;align-items:flex-start}
+    .msg-meta{font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:5px;color:var(--muted)}
+    .msg.user .msg-meta{color:var(--user-color)} .msg.ai .msg-meta{color:var(--accent)}
+    .bubble{padding:12px 16px;border-radius:16px;font-size:14px;line-height:1.65;word-wrap:break-word;overflow-wrap:anywhere}
+    .msg.user .bubble{background:linear-gradient(135deg,rgba(96,196,255,0.18),rgba(96,196,255,0.10));border:1px solid rgba(96,196,255,0.2);border-bottom-right-radius:4px;color:var(--text)}
+    .msg.ai .bubble{background:var(--glass-bg);border:1px solid var(--glass-border);border-bottom-left-radius:4px;color:var(--text);backdrop-filter:blur(10px)}
+    .typing .bubble{display:flex;align-items:center;gap:5px;padding:14px 18px}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:blink 1.4s ease-in-out infinite}
+    .dot:nth-child(2){animation-delay:0.2s} .dot:nth-child(3){animation-delay:0.4s}
+    @keyframes blink{0%,80%,100%{opacity:0.25;transform:scale(0.85)}40%{opacity:1;transform:scale(1.1)}}
+    .input-bar{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:14px 0 20px}
+    .input-bar input{flex:1;min-width:0;padding:14px 18px;background:rgba(255,255,255,0.07);border:1px solid var(--glass-border);border-radius:12px;color:var(--text);font-size:15px;font-family:inherit;outline:none;transition:border-color 0.2s,box-shadow 0.2s;backdrop-filter:blur(8px)}
+    .input-bar input::placeholder{color:rgba(255,255,255,0.25)}
+    .input-bar input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+    .send-btn{flex-shrink:0;width:48px;height:48px;background:linear-gradient(135deg,var(--accent-dark),var(--accent));border:none;border-radius:12px;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity 0.2s,transform 0.15s;box-shadow:0 4px 16px var(--accent-glow)}
+    .send-btn:hover{opacity:0.85;transform:scale(1.05)}
+
+    /* suggested prompts */
+    .suggestions{display:flex;flex-wrap:wrap;gap:8px;padding:0 4px 16px}
+    .suggestion-chip{padding:7px 14px;background:rgba(96,196,255,0.08);border:1px solid rgba(96,196,255,0.2);border-radius:20px;color:var(--text);font-size:12px;cursor:pointer;transition:background 0.2s,border-color 0.2s;white-space:nowrap}
+    .suggestion-chip:hover{background:rgba(96,196,255,0.18);border-color:rgba(96,196,255,0.4)}
+
+    @media(max-width:600px){.chat-wrap{padding:12px 12px 0}.topbar{padding:12px 16px}.brand-tag{display:none}.bubble{font-size:13px}.msg{max-width:90%}.suggestions{display:none}}
   </style>
-  <link rel="stylesheet" href="{% static 'core/responsive.css' %}">
 </head>
-
-<body class="chat-page">
-
-  <!-- Back button fixed top-left -->
-  <button class="back-button" onclick="goBack()">Back to Sections</button>
-
-
-  <div class="content">
-
-    <h1>General AI Search</h1>
-
-    <p>
-      Feel free to ask me any question in your mind and I will give you an answer.
-      I can help with general questions, information, explanations, ideas, and many
-      other topics. Please note that I cannot generate images.
-    </p>
-
-
-    <!-- Chat Section -->
-    <div class="chat-box" id="chat-box">
-
-      <!-- ONLY THIS AREA SCROLLS -->
-      <div class="chat-messages" id="chat-messages">
-
-        <div class="message">
-          <span class="ai">GENERAL AI ASSISTANT:</span>
-          Hello! Feel free to ask me anything. How can I help you today?
-        </div>
-
-      </div>
-
+<body>
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" onclick="goBack()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Sections</button>
+      <div class="section-badge"><div class="badge-dot"></div><div><div class="section-name">General AI Search</div><div class="therapist-tag">Ask me anything</div></div></div>
     </div>
-
-
-    <!-- Chat Input -->
-    <div class="chat-input">
-
-      <input
-        type="text"
-        id="user-input"
-        placeholder="Type your message..."
-      >
-
-      <button onclick="sendMessage()">Send</button>
-
-    </div>
-
+    <span class="brand-tag">MyTherapyDoctor</span>
   </div>
 
+  <div class="chat-wrap">
+    <div class="chat-messages" id="chat-messages">
+      {% if chat_history %}{% for chat in chat_history %}
+        <div class="msg {% if chat.role == 'user' %}user{% else %}ai{% endif %}">
+          <div class="msg-meta">{% if chat.role == 'user' %}You{% else %}AI Assistant{% endif %}</div>
+          <div class="bubble">{{ chat.content }}</div>
+        </div>
+      {% endfor %}{% else %}
+        <div class="msg ai"><div class="msg-meta">AI Assistant</div><div class="bubble">Hello! I'm your General AI Assistant. I can help with almost anything — questions, explanations, advice, or just a conversation. What's on your mind?</div></div>
+      {% endif %}
+    </div>
+
+    {% if not chat_history %}
+    <div class="suggestions" id="suggestions">
+      <span class="suggestion-chip" onclick="useSuggestion(this)">How do I manage stress?</span>
+      <span class="suggestion-chip" onclick="useSuggestion(this)">Tips for better sleep</span>
+      <span class="suggestion-chip" onclick="useSuggestion(this)">What is mindfulness?</span>
+      <span class="suggestion-chip" onclick="useSuggestion(this)">How to set healthy boundaries</span>
+    </div>
+    {% endif %}
+
+    <div class="input-bar">
+      <input type="text" id="user-input" placeholder="Ask anything…" autocomplete="off">
+      <button class="send-btn" onclick="sendMessage()" aria-label="Send"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+  </div>
 
   <script>
-    /* =========================
-       PAGE FADE-IN
-       ========================= */
+    window.addEventListener("DOMContentLoaded",()=>requestAnimationFrame(()=>document.body.classList.add("page-loaded")));
+    const chatMessages=document.getElementById("chat-messages");
+    chatMessages.scrollTop=chatMessages.scrollHeight;
 
-    window.addEventListener("DOMContentLoaded", function() {
-      requestAnimationFrame(function() {
-        document.body.classList.add("page-loaded");
-      });
-    });
+    function goBack(){if(document.body.classList.contains("page-exit"))return;document.body.classList.replace("page-loaded","page-exit");setTimeout(()=>window.location.href="{% url 'sections' %}",420);}
 
+    document.getElementById("user-input").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();}});
 
-    /* =========================
-       BACK TO SECTIONS
-       ========================= */
-
-    function goBack() {
-      if (document.body.classList.contains("page-exit")) {
-        return;
-      }
-
-      document.body.classList.remove("page-loaded");
-      document.body.classList.add("page-exit");
-
-      setTimeout(function() {
-        window.location.href = "{% url 'sections' %}";
-      }, 450);
+    function useSuggestion(el){
+      document.getElementById("user-input").value=el.textContent;
+      const s=document.getElementById("suggestions");if(s)s.style.display="none";
+      sendMessage();
     }
 
-
-    /* =========================
-       CHAT FUNCTION
-       ========================= */
-
-    function sendMessage() {
-      const input = document.getElementById("user-input");
-      const chatBox = document.getElementById("chat-messages");
-
-      if (input.value.trim() !== "") {
-
-        // USER MESSAGE
-        const userMsg = document.createElement("div");
-
-        userMsg.classList.add("message");
-
-        userMsg.innerHTML =
-          "<span class='user'>You:</span> " + input.value;
-
-        chatBox.appendChild(userMsg);
-
-
-        // Send to Django view
-        fetch("{% url 'general_ai_search' %}", {
-          method: "POST",
-
-          headers: {
-            "X-CSRFToken": "{{ csrf_token }}",
-          },
-
-          body: new URLSearchParams({
-            message: input.value
-          })
-        })
-        .then(response => response.json())
-        .then(data => {
-
-          const aiMsg = document.createElement("div");
-
-          aiMsg.classList.add("message");
-
-          aiMsg.innerHTML =
-            "<span class='ai'>GENERAL AI ASSISTANT:</span> " +
-            data.reply;
-
-          chatBox.appendChild(aiMsg);
-
-          chatBox.scrollTop = chatBox.scrollHeight;
-        });
-
-
-        // Clear input
-        input.value = "";
-      }
+    function sendMessage(){
+      const input=document.getElementById("user-input");
+      const msg=input.value.trim();if(!msg)return;
+      const s=document.getElementById("suggestions");if(s)s.style.display="none";
+      appendMsg("user","You",msg);input.value="";
+      const tid=appendTyping();
+      fetch("{% url 'general_ai_search' %}",{
+        method:"POST",
+        headers:{"X-CSRFToken":"{{ csrf_token }}"},
+        body:new URLSearchParams({message:msg})
+      })
+      .then(r=>r.json())
+      .then(data=>{removeTyping(tid);appendMsg("ai","AI Assistant",data.reply||"Sorry, I couldn't process that.");})
+      .catch(()=>{removeTyping(tid);appendMsg("ai","AI Assistant","Sorry, something went wrong. Please try again.");});
     }
+
+    function appendMsg(role,name,text){const d=document.createElement("div");d.className="msg "+role;d.innerHTML=`<div class="msg-meta">${name}</div><div class="bubble">${escHtml(text)}</div>`;chatMessages.appendChild(d);chatMessages.scrollTop=chatMessages.scrollHeight;}
+    function appendTyping(){const id="t"+Date.now();const d=document.createElement("div");d.className="msg ai typing";d.id=id;d.innerHTML=`<div class="msg-meta">AI Assistant</div><div class="bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;chatMessages.appendChild(d);chatMessages.scrollTop=chatMessages.scrollHeight;return id;}
+    function removeTyping(id){const el=document.getElementById(id);if(el)el.remove();}
+    function escHtml(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");}
   </script>
-
-
 </body>
 </html>

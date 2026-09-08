@@ -112,6 +112,13 @@ urlpatterns = [
         name='therapy_section'
     ),
 
+    # Switch to a past chat session
+    path(
+        'therapy/<str:section>/session/<int:session_id>/',
+        views.switch_session,
+        name='switch_session'
+    ),
+
     # ✅ NEW route to reset users (preserves superuser)
     path(
         'reset/',

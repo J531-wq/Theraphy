@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welcome to MyTherapyDoctor</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f7f6; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #2e7d6e 0%, #4CAF93 100%); padding: 50px 40px 40px; text-align: center; }
+    .header h1 { margin: 0 0 6px; color: #ffffff; font-size: 30px; font-weight: 800; }
+    .header p { margin: 0; color: rgba(255,255,255,0.9); font-size: 16px; }
+    .body { padding: 40px; }
+    .body h2 { color: #2e7d6e; font-size: 20px; margin: 0 0 12px; }
+    .body p { color: #444; font-size: 15px; line-height: 1.8; margin: 0 0 16px; }
+    .services { margin: 28px 0; }
+    .service-item { display: flex; align-items: flex-start; margin-bottom: 14px; }
+    .service-icon { font-size: 20px; margin-right: 12px; flex-shrink: 0; line-height: 1.5; }
+    .service-text { color: #444; font-size: 14px; line-height: 1.6; }
+    .service-text strong { color: #2e7d6e; }
+    .cta-wrap { text-align: center; margin: 32px 0 24px; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #2e7d6e, #4CAF93); color: #fff; text-decoration: none; font-size: 16px; font-weight: 700; padding: 16px 40px; border-radius: 30px; letter-spacing: 0.5px; }
+    .divider { border: none; border-top: 1px solid #ececec; margin: 30px 0; }
+    .footer { background: #f9f9f9; border-top: 1px solid #ececec; padding: 24px 40px; text-align: center; }
+    .footer p { margin: 0; font-size: 12px; color: #aaa; line-height: 1.6; }
+    .footer a { color: #2e7d6e; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h1>Welcome to MyTherapyDoctor</h1>
+      <p>Your mental wellness journey starts here</p>
+    </div>
+    <div class="body">
+      <h2>Hi {{ full_name }}, you're all set! 🎉</h2>
+      <p>
+        Your account has been verified and is now active. We're truly glad you've taken this step
+        toward better mental wellbeing. You now have access to a range of AI-powered therapy
+        support services, available to you any time of day.
+      </p>
+
+      <div class="services">
+        <div class="service-item">
+          <div class="service-icon">🧒</div>
+          <div class="service-text"><strong>Child Therapy</strong> — Supportive guidance for children navigating emotional challenges.</div>
+        </div>
+        <div class="service-item">
+          <div class="service-icon">🧑</div>
+          <div class="service-text"><strong>Teen Therapy</strong> — A safe space for teenagers to talk about stress, identity, and more.</div>
+        </div>
+        <div class="service-item">
+          <div class="service-icon">💔</div>
+          <div class="service-text"><strong>Trauma Therapy</strong> — Compassionate support for healing from painful experiences.</div>
+        </div>
+        <div class="service-item">
+          <div class="service-icon">👨‍👩‍👧</div>
+          <div class="service-text"><strong>Family Therapy</strong> — Tools to strengthen communication and family bonds.</div>
+        </div>
+        <div class="service-item">
+          <div class="service-icon">💞</div>
+          <div class="service-text"><strong>Relationship Therapy</strong> — Guidance for building and maintaining healthy relationships.</div>
+        </div>
+        <div class="service-item">
+          <div class="service-icon">🌿</div>
+          <div class="service-text"><strong>Addiction Support</strong> — Non-judgmental help on the road to recovery.</div>
+        </div>
+      </div>
+
+      <div class="cta-wrap">
+        <a href="https://mytherapydoctor.com/sections/" class="cta-btn">Start Your Session</a>
+      </div>
+
+      <hr class="divider"/>
+
+      <p style="font-size:13px; color:#888;">
+        Remember, this platform provides AI-assisted wellness support and is not a substitute for
+        professional medical or psychiatric care. If you are in crisis, please contact a licensed
+        mental health professional or emergency services immediately.
+      </p>
+
+      <p>With care,<br/><strong>The MyTherapyDoctor Team</strong></p>
+    </div>
+    <div class="footer">
+      <p>
+        &copy; 2025 MyTherapyDoctor &bull;
+        <a href="https://mytherapydoctor.com">mytherapydoctor.com</a><br/>
+        You're receiving this because you just created an account with us.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

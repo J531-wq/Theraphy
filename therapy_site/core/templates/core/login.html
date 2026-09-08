@@ -1,213 +1,258 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - Therapy Site</title>{% load static %}
-
+  <title>Sign In — MyTherapyDoctor</title>
+  {% load static %}
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-      background:
-        linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
-        url("{% static 'core/Login.jpg.jpeg' %}") no-repeat center center fixed;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      background-size: cover;
+    :root {
+      --teal:       #2e7d6e;
+      --teal-light: #3d9e8c;
+      --teal-glow:  rgba(46,125,110,0.35);
+      --glass-bg:   rgba(10,18,16,0.72);
+      --glass-border: rgba(255,255,255,0.08);
+      --input-bg:   rgba(255,255,255,0.05);
+      --input-border: rgba(255,255,255,0.12);
+      --text:       #f0f4f3;
+      --muted:      rgba(240,244,243,0.5);
+    }
 
-      text-align: center;
-      margin: 0;
-      padding: 0;
-
-      width: 100%;
-      height: 100vh;
-      height: 100dvh;
-
+    html, body {
+      width: 100%; height: 100%;
+      font-family: 'Inter', sans-serif;
       overflow: hidden;
+    }
 
+    body {
       display: flex;
-      justify-content: center;
       align-items: center;
-
-      /* Smooth page transition */
+      justify-content: center;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.35) 100%),
+        url("{% static 'core/Login.jpg.jpeg' %}") no-repeat center center / cover fixed;
       opacity: 0;
-      transition: opacity 0.45s ease;
+      transition: opacity 0.5s ease;
+    }
+    body.page-loaded { opacity: 1; }
+    body.page-exit   { opacity: 0; }
+
+    /* ── Card ── */
+    .card {
+      width: min(420px, 94vw);
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      padding: 44px 40px 36px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.55), 0 0 0 1px var(--glass-border);
+      animation: slideUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes slideUp {
+      from { opacity:0; transform: translateY(28px); }
+      to   { opacity:1; transform: translateY(0); }
     }
 
-
-    /* =========================
-       PAGE FADE IN
-       ========================= */
-
-    body.page-loaded {
-      opacity: 1;
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .brand-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 10px var(--teal-glow);
+    }
+    .brand-name {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--teal-light);
     }
 
-
-    /* =========================
-       PAGE FADE OUT
-       ========================= */
-
-    body.page-exit {
-      opacity: 0;
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 6px;
     }
-
-
-    .login-box {
-      color: white;
-      background: black;
-      width: 300px;
-      margin: 100px auto;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-    }
-
-    input::placeholder {
-      color: #888;
-      opacity: 1;
-    }
-
-    button {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      background: #007BFF;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #0056b3;
-    }
-
-
-    /* =========================
-       FORGOT PASSWORD / USERNAME BUTTON
-       ========================= */
-
-    .forgot-password {
-      display: block;
-
-      margin: 12px auto 0;
-
-      padding: 8px 15px;
-
-      border: none;
-      border-radius: 5px;
-
-      background: transparent;
-      color: #4da6ff;
-
-      cursor: pointer;
-
-      text-decoration: none;
-
+    .subtitle {
       font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 32px;
     }
 
-    .forgot-password:hover {
-      color: #80bfff;
-      text-decoration: underline;
+    /* ── Fields ── */
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .field input {
+      width: 100%;
+      padding: 13px 16px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input::placeholder { color: rgba(255,255,255,0.25); }
+    .field input:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px var(--teal-glow);
     }
 
-
-    .error {
-      color: red;
-      margin-top: 10px;
-    }
-
-
-    /* =========================
-       BACK TO WELCOME BUTTON
-       ========================= */
-
-    .back-button {
-      position: fixed;
-
-      top: 20px;
-      left: 20px;
-
-      padding: 10px 18px;
-
+    /* ── Button ── */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
       border: none;
-      border-radius: 6px;
-
-      background: #6c757d;
-      color: white;
-
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
       cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: opacity 0.2s, transform 0.15s;
+      box-shadow: 0 4px 20px var(--teal-glow);
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
 
-      z-index: 1000;
+    /* ── Links & extras ── */
+    .forgot-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--teal-light);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .forgot-link:hover { color: #fff; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--glass-border);
+      margin: 24px 0 18px;
+    }
+    .register-row {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .register-row a {
+      color: var(--teal-light);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .register-row a:hover { color: #fff; }
+
+    /* ── Error ── */
+    .error-box {
+      background: rgba(220,53,69,0.12);
+      border: 1px solid rgba(220,53,69,0.35);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: #f88;
     }
 
-    .back-button:hover {
-      background: #5a6268;
+    /* ── Back button ── */
+    .back-btn {
+      position: fixed;
+      top: 20px; left: 20px;
+      display: flex; align-items: center; gap: 6px;
+      padding: 9px 16px;
+      background: rgba(0,0,0,0.45);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: background 0.2s;
+      z-index: 100;
     }
-
+    .back-btn:hover { background: rgba(255,255,255,0.1); }
+    .back-btn svg { flex-shrink: 0; }
   </style>
-  <link rel="stylesheet" href="{% static 'core/responsive.css' %}">
-</head><body>  <!-- Back button --><button class="back-button" onclick="goBack()">Back to Welcome</button>
+</head>
+<body>
 
-  <div class="login-box">
-    <h2>Login</h2><form method="POST" id="login-form">
-  {% csrf_token %}
+  <button class="back-btn" onclick="goBack()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </button>
 
-  {{ form.username }}
-  {{ form.password }}
+  <div class="card">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <span class="brand-name">MyTherapyDoctor</span>
+    </div>
 
-  <button type="submit">Login</button>
-</form>
+    <h1>Welcome back</h1>
+    <p class="subtitle">Sign in to continue your wellness journey</p>
 
+    <form method="POST" id="login-form">
+      {% csrf_token %}
+      <div class="field">
+        <label for="id_username">Username</label>
+        <input type="text" name="username" id="id_username" placeholder="Your username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="id_password">Password</label>
+        <input type="password" name="password" id="id_password" placeholder="••••••••" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-primary">Sign In</button>
+    </form>
 
-<!-- Forgot Password / Username -->
-<a href="{% url 'forgot_password' %}" class="forgot-password">
-  Forgot Password / Username?
-</a>
+    <a href="{% url 'forgot_password' %}" class="forgot-link">Forgot password or username?</a>
 
+    {% if error %}
+      <div class="error-box">{{ error }}</div>
+    {% endif %}
 
-{% if error %}
-  <p class="error">{{ error }}</p>
-{% endif %}
+    <hr class="divider">
+    <p class="register-row">Don't have an account? <a href="{% url 'register' %}" onclick="navTo(event, this.href)">Create one</a></p>
+  </div>
 
-  </div>  <!-- =========================
-       SMOOTH PAGE TRANSITION
-       ========================= -->  <script>
+  <script>
+    window.addEventListener("load", () => document.body.classList.add("page-loaded"));
 
-    /* Fade in when Login page loads */
-    window.addEventListener("load", function() {
-      document.body.classList.add("page-loaded");
-    });
-
-
-    /* Fade out before going back to Welcome */
     function goBack() {
-
-      document.body.classList.remove("page-loaded");
-      document.body.classList.add("page-exit");
-
-      setTimeout(function() {
-        window.location.href = "{% url 'welcome' %}";
-      }, 450);
-
+      document.body.classList.replace("page-loaded","page-exit");
+      setTimeout(() => window.location.href = "{% url 'welcome' %}", 450);
     }
-
-
-    /* Fade out when Login button is submitted */
-    document.getElementById("login-form").addEventListener("submit", function() {
-
-      document.body.classList.remove("page-loaded");
-      document.body.classList.add("page-exit");
-
-    });
-
-  </script></body>
+    function navTo(e, href) {
+      e.preventDefault();
+      document.body.classList.replace("page-loaded","page-exit");
+      setTimeout(() => window.location.href = href, 450);
+    }
+  </script>
+</body>
 </html>

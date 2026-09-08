@@ -175,10 +175,10 @@
       recognition.onresult=e=>{
         let final='',interim='';
         for(let i=0;i<e.results.length;i++){
-          const t=e.results[i][0].transcript;
-          if(e.results[i].isFinal)final+=t+' ';
-          else interim+=t;
+          if(e.results[i].isFinal)final+=e.results[i][0].transcript+' ';
         }
+        const last=e.results[e.results.length-1];
+        if(last&&!last.isFinal)interim=last[0].transcript;
         input.value=(final+interim).trim();autoGrow();
       };
       recognition.onerror=()=>{recognition.stop();};

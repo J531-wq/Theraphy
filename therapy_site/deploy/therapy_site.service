@@ -1,0 +1,28 @@
+# /etc/systemd/system/therapy_site.service
+# Copy to the VPS, then:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now therapy_site
+#   sudo systemctl status therapy_site      # check it's running
+#
+# NOTE: adjust User= and paths if your username/deploy path differs.
+
+[Unit]
+Description=MyTherapyDoctor Django app (Gunicorn)
+After=network.target postgresql.service
+
+[Service]
+User=deploy
+Group=www-data
+WorkingDirectory=/home/deploy/therapy_site
+EnvironmentFile=/home/deploy/therapy_site/.env
+ExecStart=/home/deploy/therapy_site/venv/bin/gunicorn \
+    --workers 3 \
+    --bind 127.0.0.1:8000 \
+    --access-logfile - \
+    --error-logfile - \
+    therapy_site.wsgi:application
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

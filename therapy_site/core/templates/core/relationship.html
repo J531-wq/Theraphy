@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
   <title>Relationship Therapy — MyTherapyDoctor</title>
   {% load static %}
   <style>
@@ -62,7 +62,7 @@
     .mic-btn:hover{background:rgba(255,255,255,0.13)}
     .mic-btn.listening{background:rgba(224,111,160,0.18);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);animation:micPulse 1.2s ease-in-out infinite}
     @keyframes micPulse{0%,100%{box-shadow:0 0 0 3px var(--accent-glow)}50%{box-shadow:0 0 0 7px rgba(224,111,160,0.08)}}
-    @media(max-width:700px){.sidebar{position:fixed;top:0;left:0;height:100%;z-index:200;transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.menu-btn{display:flex}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199}.sidebar-overlay.open{display:block}.chat-wrap{padding:12px 12px 0}.topbar{padding:12px 14px}.bubble{font-size:13px}.msg{max-width:90%}}
+    @media(max-width:700px){.sidebar{position:fixed;top:0;left:0;height:100%;z-index:200;transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.menu-btn{display:flex}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199}.sidebar-overlay.open{display:block}.chat-wrap{padding:12px 12px 0}.input-bar{padding-bottom:calc(12px + env(safe-area-inset-bottom))}.topbar{padding:12px 14px}.bubble{font-size:13px}.msg{max-width:90%}}
   </style>
 </head>
 <body>
@@ -130,16 +130,16 @@
     function removeTyping(id){const el=document.getElementById(id);if(el)el.remove();}
     function escHtml(t){return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>");}
     // ── Voice input ──
-    let recognition=null,isListening=false,voiceTranscript='';
+    let recognition=null,isListening=false,voiceTranscript='',sendOnStop=false;
     function toggleVoice(){
       if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert("Sorry, your browser doesn't support voice input. Try Chrome.");return;}
-      if(isListening){recognition.stop();return;}
+      if(isListening){sendOnStop=true;recognition.stop();return;}
       const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
       recognition=new SR();recognition.lang='en-US';recognition.interimResults=true;recognition.continuous=true;
-      voiceTranscript='';
+      voiceTranscript='';sendOnStop=false;
       const btn=document.getElementById('mic-btn');
       const input=document.getElementById('user-input');
-      recognition.onstart=()=>{isListening=true;btn.classList.add('listening');input.placeholder='Listening…';};
+      recognition.onstart=()=>{isListening=true;btn.classList.add('listening');input.placeholder='Listening… tap mic again to send';};
       recognition.onresult=e=>{
         let interim='';
         for(let i=e.resultIndex;i<e.results.length;i++){
@@ -152,7 +152,8 @@
       recognition.onend=()=>{
         isListening=false;btn.classList.remove('listening');input.placeholder='Type your message…';
         const val=input.value.trim();
-        if(val){setTimeout(()=>sendMessage(),80);}
+        if(sendOnStop&&val){setTimeout(()=>sendMessage(),80);}
+        sendOnStop=false;
       };
       recognition.start();
     }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
   <title>Child Therapy — MyTherapyDoctor</title>
   {% load static %}
   <style>
@@ -147,6 +147,7 @@
       .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199}
       .sidebar-overlay.open{display:block}
       .chat-wrap{padding:12px 12px 0}
+      .input-bar{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
       .topbar{padding:12px 14px}
       .bubble{font-size:13px}
       .msg{max-width:90%}
@@ -274,16 +275,16 @@
     function removeTyping(id){ const el=document.getElementById(id); if(el)el.remove(); }
     function escHtml(t){ return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>"); }
     // ── Voice input ──
-    let recognition=null,isListening=false,voiceTranscript='';
+    let recognition=null,isListening=false,voiceTranscript='',sendOnStop=false;
     function toggleVoice(){
       if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert("Sorry, your browser doesn't support voice input. Try Chrome.");return;}
-      if(isListening){recognition.stop();return;}
+      if(isListening){sendOnStop=true;recognition.stop();return;}
       const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
       recognition=new SR();recognition.lang='en-US';recognition.interimResults=true;recognition.continuous=true;
-      voiceTranscript='';
+      voiceTranscript='';sendOnStop=false;
       const btn=document.getElementById('mic-btn');
       const input=document.getElementById('user-input');
-      recognition.onstart=()=>{isListening=true;btn.classList.add('listening');input.placeholder='Listening…';};
+      recognition.onstart=()=>{isListening=true;btn.classList.add('listening');input.placeholder='Listening… tap mic again to send';};
       recognition.onresult=e=>{
         let interim='';
         for(let i=e.resultIndex;i<e.results.length;i++){
@@ -296,7 +297,8 @@
       recognition.onend=()=>{
         isListening=false;btn.classList.remove('listening');input.placeholder='Type your message…';
         const val=input.value.trim();
-        if(val){setTimeout(()=>sendMessage(),80);}
+        if(sendOnStop&&val){setTimeout(()=>sendMessage(),80);}
+        sendOnStop=false;
       };
       recognition.start();
     }

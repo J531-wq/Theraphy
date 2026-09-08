@@ -292,7 +292,7 @@
       <span class="brand-name">MyTherapyDoctor</span>
     </div>
     <div class="nav-actions">
-      {% if request.user.is_authenticated %}
+      {% if request.session.user_id %}
         <button class="btn-primary-sm" onclick="navTo('{% url 'sections' %}')">Dashboard</button>
       {% else %}
         <button class="btn-ghost" onclick="navTo('{% url 'login' %}')">Sign In</button>

@@ -256,10 +256,13 @@
   </div>
 
   <div class="footer-actions">
-    <button class="btn-logout" onclick="logout()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-      Sign Out
-    </button>
+    <form method="post" action="{% url 'logout' %}" id="logout-form">
+      {% csrf_token %}
+      <button class="btn-logout" type="submit" onclick="handleLogout(event)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </form>
   </div>
 
   <script>
@@ -284,11 +287,12 @@
       document.body.classList.add("page-exit");
       setTimeout(() => window.location.href = href, 380);
     }
-    function logout() {
+    function handleLogout(e) {
+      e.preventDefault();
       if (document.body.classList.contains("page-exit")) return;
       document.body.classList.remove("page-loaded");
       document.body.classList.add("page-exit");
-      setTimeout(() => window.location.href = "{% url 'welcome' %}", 380);
+      setTimeout(() => document.getElementById("logout-form").submit(), 380);
     }
   </script>
 </body>

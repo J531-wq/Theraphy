@@ -65,6 +65,7 @@ urlpatterns = [
     ),
 
     path('sections/', views.sections, name='sections'),
+    path('logout/', views.logout_view, name='logout'),
 
     # Therapy section AI chat routes
     path(

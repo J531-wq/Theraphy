@@ -413,6 +413,11 @@ def sections(request):
     return render(request, "core/sections.html")
 
 
+def logout_view(request):
+    request.session.flush()
+    return redirect("welcome")
+
+
 def reset_users(request):
     User.objects.filter(is_superuser=False).delete()
     return redirect("welcome")

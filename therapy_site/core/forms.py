@@ -106,7 +106,9 @@ class VerificationCodeForm(forms.Form):
         widget=forms.TextInput(attrs={
             'placeholder': 'Enter verification code',
             'maxlength': '6',
-            'inputmode': 'numeric'
+            'inputmode': 'numeric',
+            'autocomplete': 'one-time-code',
+            'pattern': '[0-9]*'
         })
     )
 
@@ -121,13 +123,15 @@ class ResetPasswordForm(forms.Form):
 
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
-            'placeholder': 'Enter your new password'
+            'placeholder': 'Enter your new password',
+            'autocomplete': 'new-password'
         })
     )
 
     confirm_password = forms.CharField(
         widget=forms.PasswordInput(attrs={
-            'placeholder': 'Confirm your new password'
+            'placeholder': 'Confirm your new password',
+            'autocomplete': 'new-password'
         })
     )
 

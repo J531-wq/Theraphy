@@ -255,14 +255,17 @@ def get_ai_response(section: str, message: str, history: list = None) -> str:
     message : str
         The user's latest message.
     history : list[dict], optional
-        Previous {"role": ..., "content": ...} messages (general AI only).
+        Previous {"role": ..., "content": ...} messages for context-aware responses.
     """
     prompt = SYSTEM_PROMPTS.get(section, SYSTEM_PROMPTS["general"])
 
     messages = [{"role": "system", "content": prompt}]
 
-    # Provide conversation history for the general AI so follow-up questions work.
-    if section in ("general", "stress", "stress_anxiety") and history:
+    # Provide conversation history for ALL therapy sections so the AI can:
+    # - Remember previous messages and context
+    # - Recognize follow-up questions and respond smartly
+    # - Maintain continuity in the therapeutic dialogue
+    if history:
         messages.extend(history[-20:])
 
     messages.append({"role": "user", "content": message})

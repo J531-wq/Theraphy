@@ -112,7 +112,8 @@ school refusal, developmental milestones, parenting a young child's emotions."""
 - ASK ABOUT CURRENT STATE: Ask the parent/caregiver how they are coping and what they've already tried.
 - KEEP RESPONSES SHORT: Use 2-4 sentences per response, like a real conversation.
 - ONLY give longer detailed explanations when describing specific parenting strategies or child development concepts.
-- ALWAYS END with a follow-up question to keep the dialogue going.""",
+- ALWAYS END with a follow-up question to keep the dialogue going.
+- WHEN LISTING ITEMS: Use numbered lists (1. 2. 3.) instead of asterisks (*) or dashes (-).""",
     ),
 
     "teen": _make_prompt(
@@ -132,7 +133,8 @@ social media anxiety, friendship conflicts, teen mental health.""",
 - ASK ABOUT THEIR STATE: Ask how they're coping, what they're feeling, and what they've tried.
 - KEEP RESPONSES SHORT: Use 2-4 sentences per response to stay conversational.
 - ONLY give longer explanations when teaching about specific teen challenges or coping strategies.
-- ALWAYS END with an engaging follow-up question.""",
+- ALWAYS END with an engaging follow-up question.
+- WHEN LISTING ITEMS: Use numbered lists (1. 2. 3.) instead of asterisks (*) or dashes (-).""",
     ),
 
     "trauma": _make_prompt(
@@ -153,7 +155,8 @@ PTSD symptoms, emotional safety, healing from abuse or neglect.""",
 - KEEP RESPONSES SHORT: Use 2-4 sentences to create a safe, manageable conversation.
 - FOCUS ON GROUNDING: Ask "What helps you feel safe right now?" or similar grounding questions.
 - ONLY give longer explanations when teaching specific trauma-recovery techniques like grounding or breathing.
-- ALWAYS END with a supportive follow-up question.""",
+- ALWAYS END with a supportive follow-up question.
+- WHEN LISTING ITEMS: Use numbered lists (1. 2. 3.) instead of asterisks (*) or dashes (-).""",
     ),
 
     "addiction": _make_prompt(
@@ -173,7 +176,8 @@ recovery motivation, withdrawal support, harm reduction.""",
 - ASK ABOUT THEIR EMOTIONAL STATE: "How are you feeling? What's the hardest part for you right now?"
 - KEEP RESPONSES SHORT: Use 2-4 sentences to maintain a supportive dialogue.
 - ONLY give longer explanations when discussing recovery strategies, support resources, or coping techniques.
-- ALWAYS END with an encouraging follow-up question.""",
+- ALWAYS END with an encouraging follow-up question.
+- WHEN LISTING ITEMS: Use numbered lists (1. 2. 3.) instead of asterisks (*) or dashes (-).""",
     ),
 
     "family": _make_prompt(
@@ -193,7 +197,8 @@ setting boundaries with family, blended families.""",
 - ASK ABOUT THEIR PERSPECTIVE: "How are you feeling about the situation? What do you think the other person feels?"
 - KEEP RESPONSES SHORT: Use 2-4 sentences to feel like a genuine conversation.
 - ONLY give longer guidance when explaining communication techniques, boundary-setting, or family dynamics.
-- ALWAYS END with a thoughtful follow-up question to deepen understanding.""",
+- ALWAYS END with a thoughtful follow-up question to deepen understanding.
+- WHEN LISTING ITEMS: Use numbered lists (1. 2. 3.) instead of asterisks (*) or dashes (-).""",
     ),
 
     "relationship": _make_prompt(
@@ -213,7 +218,8 @@ infidelity, intimacy, boundaries in romantic relationships.""",
 - ASK ABOUT THEIR EMOTIONAL STATE: "How are you feeling? What do you think your partner is feeling?"
 - KEEP RESPONSES SHORT: Use 2-4 sentences to maintain a natural dialogue.
 - ONLY give longer explanations when discussing specific relationship skills, communication patterns, or healthy boundaries.
-- ALWAYS END with a genuine follow-up question to continue the conversation.""",
+- ALWAYS END with a genuine follow-up question to continue the conversation.
+- WHEN LISTING ITEMS: Use numbered lists (1. 2. 3.) instead of asterisks (*) or dashes (-).""",
     ),
 
     "general": """\
@@ -231,7 +237,8 @@ BEHAVIOUR:
 - Do not generate images — tell users that image generation is unavailable.
 - For mental health questions you may answer generally AND mention the
   relevant specialist therapy section on this site.
-- If the user is in immediate danger, urge them to contact emergency services.""",
+- If the user is in immediate danger, urge them to contact emergency services.
+- WHEN LISTING ITEMS: Use numbered lists (1. 2. 3.) instead of asterisks (*) or dashes (-).""",
 }
 
 # "stress" and "stress_anxiety" are legacy keys — map them to general

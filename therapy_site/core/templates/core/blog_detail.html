@@ -20,6 +20,8 @@
   <meta property="og:url" content="https://mytherapydoctor.com{% url 'blog_detail' blog.slug %}">
   {% if blog.featured_image %}
     <meta property="og:image" content="https://mytherapydoctor.com{{ blog.featured_image.url }}">
+  {% elif blog.cover_image_url %}
+    <meta property="og:image" content="{{ blog.cover_image_url }}">
   {% else %}
     <meta property="og:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
   {% endif %}
@@ -30,6 +32,13 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="{{ blog.title }}">
   <meta name="twitter:description" content="{{ blog.excerpt|truncatechars:160 }}">
+  {% if blog.featured_image %}
+    <meta name="twitter:image" content="https://mytherapydoctor.com{{ blog.featured_image.url }}">
+  {% elif blog.cover_image_url %}
+    <meta name="twitter:image" content="{{ blog.cover_image_url }}">
+  {% else %}
+    <meta name="twitter:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
+  {% endif %}
   <!-- Structured data -->
   <script type="application/ld+json">
   {
@@ -37,6 +46,7 @@
     "@type": "BlogPosting",
     "headline": "{{ blog.title|escapejs }}",
     "description": "{{ blog.excerpt|escapejs }}",
+    {% if blog.featured_image %}"image": "https://mytherapydoctor.com{{ blog.featured_image.url }}",{% elif blog.cover_image_url %}"image": "{{ blog.cover_image_url }}",{% endif %}
     "datePublished": "{{ blog.created_at|date:'c' }}",
     "dateModified": "{{ blog.updated_at|date:'c' }}",
     "author": { "@type": "Person", "name": "{{ blog.author|escapejs }}" },
@@ -160,6 +170,8 @@
     .post-header h1 { font-size: 2.2rem; font-weight: 700; line-height: 1.3; margin-bottom: 18px; }
     .post-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; color: var(--muted); font-size: 0.9rem; }
     .meta-icon { margin-right: 5px; }
+    .post-like { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; padding: 9px 14px; border: 1px solid var(--glass-border); border-radius: 999px; color: var(--text); background: rgba(255,255,255,.06); cursor: pointer; font: 600 .82rem inherit; }
+    .post-like.liked { color: #fff; border-color: var(--teal-light); background: rgba(46,125,110,.32); }
 
     .share { display: flex; align-items: center; gap: 8px; }
     .share span {
@@ -262,6 +274,51 @@
     .related .blog-excerpt { color: rgba(240,244,243,.62); }
     .related .read-more { color: #9ad5b6; }
 
+    .comments-section { margin: 0 0 52px; }
+    .comments-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+    .comments-heading h2 { font-size: 1.5rem; }
+    .comments-count { color: var(--muted); font-size: .82rem; }
+    .comment-composer, .comment-item { background: rgba(6,14,12,.72); border: 1px solid var(--glass-border); border-radius: 14px; backdrop-filter: blur(12px); }
+    .comment-composer { padding: 20px; margin-bottom: 22px; }
+    .comment-name { width: 100%; margin-bottom: 10px; padding: 12px 14px; border: 1px solid var(--glass-border); border-radius: 9px; color: var(--text); background: rgba(255,255,255,.06); font: inherit; }
+    .comment-name:focus { outline: 2px solid rgba(61,158,140,.35); border-color: var(--teal-light); }
+    .comment-composer textarea, .edit-field { width: 100%; min-height: 92px; resize: vertical; padding: 13px 14px; border: 1px solid var(--glass-border); border-radius: 9px; color: var(--text); background: rgba(255,255,255,.06); font: inherit; }
+    .comment-composer textarea:focus, .edit-field:focus { outline: 2px solid rgba(61,158,140,.35); border-color: var(--teal-light); }
+    .comment-composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+    .comment-hint { color: var(--muted); font-size: .78rem; }
+    .comment-submit { padding: 10px 16px; border: 0; border-radius: 8px; color: #fff; background: linear-gradient(135deg,var(--teal),var(--teal-light)); cursor: pointer; font-weight: 600; }
+    .comment-list { display: grid; gap: 14px; }
+    .comment-item { padding: 18px; }
+    .comment-item.reply { margin: 12px 0 0 34px; border-left: 2px solid rgba(61,158,140,.55); background: rgba(5,24,20,.78); }
+    .comment-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .comment-author { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+    .comment-avatar { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; color: #fff; background: linear-gradient(135deg,var(--teal),var(--teal-light)); font-size: .82rem; }
+    .comment-date { color: var(--muted); font-size: .74rem; }
+    .comment-text { margin: 13px 0; color: rgba(240,244,243,.82); line-height: 1.7; white-space: pre-wrap; }
+    .comment-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .comment-action { padding: 6px 9px; border: 1px solid transparent; border-radius: 6px; color: var(--muted); background: transparent; cursor: pointer; font: inherit; font-size: .76rem; }
+    .comment-action:hover, .comment-action.active { color: #9ad5b6; border-color: rgba(61,158,140,.35); background: rgba(46,125,110,.14); }
+    .comment-action.danger:hover { color: #ff9f91; border-color: rgba(255,120,100,.3); background: rgba(150,30,20,.18); }
+    .reply-form { display: none; margin-top: 12px; }
+    .reply-form.open { display: block; }
+    .reply-form textarea { width: 100%; min-height: 70px; padding: 10px; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); background: rgba(255,255,255,.05); font: inherit; }
+    .edit-form { display: none; margin: 12px 0; }
+    .edit-form.open { display: block; }
+    .comment-message { margin: 10px 0; color: #9ad5b6; font-size: .82rem; }
+    .comments-login { padding: 18px; margin-bottom: 22px; border: 1px dashed rgba(255,255,255,.25); border-radius: 12px; color: var(--muted); }
+    .comments-login a { color: var(--teal-light); }
+    .comment-modal { position: fixed; inset: 0; z-index: 300; display: none; place-items: center; padding: 20px; background: rgba(0,0,0,.68); backdrop-filter: blur(8px); }
+    .comment-modal.open { display: grid; }
+    .comment-modal-card { width: min(100%, 520px); padding: 26px; border: 1px solid rgba(137,201,174,.28); border-radius: 16px; color: var(--text); background: #071b16; box-shadow: 0 24px 70px rgba(0,0,0,.45); }
+    .comment-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .comment-modal-head h2 { margin: 0; font-size: 1.25rem; }
+    .modal-close { width: 32px; height: 32px; border: 1px solid var(--glass-border); border-radius: 50%; color: var(--muted); background: transparent; cursor: pointer; font-size: 1.2rem; }
+    .modal-close:hover { color: #fff; border-color: var(--teal-light); }
+    .comment-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+    .modal-cancel { padding: 10px 14px; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--muted); background: transparent; cursor: pointer; }
+    .comment-toast { position: fixed; right: 22px; bottom: 22px; z-index: 400; max-width: min(360px, calc(100vw - 44px)); padding: 13px 16px; border: 1px solid rgba(137,201,174,.3); border-radius: 10px; color: #fff; background: #071b16; box-shadow: 0 12px 30px rgba(0,0,0,.35); opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .2s, transform .2s; }
+    .comment-toast.show { opacity: 1; transform: translateY(0); }
+
     /* ── CTA ── */
     .cta-card {
       background: var(--glass-bg);
@@ -337,7 +394,7 @@
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4077944879189341"
      crossorigin="anonymous"></script>
 </head>
-<body>
+<body data-signed-in="{% if current_user %}true{% else %}false{% endif %}">
 
   <!-- ── Navigation ── -->
   <nav class="detail-nav">
@@ -392,11 +449,18 @@
           <span class="meta-item"><span class="meta-icon">📅</span>{{ blog.created_at|date:"F d, Y" }}</span>
           <span class="meta-item"><span class="meta-icon">📄</span>{{ blog.content|wordcount }} words</span>
         </div>
+        <button class="post-like {% if post_liked %}liked{% endif %}" type="button" data-post-like="{% url 'blog_post_like' blog.slug %}">
+          <span class="post-like-icon">♥</span> <span class="post-like-label">{% if post_liked %}Liked{% else %}Like this post{% endif %}</span> · <span class="post-like-count">{{ blog.likes_count }}</span>
+        </button>
       </header>
 
       {% if blog.featured_image %}
         <div class="post-image">
           <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
+        </div>
+      {% elif blog.cover_image_url %}
+        <div class="post-image">
+          <img src="{{ blog.cover_image_url }}" alt="{{ blog.title }}">
         </div>
       {% endif %}
 
@@ -441,6 +505,32 @@
         </section>
       </aside>
     </div>
+
+    <section class="comments-section" id="comments">
+      <div class="comments-heading"><h2>Conversation</h2><span class="comments-count">{{ comment_count }} comment{{ comment_count|pluralize }}</span></div>
+      <form class="comment-composer" data-comment-form="{% url 'blog_comment_create' blog.slug %}">
+          {% csrf_token %}
+          {% if not current_user %}<input class="comment-name" name="name" maxlength="100" placeholder="Your name" required>{% endif %}
+          <textarea name="body" maxlength="2000" placeholder="Share a thoughtful response..." required></textarea>
+          <div class="comment-composer-footer"><span class="comment-hint">Be kind. Your words may help someone else feel less alone.</span><button class="comment-submit" type="submit">Post comment</button></div>
+          <div class="comment-message" aria-live="polite"></div>
+      </form>
+      <div class="comment-list">
+        {% for entry in comments %}
+          {% with comment=entry.comment %}
+            <article class="comment-item" data-comment-id="{{ comment.id }}">
+              <div class="comment-top"><div class="comment-author"><span class="comment-avatar">{{ comment.name|first|upper }}</span><span>{{ comment.name }}</span></div><span class="comment-date">{{ comment.created_at|date:"M d, Y" }}</span></div>
+              <p class="comment-text">{{ comment.body }}</p>
+              <div class="comment-actions"><button class="comment-action" data-vote="1">♥ <span class="like-count">{{ comment.likes_count }}</span></button><button class="comment-action" data-vote="-1">Dislike <span class="dislike-count">{{ comment.dislikes_count }}</span></button>{% if current_user and comment.owner_id == current_user.id %}<button class="comment-action edit-comment" type="button">Edit</button><button class="comment-action danger delete-comment" type="button">Delete</button>{% endif %}<button class="comment-action reply-comment" type="button">Reply</button></div>
+              <form class="edit-form" data-edit-url="{% url 'blog_comment_edit' comment.id %}"><textarea class="edit-field" name="body" maxlength="2000">{{ comment.body }}</textarea><button class="comment-submit" type="submit">Save edit</button></form>
+              <form class="reply-form" data-reply-form="{% url 'blog_comment_create' blog.slug %}">{% if not current_user %}<input class="comment-name" name="name" maxlength="100" placeholder="Your name" required>{% endif %}<textarea name="body" maxlength="2000" placeholder="Write a reply..." required></textarea><button class="comment-submit" type="submit">Reply</button></form>
+              <div class="comment-message" aria-live="polite"></div>
+              {% for reply in entry.replies %}<article class="comment-item reply" data-comment-id="{{ reply.id }}"><div class="comment-top"><div class="comment-author"><span class="comment-avatar">{{ reply.name|first|upper }}</span><span>{{ reply.name }}</span></div><span class="comment-date">{{ reply.created_at|date:"M d, Y" }}</span></div><p class="comment-text">{{ reply.body }}</p><div class="comment-actions"><button class="comment-action" data-vote="1">♥ <span class="like-count">{{ reply.likes_count }}</span></button><button class="comment-action" data-vote="-1">Dislike <span class="dislike-count">{{ reply.dislikes_count }}</span></button>{% if current_user and reply.owner_id == current_user.id %}<button class="comment-action edit-comment" type="button">Edit</button><button class="comment-action danger delete-comment" type="button">Delete</button>{% endif %}</div><form class="edit-form" data-edit-url="{% url 'blog_comment_edit' reply.id %}"><textarea class="edit-field" name="body" maxlength="2000">{{ reply.body }}</textarea><button class="comment-submit" type="submit">Save edit</button></form><div class="comment-message" aria-live="polite"></div></article>{% endfor %}
+            </article>
+          {% endwith %}
+        {% empty %}<div class="comments-login">No comments yet. Start the conversation.</div>{% endfor %}
+      </div>
+    </section>
 
     <!-- ── Related articles ── -->
     {% if related_blogs %}
@@ -492,6 +582,16 @@
     <p>This platform provides AI-assisted wellness support and is not a substitute for professional medical or psychiatric care.</p>
   </footer>
 
+  <div class="comment-modal" id="comment-edit-modal" aria-hidden="true">
+    <div class="comment-modal-card" role="dialog" aria-modal="true" aria-labelledby="comment-edit-title">
+      <div class="comment-modal-head"><h2 id="comment-edit-title">Edit your comment</h2><button class="modal-close" type="button" aria-label="Close">&times;</button></div>
+      <textarea class="edit-field" id="comment-edit-input" maxlength="2000" placeholder="Update your thoughts..."></textarea>
+      <div class="comment-message" id="comment-edit-message" aria-live="polite"></div>
+      <div class="comment-modal-actions"><button class="modal-cancel" type="button">Cancel</button><button class="comment-submit" id="comment-edit-save" type="button">Save changes</button></div>
+    </div>
+  </div>
+  <div class="comment-toast" id="comment-toast" role="status" aria-live="polite"></div>
+
   <script>
     // Fade-in on load (with CSS fallback for delayed JS) and bfcache restore.
     document.addEventListener("DOMContentLoaded", () => {
@@ -530,6 +630,142 @@
         setTimeout(() => { btn.textContent = "🔗"; btn.title = "Copy link"; }, 1500);
       }).catch(() => {});
     }
+
+    function csrfToken() {
+      const input = document.querySelector('[name="csrfmiddlewaretoken"]');
+      if (input) return input.value;
+      const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+      return match ? decodeURIComponent(match[1]) : '';
+    }
+
+    async function postForm(url, data) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {'X-CSRFToken': csrfToken(), 'X-Requested-With': 'XMLHttpRequest'},
+        body: new URLSearchParams(data),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) throw new Error(payload.message || 'Something went wrong.');
+      return payload;
+    }
+
+    document.querySelector('[data-post-like]')?.addEventListener('click', async (event) => {
+      const button = event.currentTarget;
+      try {
+        const data = await postForm(button.dataset.postLike, {});
+        button.classList.toggle('liked', data.liked);
+        button.querySelector('.post-like-label').textContent = data.liked ? 'Liked' : 'Like this post';
+        button.querySelector('.post-like-count').textContent = data.likes;
+      } catch (error) { window.alert(error.message); }
+    });
+
+    const commentList = document.querySelector('.comment-list');
+    const toast = document.getElementById('comment-toast');
+    const editModal = document.getElementById('comment-edit-modal');
+    const editInput = document.getElementById('comment-edit-input');
+    let editingCard = null;
+    let toastTimer;
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+    }
+
+    function commentMarkup(comment, isReply) {
+      const wrapper = document.createElement('article');
+      wrapper.className = `comment-item${isReply ? ' reply' : ''}`;
+      wrapper.dataset.commentId = comment.id;
+      const safeName = comment.name || 'Reader';
+      const nameField = document.body.dataset.signedIn === 'true' ? '' : '<input class="comment-name" name="name" maxlength="100" placeholder="Your name" required>';
+      const ownerActions = comment.is_owner ? '<button class="comment-action edit-comment" type="button">Edit</button><button class="comment-action danger delete-comment" type="button">Delete</button>' : '';
+      wrapper.innerHTML = `<div class="comment-top"><div class="comment-author"><span class="comment-avatar"></span><span class="comment-author-name"></span></div><span class="comment-date"></span></div><p class="comment-text"></p><div class="comment-actions"><button class="comment-action" data-vote="1">♥ <span class="like-count">0</span></button><button class="comment-action" data-vote="-1">Dislike <span class="dislike-count">0</span></button>${ownerActions}<button class="comment-action reply-comment" type="button">Reply</button></div><form class="reply-form" data-reply-form="${document.querySelector('[data-comment-form]').dataset.commentForm}">${nameField}<textarea name="body" maxlength="2000" placeholder="Write a reply..." required></textarea><button class="comment-submit" type="submit">Reply</button></form><div class="comment-message" aria-live="polite"></div>`;
+      wrapper.querySelector('.comment-avatar').textContent = safeName.charAt(0).toUpperCase();
+      wrapper.querySelector('.comment-author-name').textContent = safeName;
+      wrapper.querySelector('.comment-date').textContent = comment.created || 'Just now';
+      wrapper.querySelector('.comment-text').textContent = comment.body;
+      return wrapper;
+    }
+
+    async function submitCommentForm(form) {
+        const body = form.querySelector('[name="body"]').value.trim();
+        const data = {body};
+        const name = form.querySelector('[name="name"]');
+        if (name) data.name = name.value.trim();
+        const parent = form.closest('[data-comment-id]');
+        if (form.dataset.replyForm) data.parent_id = parent.dataset.commentId;
+        const message = form.querySelector('.comment-message') || form.parentElement.querySelector('.comment-message');
+        try {
+          const result = await postForm(form.dataset.commentForm || form.dataset.replyForm, data);
+          form.reset();
+          const newComment = commentMarkup(result.comment, Boolean(parent));
+          if (parent) parent.appendChild(newComment);
+          else commentList.prepend(newComment);
+          const empty = commentList.querySelector('.comments-login');
+          if (empty) empty.remove();
+          const count = document.querySelector('.comments-count');
+          if (count) count.textContent = `${commentList.querySelectorAll(':scope > .comment-item').length} comments`;
+          if (message) message.textContent = 'Posted successfully.';
+        } catch (error) { if (message) message.textContent = error.message; else showToast(error.message); }
+    }
+
+    document.querySelectorAll('[data-comment-form]').forEach((form) => {
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await submitCommentForm(form);
+      });
+    });
+
+    commentList?.addEventListener('submit', async (event) => {
+      const form = event.target.closest('[data-reply-form]');
+      if (!form) return;
+      event.preventDefault();
+      await submitCommentForm(form);
+    });
+
+    commentList?.addEventListener('click', async (event) => {
+      const button = event.target.closest('button');
+      if (!button) return;
+      const card = button.closest('[data-comment-id]');
+      if (!card) return;
+      if (button.dataset.vote) {
+        try {
+          const data = await postForm(`/blog/comment/${card.dataset.commentId}/vote/`, {value: button.dataset.vote});
+          card.querySelector('.like-count').textContent = data.likes;
+          card.querySelector('.dislike-count').textContent = data.dislikes;
+          card.querySelectorAll('[data-vote]').forEach((item) => item.classList.toggle('active', Number(item.dataset.vote) === data.user_vote));
+        } catch (error) { showToast(error.message); }
+      } else if (button.classList.contains('reply-comment')) {
+        card.querySelector('.reply-form')?.classList.toggle('open');
+      } else if (button.classList.contains('edit-comment')) {
+        editingCard = card;
+        editInput.value = card.querySelector('.comment-text').textContent;
+        editModal.classList.add('open');
+        editModal.setAttribute('aria-hidden', 'false');
+        editInput.focus();
+      } else if (button.classList.contains('delete-comment')) {
+        if (!window.confirm('Delete your comment?')) return;
+        try { await postForm(`/blog/comment/${card.dataset.commentId}/delete/`, {}); card.remove(); showToast('Comment deleted.'); }
+        catch (error) { showToast(error.message); }
+      }
+    });
+
+    async function saveEdit() {
+      if (!editingCard) return;
+      const body = editInput.value.trim();
+      try {
+        const data = await postForm(`/blog/comment/${editingCard.dataset.commentId}/edit/`, {body});
+        editingCard.querySelector('.comment-text').textContent = data.body;
+        editModal.classList.remove('open');
+        editModal.setAttribute('aria-hidden', 'true');
+        showToast('Comment updated.');
+      } catch (error) { document.getElementById('comment-edit-message').textContent = error.message; }
+    }
+    document.getElementById('comment-edit-save').addEventListener('click', saveEdit);
+    editModal.querySelector('.modal-close').addEventListener('click', () => editModal.classList.remove('open'));
+    editModal.querySelector('.modal-cancel').addEventListener('click', () => editModal.classList.remove('open'));
+    editModal.addEventListener('click', (event) => { if (event.target === editModal) editModal.classList.remove('open'); });
   </script>
 </body>
 </html>

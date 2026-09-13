@@ -121,6 +121,10 @@ class BlogComment(models.Model):
     post = models.ForeignKey(
         Blog, on_delete=models.CASCADE, related_name='comments'
     )
+    owner = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name='blog_comments',
+        null=True, blank=True,
+    )
     parent = models.ForeignKey(
         'self', on_delete=models.CASCADE,
         related_name='replies', null=True, blank=True,

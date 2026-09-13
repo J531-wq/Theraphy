@@ -610,6 +610,7 @@ def blog_detail(request, slug):
         'comments': comments,
         'comment_count': top_comments.count(),
         'post_liked': post_liked,
+        'current_user': get_chat_user(request),
     }
 
     return render(request, 'core/blog_detail.html', context)
@@ -653,15 +654,15 @@ def blog_unsubscribe(request, token):
 
 @require_POST
 def blog_comment_create(request, slug):
-    """AJAX endpoint — post a top-level comment or a reply."""
+    """AJAX endpoint — post a comment or one-level reply."""
     blog = get_object_or_404(Blog, slug=slug, is_published=True)
+    user = get_chat_user(request)
     name = request.POST.get('name', '').strip()[:100]
-    email = request.POST.get('email', '').strip().lower()
     body = request.POST.get('body', '').strip()
     parent_id = request.POST.get('parent_id')
-    if not name or not email or not body:
+    if not body or (not user and not name):
         return JsonResponse(
-            {'ok': False, 'message': 'Name, email and comment are required.'},
+            {'ok': False, 'message': 'Please enter your name and comment.' if not user else 'Please enter a comment.'},
             status=400,
         )
     if len(body) > 2000:
@@ -678,7 +679,10 @@ def blog_comment_create(request, slug):
             # Replies nest only one level — reply to the top-level parent.
             parent = parent.parent
     comment = BlogComment.objects.create(
-        post=blog, parent=parent, name=name, email=email, body=body
+        post=blog, parent=parent, owner=user,
+        name=(user.full_name or user.username) if user else name,
+        email=user.email if user and user.email else '',
+        body=body,
     )
     return JsonResponse({
         'ok': True,
@@ -688,8 +692,33 @@ def blog_comment_create(request, slug):
             'body': comment.body,
             'created': timezone.localtime(comment.created_at).strftime('%b %d, %Y'),
             'parent_id': parent.id if parent else None,
+            'is_owner': bool(user and comment.owner_id == user.id),
         },
     })
+
+
+@require_POST
+def blog_comment_edit(request, comment_id):
+    comment = get_object_or_404(BlogComment, id=comment_id, is_approved=True)
+    user = get_chat_user(request)
+    if not user or comment.owner_id != user.id:
+        return JsonResponse({'ok': False, 'message': 'You can only edit your own comments.'}, status=403)
+    body = request.POST.get('body', '').strip()
+    if not body or len(body) > 2000:
+        return JsonResponse({'ok': False, 'message': 'Comment must contain 1 to 2000 characters.'}, status=400)
+    comment.body = body
+    comment.save(update_fields=['body'])
+    return JsonResponse({'ok': True, 'body': comment.body})
+
+
+@require_POST
+def blog_comment_delete(request, comment_id):
+    comment = get_object_or_404(BlogComment, id=comment_id, is_approved=True)
+    user = get_chat_user(request)
+    if not user or comment.owner_id != user.id:
+        return JsonResponse({'ok': False, 'message': 'You can only delete your own comments.'}, status=403)
+    comment.delete()
+    return JsonResponse({'ok': True})
 
 
 @require_POST

@@ -171,6 +171,18 @@ urlpatterns = [
     ),
 
     path(
+        'blog/comment/<int:comment_id>/edit/',
+        views.blog_comment_edit,
+        name='blog_comment_edit'
+    ),
+
+    path(
+        'blog/comment/<int:comment_id>/delete/',
+        views.blog_comment_delete,
+        name='blog_comment_delete'
+    ),
+
+    path(
         'blog/<slug:slug>/like/',
         views.blog_post_like,
         name='blog_post_like'

@@ -69,7 +69,7 @@
       min-height: 100vh;
       background:
         linear-gradient(160deg, rgba(0,0,0,0.74) 0%, rgba(0,18,14,0.58) 100%),
-        url("{% static 'core/welcome.jpg.jpeg' %}") no-repeat center center / cover fixed;
+        url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
       color: var(--text);
       opacity: 0;
       transition: opacity 0.5s ease;
@@ -81,10 +81,10 @@
     body.page-exit   { opacity: 0; animation: none; transition: opacity 0.35s ease; }
 
     /* ── Nav ── */
-    nav {
+    .detail-nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 48px;
+      padding: 18px 48px;
       background: rgba(0,0,0,0.25);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--glass-border);
@@ -94,11 +94,11 @@
     .brand-name { font-size: 15px; font-weight: 700; letter-spacing: 0.3px; color: var(--text); }
     .nav-actions { display: flex; align-items: center; gap: 10px; }
     .btn-ghost {
-      padding: 8px 18px;
+      padding: 9px 22px;
       background: rgba(255,255,255,0.07);
       border: 1px solid var(--glass-border);
       border-radius: 8px;
-      color: var(--text); font-size: 13.5px; font-weight: 500; font-family: inherit;
+      color: var(--text); font-size: 14px; font-weight: 500; font-family: inherit;
       text-decoration: none; cursor: pointer; transition: background 0.2s;
     }
     .btn-ghost:hover { background: rgba(255,255,255,0.14); }
@@ -108,10 +108,10 @@
       color: var(--teal-light);
     }
     .btn-primary-sm {
-      padding: 8px 20px;
+      padding: 9px 22px;
       background: linear-gradient(135deg, var(--teal), var(--teal-light));
       border: none; border-radius: 8px;
-      color: #fff; font-size: 13.5px; font-weight: 600; font-family: inherit;
+      color: #fff; font-size: 14px; font-weight: 600; font-family: inherit;
       cursor: pointer;
       box-shadow: 0 4px 16px var(--teal-glow);
       transition: opacity 0.2s, transform 0.15s;
@@ -252,6 +252,16 @@
     .read-more { margin-top: auto; font-size: 0.83rem; font-weight: 600; color: var(--teal-light); transition: color 0.2s; }
     .blog-card:hover .read-more { color: #fff; }
 
+    .related .section-title { display: flex; align-items: center; gap: 12px; }
+    .related .section-title::after { content: ''; width: 42px; height: 1px; background: var(--teal-light); }
+    .related .blog-card { background: #071b16; border-color: rgba(137,201,174,.22); border-radius: 10px; }
+    .related .blog-card:hover { border-color: var(--teal-light); box-shadow: 0 14px 28px rgba(0,0,0,.3); }
+    .related .blog-image, .related .blog-image-placeholder { height: 145px; background: #071b16; }
+    .related .blog-body { padding: 17px; }
+    .related .blog-body h3 { color: #f0f4f3; font: 600 1.18rem/1.2 'Playfair Display', Georgia, serif; }
+    .related .blog-excerpt { color: rgba(240,244,243,.62); }
+    .related .read-more { color: #9ad5b6; }
+
     /* ── CTA ── */
     .cta-card {
       background: var(--glass-bg);
@@ -287,9 +297,26 @@
     footer .footer-links a { font-weight: 500; }
     footer p { margin-bottom: 6px; }
 
+    /* Reading layout */
+    .page-wrap { max-width: 1180px; }
+    .article-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; align-items: start; gap: 24px; }
+    .post-card { margin-bottom: 0; }
+    .article-sidebar { position: sticky; top: 92px; display: grid; gap: 16px; }
+    .sidebar-card { padding: 22px; background: rgba(6,14,12,.72); border: 1px solid var(--glass-border); border-radius: 14px; backdrop-filter: blur(12px); }
+    .sidebar-label { margin-bottom: 12px; color: var(--teal-light); font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+    .sidebar-card h2 { margin-bottom: 8px; color: var(--text); font-size: 1.2rem; line-height: 1.3; }
+    .sidebar-card p { color: var(--muted); font-size: .86rem; line-height: 1.65; }
+    .sidebar-meta { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+    .sidebar-meta li { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: .82rem; }
+    .sidebar-meta strong { color: var(--text); font-weight: 600; text-align: right; }
+    .sidebar-link { display: block; padding: 10px 0; border-top: 1px solid var(--glass-border); color: var(--teal-light); font-size: .84rem; text-decoration: none; }
+    .sidebar-link:first-of-type { padding-top: 0; border-top: 0; }
+    .sidebar-link:hover { color: #fff; }
+    .sidebar-cta { display: block; padding: 11px 14px; color: #fff; background: linear-gradient(135deg, var(--teal), var(--teal-light)); border-radius: 8px; font-size: .84rem; font-weight: 600; text-align: center; text-decoration: none; }
+
     /* ── Responsive ── */
     @media (max-width: 640px) {
-      nav { padding: 12px 16px; gap: 8px; }
+      .detail-nav { padding: 18px 16px; gap: 8px; }
       .nav-ghost-desktop { display: none; }
       .page-wrap { padding: 100px 16px 50px; }
       .post-header { padding: 26px 22px 22px; }
@@ -297,6 +324,13 @@
       .post-body { padding: 26px 22px 32px; }
       .post-footer { padding: 18px 22px; }
       .related-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 900px) {
+      .article-layout { grid-template-columns: 1fr; }
+      .article-sidebar { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .article-sidebar { grid-template-columns: 1fr; }
     }
   </style>
   <!-- Google AdSense -->
@@ -306,7 +340,7 @@
 <body>
 
   <!-- ── Navigation ── -->
-  <nav>
+  <nav class="detail-nav">
     <a href="{% url 'welcome' %}" class="nav-brand" onclick="navTo(event, this.href)">
       <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor" class="nav-logo">
       <span class="brand-name">MyTherapyDoctor</span>
@@ -334,8 +368,9 @@
       <span class="crumb-current">{{ blog.title|truncatechars:48 }}</span>
     </nav>
 
-    <!-- ── Article ── -->
-    <article class="post-card">
+    <div class="article-layout">
+      <!-- ── Article ── -->
+      <article class="post-card">
       <header class="post-header">
         <div class="post-header-top">
           <a href="{% url 'blog_list' %}?category={{ blog.category }}" class="category-badge">
@@ -375,7 +410,37 @@
         </a>
         <a href="{% url 'blog_list' %}" class="back-link">← Back to all articles</a>
       </footer>
-    </article>
+      </article>
+
+      <aside class="article-sidebar" aria-label="Article information">
+        <section class="sidebar-card">
+          <div class="sidebar-label">Inside this story</div>
+          <h2>{{ blog.get_category_display }}</h2>
+          <p>{{ blog.excerpt|truncatechars:150 }}</p>
+        </section>
+        <section class="sidebar-card">
+          <div class="sidebar-label">Article details</div>
+          <ul class="sidebar-meta">
+            <li><span>Written by</span><strong>{{ blog.author }}</strong></li>
+            <li><span>Published</span><strong>{{ blog.created_at|date:"M d, Y" }}</strong></li>
+            <li><span>Length</span><strong>{{ blog.content|wordcount }} words</strong></li>
+          </ul>
+        </section>
+        {% if related_blogs %}
+          <section class="sidebar-card">
+            <div class="sidebar-label">Keep reading</div>
+            {% for related_blog in related_blogs %}
+              <a class="sidebar-link" href="{% url 'blog_detail' related_blog.slug %}">{{ related_blog.title|truncatechars:58 }}</a>
+            {% endfor %}
+          </section>
+        {% endif %}
+        <section class="sidebar-card">
+          <div class="sidebar-label">Need more support?</div>
+          <p>Explore a private, always-available space to reflect and work through what is on your mind.</p>
+          <a class="sidebar-cta" href="{% url 'sections' %}">Explore therapy</a>
+        </section>
+      </aside>
+    </div>
 
     <!-- ── Related articles ── -->
     {% if related_blogs %}
@@ -387,6 +452,10 @@
               {% if related_blog.featured_image %}
                 <div class="blog-image">
                   <img src="{{ related_blog.featured_image.url }}" alt="{{ related_blog.title }}" loading="lazy">
+                </div>
+              {% elif related_blog.cover_image_url %}
+                <div class="blog-image">
+                  <img src="{{ related_blog.cover_image_url }}" alt="{{ related_blog.title }}" loading="lazy">
                 </div>
               {% else %}
                 <div class="blog-image-placeholder">📝</div>

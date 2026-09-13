@@ -111,3 +111,55 @@ def send_welcome_email(user) -> bool:
             "username": user.username,
         },
     )
+
+
+# ---------------------------------------------------------------------------
+# Blog subscription emails (ZeptoMail)
+# ---------------------------------------------------------------------------
+
+def send_blog_subscription_welcome(email: str, name: str, unsubscribe_url: str) -> bool:
+    """Confirm a new blog subscription with an unsubscribe link."""
+    return _send(
+        subject="You're subscribed — MyTherapyDoctor Blog 🌿",
+        to_email=email,
+        template="core/emails/blog_welcome.html",
+        context={
+            "name": name or "there",
+            "email": email,
+            "unsubscribe_url": unsubscribe_url,
+        },
+    )
+
+
+def notify_subscribers_of_new_post(blog, base_url: str) -> int:
+    """
+    Email every active blog subscriber about a newly published post.
+
+    *base_url* is e.g. ``https://mytherapydoctor.com`` (no trailing slash).
+    Returns the number of emails successfully sent.  Failures are logged
+    per-recipient so one bad address never blocks the rest.
+    """
+    from core.models import BlogSubscriber  # local import: avoid circulars
+
+    post_url = f"{base_url}{blog.get_absolute_url()}"
+    sent = 0
+    subscribers = BlogSubscriber.objects.filter(is_active=True)
+    for sub in subscribers.iterator():
+        unsubscribe_url = f"{base_url}/blog/unsubscribe/{sub.token}/"
+        ok = _send(
+            subject=f"New on the blog: {blog.title}",
+            to_email=sub.email,
+            template="core/emails/blog_new_post.html",
+            context={
+                "name": sub.name or "there",
+                "post_title": blog.title,
+                "post_excerpt": blog.excerpt,
+                "post_url": post_url,
+                "category": blog.get_category_display(),
+                "unsubscribe_url": unsubscribe_url,
+            },
+        )
+        if ok:
+            sent += 1
+    logger.info("New-post notification for '%s': %d/%d sent", blog.slug, sent, subscribers.count() if hasattr(subscribers, 'count') else sent)
+    return sent

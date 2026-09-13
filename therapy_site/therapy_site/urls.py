@@ -141,6 +141,42 @@ urlpatterns = [
     ),
 
     path(
+        'blog/feed/',
+        views.blog_feed,
+        name='blog_feed'
+    ),
+
+    path(
+        'blog/subscribe/',
+        views.blog_subscribe,
+        name='blog_subscribe'
+    ),
+
+    path(
+        'blog/unsubscribe/<uuid:token>/',
+        views.blog_unsubscribe,
+        name='blog_unsubscribe'
+    ),
+
+    path(
+        'blog/<slug:slug>/comment/',
+        views.blog_comment_create,
+        name='blog_comment_create'
+    ),
+
+    path(
+        'blog/comment/<int:comment_id>/vote/',
+        views.blog_comment_vote,
+        name='blog_comment_vote'
+    ),
+
+    path(
+        'blog/<slug:slug>/like/',
+        views.blog_post_like,
+        name='blog_post_like'
+    ),
+
+    path(
         'blog/<slug:slug>/',
         views.blog_detail,
         name='blog_detail'

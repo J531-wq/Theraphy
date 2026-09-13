@@ -58,7 +58,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 60px 20px 48px;
+      padding: 118px 20px 48px;
       opacity: 0;
       transition: opacity 0.45s ease;
       /* CSS fallback: if JS is delayed, fade in automatically after 600ms */
@@ -67,6 +67,19 @@
     @keyframes fallback-show { to { opacity: 1; } }
     body.page-loaded { opacity: 1; animation: none; }
     body.page-exit   { opacity: 0; animation: none; transition: opacity 0.35s ease; }
+
+    .site-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 48px; background: rgba(0,0,0,.25);
+      border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(14px);
+    }
+    .site-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-size: 15px; font-weight: 700; }
+    .site-brand img { width: 26px; height: 26px; object-fit: contain; }
+    .site-links { display: flex; align-items: center; gap: 12px; }
+    .site-links a { padding: 9px 22px; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); background: rgba(255,255,255,.07); font-size: 14px; text-decoration: none; }
+    .site-links a:hover, .site-links a.active { background: rgba(46,125,110,.24); border-color: rgba(46,125,110,.5); }
+    .site-links .site-blog { background: linear-gradient(135deg, var(--teal), var(--teal-light)); border-color: transparent; }
 
     /* ── Header ── */
     .page-header {
@@ -189,12 +202,25 @@
     }
 
     @media (max-width: 540px) {
-      body { padding: 48px 14px 40px; }
+      body { padding: 100px 14px 40px; }
       .grid { grid-template-columns: 1fr; }
+      .site-nav { padding: 14px 16px; }
+      .site-links { gap: 6px; }
+      .site-links a { padding: 8px 12px; font-size: 12px; }
     }
   </style>
 </head>
 <body>
+
+  <nav class="site-nav" aria-label="Main navigation">
+    <a class="site-brand" href="{% url 'welcome' %}" onclick="navTo(event,this.href)">
+      <img src="{% static 'core/logo.png' %}" alt="">MyTherapyDoctor
+    </a>
+    <div class="site-links">
+      <a href="{% url 'welcome' %}" onclick="navTo(event,this.href)">Home</a>
+      <a class="site-blog" href="{% url 'blog_list' %}" onclick="navTo(event,this.href)">Blog</a>
+    </div>
+  </nav>
 
   <header class="page-header">
     <p class="brand-label">MyTherapyDoctor</p>

@@ -1,10 +1,16 @@
+import hashlib
 import logging
 import random
 
 from django.contrib.auth.hashers import check_password, make_password
+from django.core.paginator import Paginator
+from django.db import IntegrityError
+from django.db.models import F
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from .forms import (
     ForgotPasswordForm,
@@ -13,8 +19,18 @@ from .forms import (
     ResetPasswordForm,
     VerificationCodeForm,
 )
-from .models import ChatMessage, ChatSession, User, Blog
+from .models import (
+    Blog,
+    BlogComment,
+    BlogCommentVote,
+    BlogPostLike,
+    BlogSubscriber,
+    ChatMessage,
+    ChatSession,
+    User,
+)
 from .services.email_service import (
+    send_blog_subscription_welcome,
     send_reset_email,
     send_verification_email,
     send_welcome_email,
@@ -467,9 +483,11 @@ def robots_txt(request):
 
 def sitemap_xml(request):
     """Generate an XML sitemap of all public, indexable pages."""
-    pages = [
+    static_pages = [
         ("/", "1.0", "daily"),
         ("/sections/", "0.9", "weekly"),
+        ("/blog/", "0.9", "daily"),
+        ("/blog/feed/", "0.7", "daily"),
         ("/therapy/child/", "0.8", "weekly"),
         ("/therapy/teen/", "0.8", "weekly"),
         ("/therapy/trauma/", "0.8", "weekly"),
@@ -478,19 +496,31 @@ def sitemap_xml(request):
         ("/therapy/relationship/", "0.8", "weekly"),
         ("/therapy/general/", "0.8", "weekly"),
     ]
-    url_entries = "\n".join(
+    # Every published blog post — keeps Google discovering new content fast.
+    blog_entries = []
+    for post in Blog.objects.filter(is_published=True).order_by('-updated_at'):
+        lastmod = post.updated_at.strftime('%Y-%m-%d')
+        blog_entries.append(
+            f"  <url>\n"
+            f"    <loc>{BASE_URL}{post.get_absolute_url()}</loc>\n"
+            f"    <lastmod>{lastmod}</lastmod>\n"
+            f"    <changefreq>weekly</changefreq>\n"
+            f"    <priority>0.8</priority>\n"
+            f"  </url>"
+        )
+    entries = [
         f"  <url>\n"
         f"    <loc>{BASE_URL}{path}</loc>\n"
         f"    <changefreq>{freq}</changefreq>\n"
         f"    <priority>{prio}</priority>\n"
         f"  </url>"
-        for path, prio, freq in pages
-    )
+        for path, prio, freq in static_pages
+    ] + blog_entries
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-        f"{url_entries}\n"
-        "</urlset>\n"
+        + "\n".join(entries) +
+        '\n</urlset>\n'
     )
     return HttpResponse(xml, content_type="application/xml")
 
@@ -499,27 +529,48 @@ def sitemap_xml(request):
 # Blog views
 # ---------------------------------------------------------------------------
 
+def _voter_key(request):
+    """
+    Stable anonymous voter id: logged-in user id if present, else the
+    Django session key (created on demand).  Hashed so raw ids never
+    touch the database.
+    """
+    user_id = request.session.get("user_id")
+    if user_id:
+        raw = f"user:{user_id}"
+    else:
+        if not request.session.session_key:
+            request.session.save()
+        raw = f"session:{request.session.session_key or 'anon'}"
+    return hashlib.sha256(raw.encode()).hexdigest()
+
+
 def blog_list(request):
-    """Display all published blog posts with pagination."""
+    """Display all published blog posts, 21 per page."""
     category = request.GET.get('category', None)
-    
+
     # Get published blogs
     blogs = Blog.objects.filter(is_published=True).order_by('-created_at')
-    
+
     # Filter by category if provided
     if category:
         blogs = blogs.filter(category=category)
-    
-    # Get all categories for filter dropdown
+
+    paginator = Paginator(blogs, 21)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Get all categories for filter pills
     categories = Blog.CATEGORY_CHOICES
-    
+
     context = {
-        'blogs': blogs,
+        'blogs': page_obj.object_list,
+        'page_obj': page_obj,
         'categories': categories,
         'selected_category': category,
-        'total_blogs': blogs.count(),
+        'total_blogs': paginator.count,
     }
-    
+
     return render(request, 'core/blog_list.html', context)
 
 
@@ -529,16 +580,258 @@ def blog_detail(request, slug):
         blog = Blog.objects.get(slug=slug, is_published=True)
     except Blog.DoesNotExist:
         return render(request, 'core/404.html', status=404)
-    
+
     # Get related blogs (same category)
     related_blogs = Blog.objects.filter(
         category=blog.category,
         is_published=True
     ).exclude(id=blog.id).order_by('-created_at')[:3]
-    
+
+    # Top-level approved comments + their approved replies
+    top_comments = (
+        BlogComment.objects
+        .filter(post=blog, parent__isnull=True, is_approved=True)
+        .prefetch_related('replies')
+        .order_by('created_at')
+    )
+    comments = []
+    for comment in top_comments:
+        replies = [r for r in comment.replies.all() if r.is_approved]
+        comments.append({'comment': comment, 'replies': replies})
+
+    # Has this visitor already liked the post?
+    post_liked = BlogPostLike.objects.filter(
+        post=blog, voter_key=_voter_key(request)
+    ).exists()
+
     context = {
         'blog': blog,
         'related_blogs': related_blogs,
+        'comments': comments,
+        'comment_count': top_comments.count(),
+        'post_liked': post_liked,
     }
-    
+
     return render(request, 'core/blog_detail.html', context)
+
+
+@require_POST
+def blog_subscribe(request):
+    """AJAX subscribe endpoint — stores the email, sends a ZeptoMail welcome."""
+    email = request.POST.get('email', '').strip().lower()
+    name = request.POST.get('name', '').strip()[:100]
+    if not email or '@' not in email or '.' not in email.split('@')[-1]:
+        return JsonResponse(
+            {'ok': False, 'message': 'Please enter a valid email address.'},
+            status=400,
+        )
+    subscriber, created = BlogSubscriber.objects.get_or_create(
+        email=email, defaults={'name': name}
+    )
+    if not created and not subscriber.is_active:
+        subscriber.is_active = True
+        subscriber.save(update_fields=['is_active'])
+    absolute = request.build_absolute_uri('/').rstrip('/')
+    unsubscribe_url = f"{absolute}/blog/unsubscribe/{subscriber.token}/"
+    send_blog_subscription_welcome(
+        email, name or subscriber.name, unsubscribe_url
+    )
+    return JsonResponse(
+        {'ok': True, 'message': 'Thanks for subscribing! Please check your inbox.'}
+    )
+
+
+def blog_unsubscribe(request, token):
+    """One-click unsubscribe link from notification emails."""
+    subscriber = get_object_or_404(BlogSubscriber, token=token)
+    subscriber.is_active = False
+    subscriber.save(update_fields=['is_active'])
+    return render(
+        request, 'core/blog_unsubscribe.html', {'email': subscriber.email}
+    )
+
+
+@require_POST
+def blog_comment_create(request, slug):
+    """AJAX endpoint — post a top-level comment or a reply."""
+    blog = get_object_or_404(Blog, slug=slug, is_published=True)
+    name = request.POST.get('name', '').strip()[:100]
+    email = request.POST.get('email', '').strip().lower()
+    body = request.POST.get('body', '').strip()
+    parent_id = request.POST.get('parent_id')
+    if not name or not email or not body:
+        return JsonResponse(
+            {'ok': False, 'message': 'Name, email and comment are required.'},
+            status=400,
+        )
+    if len(body) > 2000:
+        return JsonResponse(
+            {'ok': False, 'message': 'Comment is too long (max 2000 characters).'},
+            status=400,
+        )
+    parent = None
+    if parent_id:
+        parent = get_object_or_404(
+            BlogComment, id=parent_id, post=blog, is_approved=True
+        )
+        if parent.parent_id is not None:
+            # Replies nest only one level — reply to the top-level parent.
+            parent = parent.parent
+    comment = BlogComment.objects.create(
+        post=blog, parent=parent, name=name, email=email, body=body
+    )
+    return JsonResponse({
+        'ok': True,
+        'comment': {
+            'id': comment.id,
+            'name': comment.name,
+            'body': comment.body,
+            'created': timezone.localtime(comment.created_at).strftime('%b %d, %Y'),
+            'parent_id': parent.id if parent else None,
+        },
+    })
+
+
+@require_POST
+def blog_comment_vote(request, comment_id):
+    """AJAX endpoint — like or dislike a comment (one vote per visitor)."""
+    comment = get_object_or_404(BlogComment, id=comment_id, is_approved=True)
+    try:
+        value = int(request.POST.get('value', 0))
+    except (TypeError, ValueError):
+        value = 0
+    if value not in (BlogCommentVote.LIKE, BlogCommentVote.DISLIKE):
+        return JsonResponse(
+            {'ok': False, 'message': 'Invalid vote.'}, status=400
+        )
+    key = _voter_key(request)
+    existing = BlogCommentVote.objects.filter(
+        comment=comment, voter_key=key
+    ).first()
+    if existing and existing.value == value:
+        # Toggle off — remove the vote.
+        existing.delete()
+        if value == BlogCommentVote.LIKE:
+            BlogComment.objects.filter(id=comment.id).update(
+                likes_count=F('likes_count') - 1
+            )
+        else:
+            BlogComment.objects.filter(id=comment.id).update(
+                dislikes_count=F('dislikes_count') - 1
+            )
+        user_vote = 0
+    elif existing:
+        # Switch sides.
+        existing.value = value
+        existing.save(update_fields=['value'])
+        if value == BlogCommentVote.LIKE:
+            BlogComment.objects.filter(id=comment.id).update(
+                likes_count=F('likes_count') + 1,
+                dislikes_count=F('dislikes_count') - 1,
+            )
+        else:
+            BlogComment.objects.filter(id=comment.id).update(
+                likes_count=F('likes_count') - 1,
+                dislikes_count=F('dislikes_count') + 1,
+            )
+        user_vote = value
+    else:
+        try:
+            BlogCommentVote.objects.create(
+                comment=comment, voter_key=key, value=value
+            )
+        except IntegrityError:
+            pass
+        if value == BlogCommentVote.LIKE:
+            BlogComment.objects.filter(id=comment.id).update(
+                likes_count=F('likes_count') + 1
+            )
+        else:
+            BlogComment.objects.filter(id=comment.id).update(
+                dislikes_count=F('dislikes_count') + 1
+            )
+        user_vote = value
+    # Guard against negative counters from legacy rows.
+    BlogComment.objects.filter(
+        id=comment.id, likes_count__lt=0
+    ).update(likes_count=0)
+    BlogComment.objects.filter(
+        id=comment.id, dislikes_count__lt=0
+    ).update(dislikes_count=0)
+    comment.refresh_from_db()
+    return JsonResponse({
+        'ok': True,
+        'likes': comment.likes_count,
+        'dislikes': comment.dislikes_count,
+        'user_vote': user_vote,
+    })
+
+
+@require_POST
+def blog_post_like(request, slug):
+    """AJAX endpoint — toggle this visitor's like on a post."""
+    blog = get_object_or_404(Blog, slug=slug, is_published=True)
+    key = _voter_key(request)
+    existing = BlogPostLike.objects.filter(post=blog, voter_key=key).first()
+    if existing:
+        existing.delete()
+        Blog.objects.filter(id=blog.id).update(
+            likes_count=F('likes_count') - 1
+        )
+        liked = False
+    else:
+        try:
+            BlogPostLike.objects.create(post=blog, voter_key=key)
+        except IntegrityError:
+            pass
+        Blog.objects.filter(id=blog.id).update(
+            likes_count=F('likes_count') + 1
+        )
+        liked = True
+    Blog.objects.filter(id=blog.id, likes_count__lt=0).update(likes_count=0)
+    blog.refresh_from_db()
+    return JsonResponse({'ok': True, 'likes': blog.likes_count, 'liked': liked})
+
+
+def blog_feed(request):
+    """RSS 2.0 feed of the latest published posts (fast Google indexing)."""
+    posts = Blog.objects.filter(is_published=True).order_by('-created_at')[:20]
+    base = request.build_absolute_uri('/').rstrip('/')
+    xml_items = []
+    for post in posts:
+        image_url = ''
+        if post.featured_image:
+            try:
+                image_url = f"{base}{post.featured_image.url}"
+            except ValueError:
+                image_url = ''
+        image_url = image_url or (post.cover_image_url or '')
+        enclosure = (
+            f'\n      <enclosure url="{image_url}" type="image/jpeg" />'
+            if image_url else ''
+        )
+        pub_date = post.created_at.strftime('%a, %d %b %Y %H:%M:%S +0000')
+        xml_items.append(
+            f"    <item>\n"
+            f"      <title>{post.title}</title>\n"
+            f"      <link>{base}{post.get_absolute_url()}</link>\n"
+            f"      <guid isPermaLink=\"true\">{base}{post.get_absolute_url()}</guid>\n"
+            f"      <description>{post.excerpt}</description>\n"
+            f"      <pubDate>{pub_date}</pubDate>\n"
+            f"      <author>{post.author}</author>\n"
+            f"      <category>{post.get_category_display()}</category>{enclosure}\n"
+            f"    </item>"
+        )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<rss version="2.0">\n'
+        '  <channel>\n'
+        '    <title>MyTherapyDoctor Blog</title>\n'
+        f'    <link>{base}/blog/</link>\n'
+        '    <description>Mental health insights, wellness tips and therapy advice.</description>\n'
+        '    <language>en-us</language>\n'
+        + '\n'.join(xml_items) +
+        '\n  </channel>\n'
+        '</rss>\n'
+    )
+    return HttpResponse(xml, content_type="application/rss+xml")

@@ -1,4 +1,7 @@
+import uuid
+
 from django.db import models
+from django.urls import reverse
 
 
 class User(models.Model):
@@ -79,6 +82,11 @@ class Blog(models.Model):
     content = models.TextField()
     excerpt = models.TextField(max_length=500, help_text="Short summary of the blog post")
     featured_image = models.ImageField(upload_to='blog_images/', null=True, blank=True)
+    cover_image_url = models.URLField(
+        max_length=500, null=True, blank=True,
+        help_text="External cover photo URL (used when no uploaded featured image)",
+    )
+    likes_count = models.PositiveIntegerField(default=0)
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -88,3 +96,94 @@ class Blog(models.Model):
     
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('blog_detail', args=[self.slug])
+
+
+class BlogSubscriber(models.Model):
+    """Email subscriber for new-blog-post notifications (ZeptoMail)."""
+    email = models.EmailField(unique=True)
+    name = models.CharField(max_length=100, blank=True, default='')
+    is_active = models.BooleanField(default=True)
+    token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.email
+
+
+class BlogComment(models.Model):
+    """Reader comment on a blog post. Replies nest one level via `parent`."""
+    post = models.ForeignKey(
+        Blog, on_delete=models.CASCADE, related_name='comments'
+    )
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE,
+        related_name='replies', null=True, blank=True,
+    )
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    body = models.TextField(max_length=2000)
+    is_approved = models.BooleanField(default=True)
+    likes_count = models.PositiveIntegerField(default=0)
+    dislikes_count = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.name} on {self.post.slug}"
+
+    @property
+    def score(self):
+        return self.likes_count - self.dislikes_count
+
+
+class BlogCommentVote(models.Model):
+    """One like (+1) or dislike (-1) per visitor per comment."""
+    LIKE = 1
+    DISLIKE = -1
+    VALUE_CHOICES = [(LIKE, 'Like'), (DISLIKE, 'Dislike')]
+
+    comment = models.ForeignKey(
+        BlogComment, on_delete=models.CASCADE, related_name='votes'
+    )
+    voter_key = models.CharField(max_length=64, db_index=True)
+    value = models.SmallIntegerField(choices=VALUE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['comment', 'voter_key'],
+                name='unique_comment_voter',
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.voter_key} → {self.value} on comment {self.comment_id}"
+
+
+class BlogPostLike(models.Model):
+    """One like per visitor per blog post."""
+    post = models.ForeignKey(
+        Blog, on_delete=models.CASCADE, related_name='likes'
+    )
+    voter_key = models.CharField(max_length=64, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['post', 'voter_key'],
+                name='unique_post_voter',
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.voter_key} likes {self.post.slug}"

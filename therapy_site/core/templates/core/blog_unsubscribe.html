@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unsubscribed — MyTherapyDoctor Blog</title>
+  {% load static %}
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif; color: #f0f4f3; text-align: center; padding: 24px;
+      background: linear-gradient(160deg, rgba(0,0,0,0.72) 0%, rgba(0,18,14,0.55) 100%),
+        url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
+    }
+    .card {
+      background: rgba(6,14,12,0.62); border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 18px; padding: 48px 40px; max-width: 480px; backdrop-filter: blur(16px);
+    }
+    h1 { font-size: 26px; margin-bottom: 12px; }
+    p { color: rgba(240,244,243,0.65); line-height: 1.7; margin-bottom: 24px; }
+    a.btn {
+      display: inline-block; padding: 12px 32px; border-radius: 50px; text-decoration: none;
+      background: linear-gradient(135deg, #2e7d6e, #3d9e8c); color: #fff; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>You've been unsubscribed</h1>
+    <p><strong>{{ email }}</strong> will no longer receive new-post notifications from the MyTherapyDoctor Blog. Sorry to see you go — you're welcome back anytime.</p>
+    <a class="btn" href="{% url 'blog_list' %}">Back to the Blog</a>
+  </div>
+</body>
+</html>

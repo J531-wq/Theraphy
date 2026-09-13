@@ -289,6 +289,7 @@
       <span class="brand-name">MyTherapyDoctor</span>
     </div>
     <div class="nav-actions">
+      <button class="btn-ghost" onclick="navTo('{% url 'blog_list' %}')">Blog</button>
       {% if request.session.user_id %}
         <button class="btn-primary-sm" onclick="navTo('{% url 'sections' %}')">Dashboard</button>
       {% else %}

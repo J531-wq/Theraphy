@@ -1,480 +1,467 @@
-{% extends "core/base.html" %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ blog.title }} — MyTherapyDoctor Blog</title>
+  {% load static %}
+  <meta name="description" content="{{ blog.excerpt|truncatechars:160 }}">
+  <meta name="keywords" content="{{ blog.get_category_display }}, mental health, therapy, wellness, MyTherapyDoctor">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mytherapydoctor.com{% url 'blog_detail' blog.slug %}">
+  <!-- Favicon & Site Icon -->
+  <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'core/logo.png' %}">
+  <!-- Open Graph -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="MyTherapyDoctor">
+  <meta property="og:title" content="{{ blog.title }}">
+  <meta property="og:description" content="{{ blog.excerpt|truncatechars:160 }}">
+  <meta property="og:url" content="https://mytherapydoctor.com{% url 'blog_detail' blog.slug %}">
+  {% if blog.featured_image %}
+    <meta property="og:image" content="https://mytherapydoctor.com{{ blog.featured_image.url }}">
+  {% else %}
+    <meta property="og:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
+  {% endif %}
+  <meta property="article:published_time" content="{{ blog.created_at|date:'c' }}">
+  <meta property="article:author" content="{{ blog.author }}">
+  <meta property="article:section" content="{{ blog.get_category_display }}">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ blog.title }}">
+  <meta name="twitter:description" content="{{ blog.excerpt|truncatechars:160 }}">
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "{{ blog.title|escapejs }}",
+    "description": "{{ blog.excerpt|escapejs }}",
+    "datePublished": "{{ blog.created_at|date:'c' }}",
+    "dateModified": "{{ blog.updated_at|date:'c' }}",
+    "author": { "@type": "Person", "name": "{{ blog.author|escapejs }}" },
+    "publisher": { "@type": "Organization", "name": "MyTherapyDoctor", "url": "https://mytherapydoctor.com/" },
+    "mainEntityOfPage": "https://mytherapydoctor.com{% url 'blog_detail' blog.slug %}"
+  }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @font-face {
+      font-family: 'Playfair Display';
+      src: url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype');
+      font-weight: 600; font-style: italic; font-display: swap;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% block title %}{{ blog.title }} - My Therapy Doctor Blog{% endblock %}
-
-{% block extra_css %}
-<style>
-    .blog-detail-container {
-        background: #f8f9fa;
+    :root {
+      --teal:        #2e7d6e;
+      --teal-light:  #3d9e8c;
+      --teal-glow:   rgba(46,125,110,0.4);
+      --glass-bg:    rgba(6,14,12,0.62);
+      --glass-border:rgba(255,255,255,0.09);
+      --text:        #f0f4f3;
+      --muted:       rgba(240,244,243,0.55);
     }
 
+    html, body { width: 100%; font-family: 'Inter', sans-serif; }
+
+    body {
+      min-height: 100vh;
+      background:
+        linear-gradient(160deg, rgba(0,0,0,0.74) 0%, rgba(0,18,14,0.58) 100%),
+        url("{% static 'core/welcome.jpg.jpeg' %}") no-repeat center center / cover fixed;
+      color: var(--text);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      overflow-x: hidden;
+      animation: fallback-show 0s 0.6s forwards;
+    }
+    @keyframes fallback-show { to { opacity: 1; } }
+    body.page-loaded { opacity: 1; animation: none; }
+    body.page-exit   { opacity: 0; animation: none; transition: opacity 0.35s ease; }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 48px;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo { width: 26px; height: 26px; object-fit: contain; }
+    .brand-name { font-size: 15px; font-weight: 700; letter-spacing: 0.3px; color: var(--text); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-ghost {
+      padding: 8px 18px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text); font-size: 13.5px; font-weight: 500; font-family: inherit;
+      text-decoration: none; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.14); }
+    .btn-ghost.active {
+      background: rgba(46,125,110,0.2);
+      border-color: rgba(46,125,110,0.45);
+      color: var(--teal-light);
+    }
+    .btn-primary-sm {
+      padding: 8px 20px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border: none; border-radius: 8px;
+      color: #fff; font-size: 13.5px; font-weight: 600; font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 16px var(--teal-glow);
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary-sm:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ── Page layout ── */
+    .page-wrap { max-width: 880px; margin: 0 auto; padding: 110px 24px 60px; }
+
+    /* ── Breadcrumb ── */
     .breadcrumb {
-        background: white;
-        padding: 20px 0;
-        border-bottom: 1px solid #eee;
+      display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+      font-size: 0.85rem; color: var(--muted);
+      margin-bottom: 22px;
     }
+    .breadcrumb a { color: var(--teal-light); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .crumb-current { color: var(--text); }
 
-    .breadcrumb .container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 0 20px;
-        color: #666;
-        font-size: 0.95rem;
+    /* ── Article card ── */
+    .post-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+      margin-bottom: 52px;
     }
-
-    .breadcrumb a {
-        color: #667eea;
-        text-decoration: none;
+    .post-header { padding: 38px 40px 28px; border-bottom: 1px solid var(--glass-border); }
+    .post-header-top {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 14px; margin-bottom: 18px;
     }
-
-    .breadcrumb a:hover {
-        text-decoration: underline;
+    .category-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(46,125,110,0.16);
+      border: 1px solid rgba(46,125,110,0.35);
+      border-radius: 14px;
+      color: var(--teal-light); font-weight: 600; letter-spacing: 0.4px;
+      text-transform: uppercase; font-size: 10.5px;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
     }
+    .category-badge:hover { background: var(--teal); color: #fff; }
+    .post-header h1 { font-size: 2.2rem; font-weight: 700; line-height: 1.3; margin-bottom: 18px; }
+    .post-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; color: var(--muted); font-size: 0.9rem; }
+    .meta-icon { margin-right: 5px; }
 
-    .container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 0 20px;
+    .share { display: flex; align-items: center; gap: 8px; }
+    .share span {
+      font-size: 0.75rem; color: var(--muted);
+      letter-spacing: 0.8px; text-transform: uppercase; margin-right: 4px;
     }
-
-    .blog-article {
-        background: white;
-        margin: 40px auto;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .article-header {
-        padding: 40px 40px 30px;
-        border-bottom: 1px solid #eee;
-    }
-
-    .article-header h1 {
-        font-size: 2.5rem;
-        line-height: 1.3;
-        margin-bottom: 20px;
-        color: #333;
-    }
-
-    .article-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 20px;
-        color: #666;
-        font-size: 0.95rem;
-    }
-
-    .meta-info {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .meta-info span {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .category-tag {
-        background: #e3f2fd;
-        color: #667eea;
-        padding: 4px 12px;
-        border-radius: 15px;
-        text-decoration: none;
-        font-size: 0.85rem;
-        transition: background 0.3s ease;
-    }
-
-    .category-tag:hover {
-        background: #667eea;
-        color: white;
-    }
-
-    .share-buttons {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-    }
-
     .share-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        color: white;
-        font-weight: bold;
-        transition: transform 0.3s ease;
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 0.8rem;
+      text-decoration: none; border: none; cursor: pointer; font-family: inherit;
+      transition: transform 0.15s, opacity 0.2s;
     }
+    .share-btn:hover { transform: translateY(-2px); opacity: 0.85; }
+    .share-btn.fb { background: #1877f2; }
+    .share-btn.tw { background: #000; border: 1px solid rgba(255,255,255,0.25); }
+    .share-btn.li { background: #0a66c2; }
+    .share-btn.copy { background: rgba(255,255,255,0.09); border: 1px solid var(--glass-border); font-size: 0.75rem; }
 
-    .share-btn:hover {
-        transform: scale(1.1);
+    .post-image { width: 100%; max-height: 420px; overflow: hidden; border-bottom: 1px solid var(--glass-border); }
+    .post-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* ── Article body typography ── */
+    .post-body { padding: 36px 40px 44px; }
+    .post-body p { margin-bottom: 18px; font-size: 1.02rem; line-height: 1.85; color: rgba(240,244,243,0.82); }
+    .post-body p:last-child { margin-bottom: 0; }
+    .post-body strong, .post-body b { color: var(--text); font-weight: 700; }
+    .post-body a { color: var(--teal-light); text-decoration: underline; }
+    .post-body h2, .post-body h3 { color: var(--text); margin: 26px 0 12px; line-height: 1.35; }
+    .post-body h2 { font-size: 1.5rem; }
+    .post-body h3 { font-size: 1.2rem; }
+    .post-body ul, .post-body ol { margin: 0 0 18px 22px; color: rgba(240,244,243,0.82); line-height: 1.8; }
+    .post-body blockquote {
+      margin: 22px 0; padding: 14px 20px;
+      border-left: 3px solid var(--teal);
+      background: rgba(46,125,110,0.1);
+      border-radius: 0 10px 10px 0;
+      color: var(--text); font-style: italic;
     }
-
-    .share-btn.facebook {
-        background: #1877f2;
+    .post-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 14px;
+      padding: 22px 40px;
+      border-top: 1px solid var(--glass-border);
     }
+    .back-link { color: var(--teal-light); font-size: 0.9rem; font-weight: 600; text-decoration: none; }
+    .back-link:hover { text-decoration: underline; }
 
-    .share-btn.twitter {
-        background: #000;
-    }
+    /* ── Section titles ── */
+    .section-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 20px; }
 
-    .share-btn.linkedin {
-        background: #0a66c2;
-    }
-
-    .featured-image {
-        width: 100%;
-        max-height: 400px;
-        overflow: hidden;
-    }
-
-    .featured-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .article-body {
-        padding: 40px;
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #444;
-    }
-
-    .article-body p {
-        margin-bottom: 20px;
-    }
-
-    .article-body h2 {
-        font-size: 1.8rem;
-        margin: 30px 0 15px;
-        color: #333;
-    }
-
-    .article-body h3 {
-        font-size: 1.3rem;
-        margin: 25px 0 10px;
-        color: #333;
-    }
-
-    .article-body ul,
-    .article-body ol {
-        margin: 20px 0 20px 30px;
-    }
-
-    .article-body li {
-        margin-bottom: 10px;
-    }
-
-    .article-body blockquote {
-        border-left: 4px solid #667eea;
-        padding-left: 20px;
-        margin: 30px 0;
-        font-style: italic;
-        color: #666;
-    }
-
-    .article-body strong {
-        color: #333;
-    }
-
-    .article-footer {
-        padding: 20px 40px;
-        border-top: 1px solid #eee;
-        background: #f9f9f9;
-    }
-
-    .article-tags {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .tag {
-        background: #e3f2fd;
-        color: #667eea;
-        padding: 6px 14px;
-        border-radius: 20px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: background 0.3s ease;
-    }
-
-    .tag:hover {
-        background: #667eea;
-        color: white;
-    }
-
-    .related-articles {
-        padding: 60px 20px;
-    }
-
-    .related-articles h2 {
-        text-align: center;
-        font-size: 2rem;
-        margin-bottom: 40px;
-        color: #333;
-    }
-
+    /* ── Related articles ── */
     .related-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+      margin-bottom: 52px;
     }
-
-    .related-card {
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    .blog-card {
+      display: flex; flex-direction: column;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      text-decoration: none; color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
     }
-
-    .related-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    .blog-card:hover {
+      border-color: var(--teal);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
     }
-
-    .related-image {
-        width: 100%;
-        height: 150px;
-        overflow: hidden;
+    .blog-image { width: 100%; height: 160px; overflow: hidden; flex-shrink: 0; background: rgba(255,255,255,0.04); }
+    .blog-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .blog-card:hover .blog-image img { transform: scale(1.05); }
+    .blog-image-placeholder {
+      width: 100%; height: 160px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+      opacity: 0.92;
     }
-
-    .related-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+    .blog-body { display: flex; flex-direction: column; flex-grow: 1; padding: 18px; }
+    .blog-body h3 { font-size: 1rem; font-weight: 700; line-height: 1.4; margin-bottom: 8px; color: var(--text); }
+    .blog-excerpt {
+      font-size: 0.88rem; color: var(--muted); line-height: 1.6; margin-bottom: 14px;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
+    .read-more { margin-top: auto; font-size: 0.83rem; font-weight: 600; color: var(--teal-light); transition: color 0.2s; }
+    .blog-card:hover .read-more { color: #fff; }
 
-    .related-image-placeholder {
-        width: 100%;
-        height: 150px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
+    /* ── CTA ── */
+    .cta-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      padding: 46px 32px;
+      text-align: center;
+      margin-bottom: 60px;
     }
-
-    .related-content {
-        padding: 20px;
+    .cta-card h2 { font-size: 1.5rem; margin-bottom: 10px; }
+    .cta-card p { color: var(--muted); font-size: 0.95rem; margin-bottom: 26px; }
+    .btn-primary {
+      display: inline-block;
+      padding: 12px 26px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border-radius: 8px;
+      color: #fff; font-size: 14.5px; font-weight: 600; text-decoration: none;
+      box-shadow: 0 4px 20px var(--teal-glow);
+      transition: opacity 0.2s, transform 0.15s;
     }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
 
-    .related-content h3 {
-        font-size: 1.1rem;
-        margin-bottom: 10px;
-        line-height: 1.3;
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 28px 24px;
+      border-top: 1px solid var(--glass-border);
+      font-size: 12px; color: var(--muted);
     }
+    footer a { color: var(--teal-light); text-decoration: none; }
+    footer .footer-links { display: flex; gap: 20px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+    footer .footer-links a { font-weight: 500; }
+    footer p { margin-bottom: 6px; }
 
-    .related-content h3 a {
-        color: #333;
-        text-decoration: none;
-        transition: color 0.3s ease;
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      nav { padding: 12px 16px; gap: 8px; }
+      .nav-ghost-desktop { display: none; }
+      .page-wrap { padding: 100px 16px 50px; }
+      .post-header { padding: 26px 22px 22px; }
+      .post-header h1 { font-size: 1.65rem; }
+      .post-body { padding: 26px 22px 32px; }
+      .post-footer { padding: 18px 22px; }
+      .related-grid { grid-template-columns: 1fr; }
     }
+  </style>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4077944879189341"
+     crossorigin="anonymous"></script>
+</head>
+<body>
 
-    .related-content h3 a:hover {
-        color: #667eea;
-    }
-
-    .related-excerpt {
-        color: #666;
-        font-size: 0.9rem;
-        margin-bottom: 15px;
-        line-height: 1.5;
-    }
-
-    .read-more {
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: color 0.3s ease;
-    }
-
-    .read-more:hover {
-        color: #764ba2;
-    }
-
-    .cta-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 60px 20px;
-        text-align: center;
-    }
-
-    .cta-section .container {
-        max-width: 700px;
-    }
-
-    .cta-section h2 {
-        font-size: 2rem;
-        margin-bottom: 15px;
-    }
-
-    .cta-section p {
-        font-size: 1.1rem;
-        margin-bottom: 30px;
-        opacity: 0.9;
-    }
-
-    .cta-button {
-        display: inline-block;
-        padding: 14px 40px;
-        background: white;
-        color: #667eea;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: 600;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .cta-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    @media (max-width: 768px) {
-        .article-header {
-            padding: 20px;
-        }
-
-        .article-header h1 {
-            font-size: 1.8rem;
-        }
-
-        .article-meta {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .article-body {
-            padding: 20px;
-            font-size: 1rem;
-        }
-
-        .article-footer {
-            padding: 15px 20px;
-        }
-
-        .related-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .cta-section h2 {
-            font-size: 1.5rem;
-        }
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="blog-detail-container">
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-        <div class="container">
-            <a href="{% url 'blog_list' %}">Blog</a> / <span>{{ blog.title }}</span>
-        </div>
+  <!-- ── Navigation ── -->
+  <nav>
+    <a href="{% url 'welcome' %}" class="nav-brand" onclick="navTo(event, this.href)">
+      <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor" class="nav-logo">
+      <span class="brand-name">MyTherapyDoctor</span>
+    </a>
+    <div class="nav-actions">
+      <a class="btn-ghost nav-ghost-desktop" href="{% url 'welcome' %}" onclick="navTo(event, this.href)">Home</a>
+      <a class="btn-ghost active" href="{% url 'blog_list' %}" onclick="navTo(event, this.href)">Blog</a>
+      <a class="btn-ghost nav-ghost-desktop" href="{% url 'sections' %}" onclick="navTo(event, this.href)">Therapy</a>
+      {% if request.session.user_id %}
+        <button class="btn-primary-sm" onclick="navTo('{% url 'sections' %}')">Dashboard</button>
+      {% else %}
+        <button class="btn-primary-sm" onclick="navTo('{% url 'register' %}')">Get Started</button>
+      {% endif %}
     </div>
+  </nav>
 
-    <!-- Main Blog Article -->
-    <article class="blog-article">
-        <div class="container">
-            <!-- Article Header -->
-            <header class="article-header">
-                <h1>{{ blog.title }}</h1>
-                
-                <div class="article-meta">
-                    <div class="meta-info">
-                        <span class="author">
-                            <strong>By</strong> {{ blog.author }}
-                        </span>
-                        <span class="date">
-                            <strong>Published</strong> {{ blog.created_at|date:"F d, Y" }}
-                        </span>
-                        <span class="category">
-                            <a href="{% url 'blog_list' %}?category={{ blog.category }}" class="category-tag">{{ blog.get_category_display }}</a>
-                        </span>
-                    </div>
-                    
-                    {% if blog.featured_image %}
-                        <div class="share-buttons">
-                            <span>Share:</span>
-                            <a href="#" class="share-btn facebook" title="Share on Facebook">f</a>
-                            <a href="#" class="share-btn twitter" title="Share on Twitter">𝕏</a>
-                            <a href="#" class="share-btn linkedin" title="Share on LinkedIn">in</a>
-                        </div>
-                    {% endif %}
-                </div>
-            </header>
+  <div class="page-wrap">
 
-            <!-- Featured Image -->
-            {% if blog.featured_image %}
-                <div class="featured-image">
-                    <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
-                </div>
-            {% endif %}
+    <!-- ── Breadcrumb ── -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="{% url 'welcome' %}">Home</a>
+      <span>/</span>
+      <a href="{% url 'blog_list' %}">Blog</a>
+      <span>/</span>
+      <span class="crumb-current">{{ blog.title|truncatechars:48 }}</span>
+    </nav>
 
-            <!-- Article Content -->
-            <div class="article-body">
-                {{ blog.content|linebreaks }}
-            </div>
-
-            <!-- Article Footer -->
-            <footer class="article-footer">
-                <div class="article-tags">
-                    <strong>Category:</strong>
-                    <a href="{% url 'blog_list' %}?category={{ blog.category }}" class="tag">{{ blog.get_category_display }}</a>
-                </div>
-            </footer>
+    <!-- ── Article ── -->
+    <article class="post-card">
+      <header class="post-header">
+        <div class="post-header-top">
+          <a href="{% url 'blog_list' %}?category={{ blog.category }}" class="category-badge">
+            {{ blog.get_category_display }}
+          </a>
+          <div class="share">
+            <span>Share</span>
+            <a id="share-fb" class="share-btn fb" href="#" target="_blank" rel="noopener" title="Share on Facebook">f</a>
+            <a id="share-tw" class="share-btn tw" href="#" target="_blank" rel="noopener" title="Share on X">𝕏</a>
+            <a id="share-li" class="share-btn li" href="#" target="_blank" rel="noopener" title="Share on LinkedIn">in</a>
+            <button id="share-copy" class="share-btn copy" type="button" title="Copy link" onclick="copyLink(this)">🔗</button>
+          </div>
         </div>
+
+        <h1>{{ blog.title }}</h1>
+
+        <div class="post-meta">
+          <span class="meta-item"><span class="meta-icon">✍️</span>{{ blog.author }}</span>
+          <span class="meta-item"><span class="meta-icon">📅</span>{{ blog.created_at|date:"F d, Y" }}</span>
+          <span class="meta-item"><span class="meta-icon">📄</span>{{ blog.content|wordcount }} words</span>
+        </div>
+      </header>
+
+      {% if blog.featured_image %}
+        <div class="post-image">
+          <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
+        </div>
+      {% endif %}
+
+      <div class="post-body">
+        {{ blog.content|linebreaks }}
+      </div>
+
+      <footer class="post-footer">
+        <a href="{% url 'blog_list' %}?category={{ blog.category }}" class="category-badge">
+          {{ blog.get_category_display }}
+        </a>
+        <a href="{% url 'blog_list' %}" class="back-link">← Back to all articles</a>
+      </footer>
     </article>
 
-    <!-- Related Articles -->
+    <!-- ── Related articles ── -->
     {% if related_blogs %}
-        <section class="related-articles">
-            <div class="container">
-                <h2>Related Articles</h2>
-                <div class="related-grid">
-                    {% for related_blog in related_blogs %}
-                        <article class="related-card">
-                            {% if related_blog.featured_image %}
-                                <div class="related-image">
-                                    <img src="{{ related_blog.featured_image.url }}" alt="{{ related_blog.title }}" loading="lazy">
-                                </div>
-                            {% else %}
-                                <div class="related-image-placeholder">📝</div>
-                            {% endif %}
-                            
-                            <div class="related-content">
-                                <h3><a href="{% url 'blog_detail' related_blog.slug %}">{{ related_blog.title }}</a></h3>
-                                <p class="related-excerpt">{{ related_blog.excerpt|truncatewords:15 }}</p>
-                                <a href="{% url 'blog_detail' related_blog.slug %}" class="read-more">Read More →</a>
-                            </div>
-                        </article>
-                    {% endfor %}
+      <section class="related">
+        <h2 class="section-title">Related Articles</h2>
+        <div class="related-grid">
+          {% for related_blog in related_blogs %}
+            <a class="blog-card" href="{% url 'blog_detail' related_blog.slug %}" onclick="navTo(event, this.href)">
+              {% if related_blog.featured_image %}
+                <div class="blog-image">
+                  <img src="{{ related_blog.featured_image.url }}" alt="{{ related_blog.title }}" loading="lazy">
                 </div>
-            </div>
-        </section>
+              {% else %}
+                <div class="blog-image-placeholder">📝</div>
+              {% endif %}
+              <div class="blog-body">
+                <h3>{{ related_blog.title }}</h3>
+                <p class="blog-excerpt">{{ related_blog.excerpt|truncatewords:18 }}</p>
+                <span class="read-more">Read more →</span>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </section>
     {% endif %}
 
-    <!-- Call to Action -->
-    <section class="cta-section">
-        <div class="container">
-            <h2>Ready to Start Your Mental Health Journey?</h2>
-            <p>Connect with our therapists and get personalized support</p>
-            <a href="{% url 'sections' %}" class="cta-button">Explore Our Services</a>
-        </div>
+    <!-- ── Call to action ── -->
+    <section class="cta-card">
+      <h2>Ready to Start Your Mental Health Journey?</h2>
+      <p>Chat with a specialised AI therapist — confidential, compassionate, and available 24/7.</p>
+      <a href="{% url 'sections' %}" class="btn-primary" onclick="navTo(event, this.href)">Explore Therapy Sections</a>
     </section>
-</div>
-{% endblock %}
+
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="footer-links">
+      <a href="{% url 'welcome' %}" onclick="navTo(event, this.href)">Home</a>
+      <a href="{% url 'blog_list' %}" onclick="navTo(event, this.href)">Blog</a>
+      <a href="{% url 'sections' %}" onclick="navTo(event, this.href)">Therapy</a>
+      <a href="mailto:info@mytherapydoctor.com">info@mytherapydoctor.com</a>
+    </div>
+    <p>&copy; 2026 MyTherapyDoctor &bull; All rights reserved.</p>
+    <p>This platform provides AI-assisted wellness support and is not a substitute for professional medical or psychiatric care.</p>
+  </footer>
+
+  <script>
+    // Fade-in on load (with CSS fallback for delayed JS) and bfcache restore.
+    document.addEventListener("DOMContentLoaded", () => {
+      requestAnimationFrame(() => document.body.classList.add("page-loaded"));
+      fillShareLinks();
+    });
+    window.addEventListener("pageshow", () => {
+      document.body.classList.remove("page-exit");
+      document.body.classList.add("page-loaded");
+    });
+
+    function navTo(e, href) {
+      if (e) e.preventDefault();
+      if (document.body.classList.contains("page-exit")) return;
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+      setTimeout(() => window.location.href = href, 380);
+    }
+
+    // Fill share buttons with the real URL of this post.
+    function fillShareLinks() {
+      const url = encodeURIComponent(window.location.href);
+      const title = encodeURIComponent(document.title);
+      document.getElementById("share-fb").href =
+        "https://www.facebook.com/sharer/sharer.php?u=" + url;
+      document.getElementById("share-tw").href =
+        "https://twitter.com/intent/tweet?url=" + url + "&text=" + title;
+      document.getElementById("share-li").href =
+        "https://www.linkedin.com/sharing/share-offsite/?url=" + url;
+    }
+
+    function copyLink(btn) {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        btn.textContent = "✓";
+        btn.title = "Copied!";
+        setTimeout(() => { btn.textContent = "🔗"; btn.title = "Copy link"; }, 1500);
+      }).catch(() => {});
+    }
+  </script>
+</body>
+</html>
+

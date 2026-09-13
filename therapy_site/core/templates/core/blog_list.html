@@ -1,360 +1,433 @@
-{% extends "core/base.html" %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — MyTherapyDoctor</title>
+  {% load static %}
+  <meta name="description" content="Mental health insights, wellness tips, therapy advice and success stories from the MyTherapyDoctor journal.">
+  <meta name="keywords" content="mental health blog, wellness tips, therapy advice, self-care, mindfulness, MyTherapyDoctor blog">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://mytherapydoctor.com/blog/">
+  <!-- Favicon & Site Icon -->
+  <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'core/logo.png' %}">
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MyTherapyDoctor">
+  <meta property="og:title" content="Blog — MyTherapyDoctor">
+  <meta property="og:description" content="Mental health insights, wellness tips, and stories to support your journey.">
+  <meta property="og:url" content="https://mytherapydoctor.com/blog/">
+  <meta property="og:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Blog — MyTherapyDoctor">
+  <meta name="twitter:description" content="Mental health insights, wellness tips, and stories to support your journey.">
+  <meta name="twitter:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @font-face {
+      font-family: 'Playfair Display';
+      src: url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype');
+      font-weight: 600; font-style: italic; font-display: swap;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-{% block title %}Our Blog - My Therapy Doctor{% endblock %}
-
-{% block extra_css %}
-<style>
-    .blog-container {
-        background: #f8f9fa;
+    :root {
+      --teal:        #2e7d6e;
+      --teal-light:  #3d9e8c;
+      --teal-glow:   rgba(46,125,110,0.4);
+      --glass-bg:    rgba(6,14,12,0.62);
+      --glass-border:rgba(255,255,255,0.09);
+      --text:        #f0f4f3;
+      --muted:       rgba(240,244,243,0.55);
     }
 
-    .blog-hero {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 80px 20px;
-        text-align: center;
-    }
+    html, body { width: 100%; font-family: 'Inter', sans-serif; }
 
-    .hero-content h1 {
-        font-size: 3rem;
-        margin-bottom: 15px;
-        font-weight: 700;
+    body {
+      min-height: 100vh;
+      background:
+        linear-gradient(160deg, rgba(0,0,0,0.72) 0%, rgba(0,18,14,0.55) 100%),
+        url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
+      color: var(--text);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      overflow-x: hidden;
+      animation: fallback-show 0s 0.6s forwards;
     }
+    @keyframes fallback-show { to { opacity: 1; } }
+    body.page-loaded { opacity: 1; animation: none; }
+    body.page-exit   { opacity: 0; animation: none; transition: opacity 0.35s ease; }
 
-    .hero-content p {
-        font-size: 1.2rem;
-        opacity: 0.9;
+    /* ── Nav ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 48px;
+      background: rgba(0,0,0,0.25);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--glass-border);
     }
-
-    .blog-section {
-        padding: 60px 20px;
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo { width: 26px; height: 26px; object-fit: contain; }
+    .brand-name { font-size: 15px; font-weight: 700; letter-spacing: 0.3px; color: var(--text); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-ghost {
+      padding: 8px 18px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text); font-size: 13.5px; font-weight: 500; font-family: inherit;
+      text-decoration: none; cursor: pointer; transition: background 0.2s;
     }
-
-    .filter-section {
-        margin-bottom: 50px;
-        text-align: center;
+    .btn-ghost:hover { background: rgba(255,255,255,0.14); }
+    .btn-ghost.active {
+      background: rgba(46,125,110,0.2);
+      border-color: rgba(46,125,110,0.45);
+      color: var(--teal-light);
     }
+    .btn-primary-sm {
+      padding: 8px 20px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border: none; border-radius: 8px;
+      color: #fff; font-size: 13.5px; font-weight: 600; font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 4px 16px var(--teal-glow);
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary-sm:hover { opacity: 0.88; transform: translateY(-1px); }
 
+    /* ── Page layout ── */
+    .page-wrap { max-width: 1060px; margin: 0 auto; padding: 130px 24px 60px; }
+
+    .page-header { text-align: center; margin-bottom: 44px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px;
+      background: rgba(46,125,110,0.15);
+      border: 1px solid rgba(46,125,110,0.3);
+      border-radius: 20px;
+      font-size: 12px; font-weight: 600; letter-spacing: 1.4px;
+      text-transform: uppercase; color: var(--teal-light);
+      margin-bottom: 22px;
+    }
+    .eyebrow-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal-light);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+    .page-header h1 { font-size: 2.6rem; font-weight: 700; margin-bottom: 14px; line-height: 1.2; }
+    .page-header h1 em {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic; font-weight: 600; color: var(--teal-light);
+    }
+    .page-header p { color: var(--muted); font-size: 1.05rem; max-width: 580px; margin: 0 auto; line-height: 1.7; }
+
+    /* ── Category filters ── */
+    .filter-section { text-align: center; margin-bottom: 40px; }
     .filter-section h3 {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
-        color: #333;
+      font-size: 12px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 18px;
     }
-
-    .category-filters {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        justify-content: center;
-    }
-
+    .category-filters { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
     .filter-btn {
-        padding: 10px 20px;
-        border: 2px solid #ddd;
-        border-radius: 25px;
-        background: white;
-        color: #333;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        font-size: 0.95rem;
+      padding: 8px 18px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      color: var(--text); font-size: 0.85rem; font-weight: 500; font-family: inherit;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
     }
-
-    .filter-btn:hover,
+    .filter-btn:hover { border-color: var(--teal); transform: translateY(-1px); }
     .filter-btn.active {
-        background: #667eea;
-        color: white;
-        border-color: #667eea;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 16px var(--teal-glow);
     }
 
+    /* ── Blog grid & cards ── */
     .blog-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-        gap: 30px;
-        margin-bottom: 40px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 60px;
     }
-
     .blog-card {
-        background: white;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        display: flex;
-        flex-direction: column;
+      display: flex; flex-direction: column;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      text-decoration: none; color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
     }
-
     .blog-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      border-color: var(--teal);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
     }
-
-    .blog-image {
-        width: 100%;
-        height: 200px;
-        overflow: hidden;
-        background: #f0f0f0;
-    }
-
-    .blog-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .blog-card:hover .blog-image img {
-        transform: scale(1.05);
-    }
-
+    .blog-image { width: 100%; height: 190px; overflow: hidden; flex-shrink: 0; background: rgba(255,255,255,0.04); }
+    .blog-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .blog-card:hover .blog-image img { transform: scale(1.05); }
     .blog-image-placeholder {
-        width: 100%;
-        height: 200px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+      width: 100%; height: 190px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.6rem;
+      background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+      opacity: 0.92;
     }
-
-    .placeholder-content {
-        font-size: 3rem;
-        opacity: 0.8;
-    }
-
-    .blog-content {
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-    }
-
-    .blog-meta {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-        font-size: 0.85rem;
-    }
-
+    .blog-body { display: flex; flex-direction: column; flex-grow: 1; padding: 20px 20px 18px; }
+    .blog-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 12px; }
     .category-badge {
-        background: #e3f2fd;
-        color: #667eea;
-        padding: 4px 12px;
-        border-radius: 15px;
-        font-weight: 500;
+      padding: 4px 12px;
+      background: rgba(46,125,110,0.16);
+      border: 1px solid rgba(46,125,110,0.35);
+      border-radius: 14px;
+      color: var(--teal-light); font-weight: 600; letter-spacing: 0.4px;
+      text-transform: uppercase; font-size: 10.5px;
+      text-decoration: none;
     }
-
-    .date {
-        color: #999;
+    .blog-date { color: var(--muted); }
+    .blog-card h2 { font-size: 1.15rem; font-weight: 700; line-height: 1.35; margin-bottom: 10px; color: var(--text); }
+    .blog-excerpt {
+      font-size: 0.92rem; color: var(--muted); line-height: 1.6; margin-bottom: 18px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
     }
-
-    .blog-card h2 {
-        font-size: 1.3rem;
-        margin: 10px 0;
-        line-height: 1.4;
-    }
-
-    .blog-card h2 a {
-        color: #333;
-        text-decoration: none;
-        transition: color 0.3s ease;
-    }
-
-    .blog-card h2 a:hover {
-        color: #667eea;
-    }
-
-    .excerpt {
-        color: #666;
-        margin-bottom: 15px;
-        flex-grow: 1;
-        line-height: 1.6;
-    }
-
     .blog-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-top: 1px solid #eee;
-        padding-top: 15px;
-        font-size: 0.9rem;
+      margin-top: auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--glass-border);
     }
+    .blog-author { font-size: 0.82rem; color: var(--muted); }
+    .read-more { font-size: 0.85rem; font-weight: 600; color: var(--teal-light); transition: color 0.2s; }
+    .blog-card:hover .read-more { color: #fff; }
 
-    .author {
-        color: #999;
+    /* ── Empty state ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      padding: 70px 30px;
     }
-
-    .read-more {
-        color: #667eea;
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.3s ease;
+    .empty-icon { font-size: 3rem; margin-bottom: 14px; }
+    .empty-state h2 { font-size: 1.4rem; margin-bottom: 10px; }
+    .empty-state p { color: var(--muted); margin-bottom: 24px; }
+    .btn-primary {
+      display: inline-block;
+      padding: 12px 26px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border-radius: 8px;
+      color: #fff; font-size: 14.5px; font-weight: 600; text-decoration: none;
+      box-shadow: 0 4px 20px var(--teal-glow);
+      transition: opacity 0.2s, transform 0.15s;
     }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
 
-    .read-more:hover {
-        color: #764ba2;
+    /* ── Newsletter ── */
+    .newsletter-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      padding: 44px 32px;
+      text-align: center;
+      margin-bottom: 60px;
     }
-
-    .no-blogs {
-        text-align: center;
-        padding: 40px 20px;
-        color: #999;
-        grid-column: 1 / -1;
-    }
-
-    .newsletter-section {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 60px 20px;
-        text-align: center;
-    }
-
-    .newsletter-section h2 {
-        font-size: 2rem;
-        margin-bottom: 10px;
-    }
-
-    .newsletter-section p {
-        font-size: 1.1rem;
-        margin-bottom: 30px;
-        opacity: 0.9;
-    }
-
-    .newsletter-form {
-        max-width: 500px;
-        margin: 0 auto;
-        display: flex;
-        gap: 10px;
-    }
-
+    .newsletter-card h2 { font-size: 1.5rem; margin-bottom: 10px; }
+    .newsletter-card > p { color: var(--muted); font-size: 0.95rem; }
+    .newsletter-form { display: flex; gap: 10px; max-width: 440px; margin: 24px auto 0; }
     .newsletter-form input {
-        flex-grow: 1;
-        padding: 12px 15px;
-        border: none;
-        border-radius: 5px;
-        font-size: 1rem;
+      flex: 1; padding: 12px 16px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text); font-family: inherit; font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-
+    .newsletter-form input::placeholder { color: var(--muted); }
+    .newsletter-form input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-glow); }
     .newsletter-form button {
-        padding: 12px 30px;
-        background: white;
-        color: #667eea;
-        border: none;
-        border-radius: 5px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: transform 0.2s ease;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      border: none; border-radius: 8px;
+      color: #fff; font-weight: 600; font-family: inherit; font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px var(--teal-glow);
+      transition: opacity 0.2s, transform 0.15s;
     }
+    .newsletter-form button:hover { opacity: 0.88; transform: translateY(-1px); }
+    .newsletter-form button:disabled { opacity: 0.7; cursor: default; transform: none; }
 
-    .newsletter-form button:hover {
-        transform: scale(1.05);
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 28px 24px;
+      border-top: 1px solid var(--glass-border);
+      font-size: 12px; color: var(--muted);
     }
+    footer a { color: var(--teal-light); text-decoration: none; }
+    footer .footer-links { display: flex; gap: 20px; justify-content: center; margin-bottom: 12px; flex-wrap: wrap; }
+    footer .footer-links a { font-weight: 500; }
+    footer p { margin-bottom: 6px; }
 
-    @media (max-width: 768px) {
-        .hero-content h1 {
-            font-size: 2rem;
-        }
-
-        .blog-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .category-filters {
-            flex-direction: column;
-        }
-
-        .filter-btn {
-            width: 100%;
-        }
-
-        .newsletter-form {
-            flex-direction: column;
-        }
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      nav { padding: 12px 16px; gap: 8px; }
+      .nav-ghost-desktop { display: none; }
+      .page-wrap { padding: 110px 16px 50px; }
+      .page-header h1 { font-size: 1.9rem; }
+      .blog-grid { grid-template-columns: 1fr; }
+      .newsletter-form { flex-direction: column; }
     }
-</style>
-{% endblock %}
+  </style>
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4077944879189341"
+     crossorigin="anonymous"></script>
+</head>
+<body>
 
-{% block content %}
-<div class="blog-container">
-    <!-- Hero Section -->
-    <section class="blog-hero">
-        <div class="hero-content">
-            <h1>Wellness & Mental Health Blog</h1>
-            <p>Insights, tips, and stories to support your mental health journey</p>
-        </div>
+  <!-- ── Navigation ── -->
+  <nav>
+    <a href="{% url 'welcome' %}" class="nav-brand" onclick="navTo(event, this.href)">
+      <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor" class="nav-logo">
+      <span class="brand-name">MyTherapyDoctor</span>
+    </a>
+    <div class="nav-actions">
+      <a class="btn-ghost nav-ghost-desktop" href="{% url 'welcome' %}" onclick="navTo(event, this.href)">Home</a>
+      <a class="btn-ghost active" href="{% url 'blog_list' %}" onclick="navTo(event, this.href)">Blog</a>
+      <a class="btn-ghost nav-ghost-desktop" href="{% url 'sections' %}" onclick="navTo(event, this.href)">Therapy</a>
+      {% if request.session.user_id %}
+        <button class="btn-primary-sm" onclick="navTo('{% url 'sections' %}')">Dashboard</button>
+      {% else %}
+        <button class="btn-primary-sm" onclick="navTo('{% url 'register' %}')">Get Started</button>
+      {% endif %}
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
+    <!-- ── Page header ── -->
+    <header class="page-header">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>MyTherapyDoctor Journal</div>
+      <h1>Insights for Your <em>Mental Wellness</em></h1>
+      <p>Practical guidance, honest stories, and evidence-informed advice from our therapy team — to support you between sessions.</p>
+    </header>
+
+    <!-- ── Category filters ── -->
+    <section class="filter-section">
+      <h3>Browse by Category</h3>
+      <div class="category-filters">
+        <a href="{% url 'blog_list' %}" class="filter-btn {% if not selected_category %}active{% endif %}">
+          All ({{ total_blogs }})
+        </a>
+        {% for value, label in categories %}
+          <a href="?category={{ value }}" class="filter-btn {% if selected_category == value %}active{% endif %}">
+            {{ label }}
+          </a>
+        {% endfor %}
+      </div>
     </section>
 
-    <!-- Blog Section -->
-    <section class="blog-section">
-        <div class="container">
-            <!-- Category Filter -->
-            <div class="filter-section">
-                <h3>Filter by Category</h3>
-                <div class="category-filters">
-                    <a href="{% url 'blog_list' %}" class="filter-btn {% if not selected_category %}active{% endif %}">
-                        All ({{ total_blogs }})
-                    </a>
-                    {% for value, label in categories %}
-                        <a href="?category={{ value }}" class="filter-btn {% if selected_category == value %}active{% endif %}">
-                            {{ label }}
-                        </a>
-                    {% endfor %}
-                </div>
+    <!-- ── Blog posts grid ── -->
+    <section class="blog-grid">
+      {% if blogs %}
+        {% for blog in blogs %}
+          <a class="blog-card" href="{% url 'blog_detail' blog.slug %}" onclick="navTo(event, this.href)">
+            {% if blog.featured_image %}
+              <div class="blog-image">
+                <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}" loading="lazy">
+              </div>
+            {% else %}
+              <div class="blog-image-placeholder">📝</div>
+            {% endif %}
+            <div class="blog-body">
+              <div class="blog-meta">
+                <span class="category-badge">{{ blog.get_category_display }}</span>
+                <span class="blog-date">{{ blog.created_at|date:"M d, Y" }}</span>
+              </div>
+              <h2>{{ blog.title }}</h2>
+              <p class="blog-excerpt">{{ blog.excerpt|truncatewords:24 }}</p>
+              <div class="blog-footer">
+                <span class="blog-author">By {{ blog.author }}</span>
+                <span class="read-more">Read more →</span>
+              </div>
             </div>
-
-            <!-- Blog Posts Grid -->
-            <div class="blog-grid">
-                {% if blogs %}
-                    {% for blog in blogs %}
-                        <article class="blog-card">
-                            {% if blog.featured_image %}
-                                <div class="blog-image">
-                                    <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}" loading="lazy">
-                                </div>
-                            {% else %}
-                                <div class="blog-image-placeholder">
-                                    <div class="placeholder-content">
-                                        <span class="icon">📝</span>
-                                    </div>
-                                </div>
-                            {% endif %}
-                            
-                            <div class="blog-content">
-                                <div class="blog-meta">
-                                    <span class="category-badge">{{ blog.get_category_display }}</span>
-                                    <span class="date">{{ blog.created_at|date:"M d, Y" }}</span>
-                                </div>
-                                
-                                <h2><a href="{% url 'blog_detail' blog.slug %}">{{ blog.title }}</a></h2>
-                                
-                                <p class="excerpt">{{ blog.excerpt }}</p>
-                                
-                                <div class="blog-footer">
-                                    <span class="author">By {{ blog.author }}</span>
-                                    <a href="{% url 'blog_detail' blog.slug %}" class="read-more">Read More →</a>
-                                </div>
-                            </div>
-                        </article>
-                    {% endfor %}
-                {% else %}
-                    <div class="no-blogs">
-                        <p>No blog posts found in this category.</p>
-                    </div>
-                {% endif %}
-            </div>
+          </a>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">📝</div>
+          <h2>No posts here yet</h2>
+          <p>New articles are on the way. In the meantime, explore our AI therapy sections.</p>
+          <a class="btn-primary" href="{% url 'sections' %}" onclick="navTo(event, this.href)">Explore Therapy Sections</a>
         </div>
+      {% endif %}
     </section>
 
-    <!-- Newsletter Section -->
-    <section class="newsletter-section">
-        <div class="container">
-            <h2>Stay Updated</h2>
-            <p>Subscribe to get the latest mental health insights and wellness tips</p>
-            <form class="newsletter-form">
-                <input type="email" placeholder="Enter your email" required>
-                <button type="submit">Subscribe</button>
-            </form>
-        </div>
+    <!-- ── Newsletter ── -->
+    <section class="newsletter-card">
+      <h2>Stay Updated</h2>
+      <p>Get the latest mental health insights and wellness tips in your inbox.</p>
+      <form class="newsletter-form" onsubmit="handleSubscribe(event)">
+        <input type="email" placeholder="Enter your email" required>
+        <button type="submit">Subscribe</button>
+      </form>
     </section>
-</div>
-{% endblock %}
+
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <div class="footer-links">
+      <a href="{% url 'welcome' %}" onclick="navTo(event, this.href)">Home</a>
+      <a href="{% url 'blog_list' %}" onclick="navTo(event, this.href)">Blog</a>
+      <a href="{% url 'sections' %}" onclick="navTo(event, this.href)">Therapy</a>
+      <a href="mailto:info@mytherapydoctor.com">info@mytherapydoctor.com</a>
+    </div>
+    <p>&copy; 2026 MyTherapyDoctor &bull; All rights reserved.</p>
+    <p>This platform provides AI-assisted wellness support and is not a substitute for professional medical or psychiatric care.</p>
+  </footer>
+
+  <script>
+    // Fade-in on load (with CSS fallback for delayed JS) and bfcache restore.
+    document.addEventListener("DOMContentLoaded", () => {
+      requestAnimationFrame(() => document.body.classList.add("page-loaded"));
+    });
+    window.addEventListener("pageshow", () => {
+      document.body.classList.remove("page-exit");
+      document.body.classList.add("page-loaded");
+    });
+
+    function navTo(e, href) {
+      if (e) e.preventDefault();
+      if (document.body.classList.contains("page-exit")) return;
+      document.body.classList.remove("page-loaded");
+      document.body.classList.add("page-exit");
+      setTimeout(() => window.location.href = href, 380);
+    }
+
+    function handleSubscribe(e) {
+      e.preventDefault();
+      const form = e.target;
+      const btn = form.querySelector("button");
+      form.querySelector("input").value = "";
+      btn.textContent = "Subscribed ✓";
+      btn.disabled = true;
+    }
+  </script>
+</body>
+</html>
+

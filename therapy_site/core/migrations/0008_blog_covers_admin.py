@@ -45,7 +45,7 @@ def assign_covers_and_authors(apps, schema_editor):
     Blog = apps.get_model("core", "Blog")
     for slug, photo_id in COVERS:
         Blog.objects.filter(slug=slug).update(
-            author="Admin", cover_image_url=BASE.format(photo_id)
+            author="Admin", cover_image=BASE.format(photo_id)
         )
 
 

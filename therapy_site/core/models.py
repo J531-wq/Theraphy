@@ -57,3 +57,34 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.section} - {self.role}"
+
+
+class Blog(models.Model):
+    """
+    Blog post model with rich content and metadata.
+    """
+    CATEGORY_CHOICES = [
+        ('mental_health', 'Mental Health'),
+        ('wellness', 'Wellness'),
+        ('therapy', 'Therapy'),
+        ('tips', 'Tips & Advice'),
+        ('success_stories', 'Success Stories'),
+        ('other', 'Other'),
+    ]
+    
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    author = models.CharField(max_length=100)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='other')
+    content = models.TextField()
+    excerpt = models.TextField(max_length=500, help_text="Short summary of the blog post")
+    featured_image = models.ImageField(upload_to='blog_images/', null=True, blank=True)
+    is_published = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return self.title

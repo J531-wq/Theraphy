@@ -13,7 +13,7 @@ from .forms import (
     ResetPasswordForm,
     VerificationCodeForm,
 )
-from .models import ChatMessage, ChatSession, User
+from .models import ChatMessage, ChatSession, User, Blog
 from .services.email_service import (
     send_reset_email,
     send_verification_email,
@@ -493,3 +493,52 @@ def sitemap_xml(request):
         "</urlset>\n"
     )
     return HttpResponse(xml, content_type="application/xml")
+
+
+# ---------------------------------------------------------------------------
+# Blog views
+# ---------------------------------------------------------------------------
+
+def blog_list(request):
+    """Display all published blog posts with pagination."""
+    category = request.GET.get('category', None)
+    
+    # Get published blogs
+    blogs = Blog.objects.filter(is_published=True).order_by('-created_at')
+    
+    # Filter by category if provided
+    if category:
+        blogs = blogs.filter(category=category)
+    
+    # Get all categories for filter dropdown
+    categories = Blog.CATEGORY_CHOICES
+    
+    context = {
+        'blogs': blogs,
+        'categories': categories,
+        'selected_category': category,
+        'total_blogs': blogs.count(),
+    }
+    
+    return render(request, 'core/blog_list.html', context)
+
+
+def blog_detail(request, slug):
+    """Display a single blog post in detail."""
+    try:
+        blog = Blog.objects.get(slug=slug, is_published=True)
+    except Blog.DoesNotExist:
+        return render(request, 'core/404.html', status=404)
+    
+    # Get related blogs (same category)
+    related_blogs = Blog.objects.filter(
+        category=blog.category,
+        is_published=True
+    ).exclude(id=blog.id).order_by('-created_at')[:3]
+    
+    context = {
+        'blog': blog,
+        'related_blogs': related_blogs,
+    }
+    
+    return render(request, 'core/blog_detail.html', context)

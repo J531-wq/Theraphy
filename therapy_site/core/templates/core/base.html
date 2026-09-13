@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MyTherapyDoctor{% endblock %}</title>
+    {% load static %}
+    <meta name="description" content="{% block description %}AI-powered therapy and mental health support.{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}therapy, mental health, AI therapy, wellness{% endblock %}">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'core/logo.png' %}">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="MyTherapyDoctor">
+    <meta property="og:title" content="{% block og_title %}MyTherapyDoctor{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}AI-powered therapy and mental health support.{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}https://mytherapydoctor.com/{% endblock %}">
+    {% block og_image %}<meta property="og:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">{% endblock %}
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}MyTherapyDoctor{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}AI-powered therapy and mental health support.{% endblock %}">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-content p {
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 1rem 0;
+        }
+
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            min-height: calc(100vh - 200px);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="/" class="logo">MyTherapyDoctor</a>
+            <ul class="nav-links">
+                <li><a href="{% url 'welcome' %}">Home</a></li>
+                <li><a href="{% url 'blog_list' %}">Blog</a></li>
+                <li><a href="{% url 'sections' %}">Therapy</a></li>
+                {% if request.session.user_id %}
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2026 MyTherapyDoctor. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="{% url 'welcome' %}">Home</a>
+                <a href="{% url 'blog_list' %}">Blog</a>
+                <a href="{% url 'sections' %}">Therapy</a>
+                <a href="/admin/">Admin</a>
+            </div>
+            <p style="font-size: 0.85rem; margin-top: 1rem;">
+                Disclaimer: This is an AI-powered therapy assistant. Please consult a professional therapist for serious mental health concerns.
+            </p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

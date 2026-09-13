@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from core import views
 
 # Custom error handler views
@@ -130,4 +132,21 @@ urlpatterns = [
         views.reset_users,
         name='reset_users'
     ),
+
+    # Blog routes
+    path(
+        'blog/',
+        views.blog_list,
+        name='blog_list'
+    ),
+
+    path(
+        'blog/<slug:slug>/',
+        views.blog_detail,
+        name='blog_detail'
+    ),
 ]
+
+# Serve media files during development
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

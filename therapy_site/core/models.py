@@ -125,6 +125,7 @@ class BlogComment(models.Model):
         User, on_delete=models.SET_NULL, related_name='blog_comments',
         null=True, blank=True,
     )
+    owner_key = models.CharField(max_length=64, blank=True, default='', db_index=True)
     parent = models.ForeignKey(
         'self', on_delete=models.CASCADE,
         related_name='replies', null=True, blank=True,

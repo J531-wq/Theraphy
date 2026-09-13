@@ -595,8 +595,19 @@ def blog_detail(request, slug):
         .order_by('created_at')
     )
     comments = []
+    current_user = get_chat_user(request)
+    visitor_key = _voter_key(request) if not current_user else ''
     for comment in top_comments:
         replies = [r for r in comment.replies.all() if r.is_approved]
+        comment.viewer_is_owner = bool(
+            (current_user and comment.owner_id == current_user.id)
+            or (not current_user and visitor_key and comment.owner_key == visitor_key)
+        )
+        for reply in replies:
+            reply.viewer_is_owner = bool(
+                (current_user and reply.owner_id == current_user.id)
+                or (not current_user and visitor_key and reply.owner_key == visitor_key)
+            )
         comments.append({'comment': comment, 'replies': replies})
 
     # Has this visitor already liked the post?
@@ -610,7 +621,8 @@ def blog_detail(request, slug):
         'comments': comments,
         'comment_count': top_comments.count(),
         'post_liked': post_liked,
-        'current_user': get_chat_user(request),
+        'current_user': current_user,
+        'visitor_key': visitor_key,
     }
 
     return render(request, 'core/blog_detail.html', context)
@@ -657,6 +669,7 @@ def blog_comment_create(request, slug):
     """AJAX endpoint — post a comment or one-level reply."""
     blog = get_object_or_404(Blog, slug=slug, is_published=True)
     user = get_chat_user(request)
+    owner_key = '' if user else _voter_key(request)
     name = request.POST.get('name', '').strip()[:100]
     body = request.POST.get('body', '').strip()
     parent_id = request.POST.get('parent_id')
@@ -680,6 +693,7 @@ def blog_comment_create(request, slug):
             parent = parent.parent
     comment = BlogComment.objects.create(
         post=blog, parent=parent, owner=user,
+        owner_key=owner_key,
         name=(user.full_name or user.username) if user else name,
         email=user.email if user and user.email else '',
         body=body,
@@ -692,7 +706,10 @@ def blog_comment_create(request, slug):
             'body': comment.body,
             'created': timezone.localtime(comment.created_at).strftime('%b %d, %Y'),
             'parent_id': parent.id if parent else None,
-            'is_owner': bool(user and comment.owner_id == user.id),
+            'is_owner': bool(
+                (user and comment.owner_id == user.id)
+                or (not user and comment.owner_key == owner_key)
+            ),
         },
     })
 
@@ -701,7 +718,12 @@ def blog_comment_create(request, slug):
 def blog_comment_edit(request, comment_id):
     comment = get_object_or_404(BlogComment, id=comment_id, is_approved=True)
     user = get_chat_user(request)
-    if not user or comment.owner_id != user.id:
+    visitor_key = '' if user else _voter_key(request)
+    owns_comment = (
+        (user and comment.owner_id == user.id)
+        or (not user and visitor_key and comment.owner_key == visitor_key)
+    )
+    if not owns_comment:
         return JsonResponse({'ok': False, 'message': 'You can only edit your own comments.'}, status=403)
     body = request.POST.get('body', '').strip()
     if not body or len(body) > 2000:
@@ -715,7 +737,12 @@ def blog_comment_edit(request, comment_id):
 def blog_comment_delete(request, comment_id):
     comment = get_object_or_404(BlogComment, id=comment_id, is_approved=True)
     user = get_chat_user(request)
-    if not user or comment.owner_id != user.id:
+    visitor_key = '' if user else _voter_key(request)
+    owns_comment = (
+        (user and comment.owner_id == user.id)
+        or (not user and visitor_key and comment.owner_key == visitor_key)
+    )
+    if not owns_comment:
         return JsonResponse({'ok': False, 'message': 'You can only delete your own comments.'}, status=403)
     comment.delete()
     return JsonResponse({'ok': True})

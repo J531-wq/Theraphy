@@ -152,7 +152,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-`requirements.txt` already contains gunicorn, whitenoise, psycopg2-binary, dj-database-url, python-dotenv, groq — everything needed.
+`requirements.txt` contains Django, Pillow, gunicorn, whitenoise, psycopg2-binary, dj-database-url, python-dotenv, and groq — everything needed for the application and its image fields.
 
 ---
 

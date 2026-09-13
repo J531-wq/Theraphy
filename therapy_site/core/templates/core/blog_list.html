@@ -64,7 +64,7 @@
 <body>
   <nav class="site-nav">
     <a class="brand" href="{% url 'welcome' %}"><img class="brand-mark" src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor</a>
-    <div class="nav-links"><a href="{% url 'welcome' %}">Home</a><a class="current" href="{% url 'blog_list' %}">Journal</a><a href="{% url 'sections' %}">Therapy</a><a class="nav-cta" href="{% url 'register' %}">Get started</a></div>
+    <div class="nav-links"><a href="{% url 'welcome' %}">Home</a><a class="current" href="{% url 'blog_list' %}">Journal</a><a href="{% url 'sections' %}">Therapy</a>{% if request.session.user_id %}<a class="nav-cta" href="{% url 'sections' %}">Dashboard</a>{% else %}<a class="nav-cta" href="{% url 'register' %}">Get started</a>{% endif %}</div>
   </nav>
   <main class="page-shell">
     <section class="intro"><div><div class="kicker">The MyTherapyDoctor journal</div><h1>Small steps toward a steadier mind.</h1></div><p class="intro-copy">Thoughtful notes on mental health, therapy, and the everyday practices that make support feel more accessible.</p></section>

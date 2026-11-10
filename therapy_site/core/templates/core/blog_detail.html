@@ -436,6 +436,7 @@
           <span class="meta-item"><span class="meta-icon">✍️</span>{{ blog.author }}</span>
           <span class="meta-item"><span class="meta-icon">📅</span>{{ blog.created_at|date:"F d, Y" }}</span>
           <span class="meta-item"><span class="meta-icon">📄</span>{{ blog.content|wordcount }} words</span>
+          <span class="meta-item"><span class="meta-icon">👁</span>{{ blog.views_count }} view{{ blog.views_count|pluralize }}</span>
         </div>
         <button class="post-like {% if post_liked %}liked{% endif %}" type="button" data-post-like="{% url 'blog_post_like' blog.slug %}">
           <span class="post-like-icon">♥</span> <span class="post-like-label">{% if post_liked %}Liked{% else %}Like this post{% endif %}</span> · <span class="post-like-count">{{ blog.likes_count }}</span>

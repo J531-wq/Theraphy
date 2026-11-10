@@ -6,401 +6,378 @@
   <title>My Earnings — MyTherapyDoctor</title>
   {% load static %}
   <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --teal: #2e7d6e; --teal-light: #3d9e8c; --teal-glow: rgba(46,125,110,0.4);
-      --glass-bg: rgba(6,14,12,0.65); --glass-border: rgba(255,255,255,0.09);
-      --text: #f0f4f3; --muted: rgba(240,244,243,0.55);
+    :root{--teal:#2e7d6e;--teal-mid:#3d9e8c;--teal-glow:rgba(46,125,110,0.4);--gb:rgba(6,14,12,0.65);--brd:rgba(255,255,255,0.09);--text:#f0f4f3;--muted:rgba(240,244,243,0.55);--bg:#0a0f0d;--serif:'DM Serif Display',Georgia,serif}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',sans-serif;min-height:100vh;background:linear-gradient(160deg,rgba(0,0,0,.78) 0%,rgba(0,18,14,.62) 100%),url("{% static 'core/section.jpg.jpeg' %}") center/cover fixed;color:var(--text)}
+    a{color:inherit;text-decoration:none}
+
+    /* ── LOADER ── */
+    #pl{position:fixed;inset:0;z-index:9999;background:rgba(10,15,13,.97);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;transition:opacity .5s,visibility .5s}
+    #pl.h{opacity:0;visibility:hidden}
+    .ll{width:38px;height:38px;animation:lp 1.4s ease-in-out infinite}
+    @keyframes lp{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.14);opacity:.65}}
+    .lt{width:180px;height:2px;background:var(--brd);border-radius:2px;overflow:hidden}
+    .lb{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--teal-mid));animation:lb .9s ease forwards}
+    @keyframes lb{to{width:100%}}
+    .ld{display:flex;gap:7px}
+    .ld span{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:ldot 1.2s ease-in-out infinite}
+    .ld span:nth-child(2){animation-delay:.18s;background:var(--teal-mid)}
+    .ld span:nth-child(3){animation-delay:.36s;background:rgba(61,158,140,.5)}
+    @keyframes ldot{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+    /* ── REVEAL ── */
+    .rv{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}
+    .rv.in{opacity:1;transform:none}
+    .sg>*{opacity:0;transform:translateY(14px);transition:opacity .4s ease,transform .4s ease}
+    .sg.in>*{opacity:1;transform:none}
+    .sg.in>*:nth-child(1){transition-delay:0s}
+    .sg.in>*:nth-child(2){transition-delay:.08s}
+    .sg.in>*:nth-child(3){transition-delay:.16s}
+    .sg.in>*:nth-child(4){transition-delay:.24s}
+
+    /* ── NAV ── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;height:64px;display:flex;align-items:center;padding:0 48px;background:rgba(7,11,10,.88);border-bottom:1px solid var(--brd);backdrop-filter:blur(20px)}
+    .nav-inner{width:100%;max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .nb{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:600;color:var(--text)}
+    .nb img{width:26px;height:26px}
+    .nr{display:flex;align-items:center;gap:8px}
+    .np{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:500;color:rgba(232,238,236,.6);border:1px solid var(--brd);background:rgba(255,255,255,.03);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;text-decoration:none}
+    .np:hover{color:var(--text);border-color:rgba(255,255,255,.14);background:rgba(255,255,255,.07)}
+    .np.active{color:var(--text);background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12)}
+    .np.w{background:var(--teal);border-color:transparent;color:#fff;font-weight:600}
+    .np.w:hover{background:var(--teal-mid)}
+    /* Mobile nav */
+    .nh{display:none;flex-direction:column;gap:5px;width:34px;height:34px;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:7px;cursor:pointer}
+    .nh span{display:block;width:16px;height:1.5px;background:var(--text);border-radius:2px;transition:transform .25s,opacity .25s}
+    .nh.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+    .nh.open span:nth-child(2){opacity:0}
+    .nh.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+    .mm{display:none;position:fixed;top:64px;left:0;right:0;z-index:190;background:rgba(7,11,10,.98);border-bottom:1px solid var(--brd);backdrop-filter:blur(20px);padding:14px 20px 18px;flex-direction:column;gap:4px;opacity:0;transform:translateY(-8px);transition:opacity .2s,transform .2s}
+    .mm.open{opacity:1;transform:none}
+    .ml{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;font-size:14px;font-weight:500;color:rgba(232,238,236,.65);text-decoration:none;transition:background .15s,color .15s;cursor:pointer;font-family:inherit;border:none;width:100%;background:none;text-align:left}
+    .ml:hover,.ml.active{background:rgba(255,255,255,.06);color:var(--text)}
+    .ml.w{background:var(--teal);color:#fff;font-weight:600;margin-top:4px}
+    .ms{height:1px;background:var(--brd);margin:5px 0}
+
+    /* ── LAYOUT ── */
+    .wrap{max-width:1060px;margin:0 auto;padding:88px 24px 70px}
+
+    /* ── PAGE HEAD ── */
+    .ph{margin-bottom:32px}
+    .kicker{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal-mid);margin-bottom:8px;display:flex;align-items:center;gap:10px}
+    .kicker::before{content:'';width:24px;height:1px;background:var(--teal-mid)}
+    .ph h1{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;line-height:1.1}
+    .ph h1 em{font-style:italic;color:var(--teal-mid)}
+    .ph p{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.65}
+
+    /* ── STATS ── */
+    .sg4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+    .sc{background:var(--gb);border:1px solid var(--brd);border-radius:14px;backdrop-filter:blur(14px);padding:20px 22px;transition:border-color .2s}
+    .sc:hover{border-color:rgba(255,255,255,.18)}
+    .sc.hi{border-color:rgba(46,125,110,.5);background:rgba(46,125,110,.12)}
+    .sl{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+    .sv{font-family:var(--serif);font-size:1.8rem;font-weight:400;color:var(--text);line-height:1}
+    .sv.g{color:#9ad5b6}.sv.o{color:#e8b87d}
+    .ss{font-size:11.5px;color:var(--muted);margin-top:5px}
+
+    /* ── MAIN GRID ── */
+    .mg{display:grid;grid-template-columns:1fr 300px;gap:22px;align-items:start}
+
+    /* ── CARDS ── */
+    .card{background:var(--gb);border:1px solid var(--brd);border-radius:14px;backdrop-filter:blur(14px);overflow:hidden;margin-bottom:20px}
+    .card:last-child{margin-bottom:0}
+    .ch{padding:16px 22px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .ch h2{font-size:.95rem;font-weight:700}
+    .cb{padding:18px 22px}
+
+    /* ── TABLE ── */
+    .pt{width:100%;border-collapse:collapse;font-size:13px}
+    .pt th{text-align:left;padding:9px 12px;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--brd)}
+    .pt td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top}
+    .pt tr:last-child td{border-bottom:none}
+    .pt tr:hover td{background:rgba(255,255,255,.025)}
+    .tc{max-width:240px}
+    .tc a{color:var(--text);font-weight:600}.tc a:hover{color:#9ad5b6}
+    .tc .sub{font-size:11px;color:var(--muted);margin-top:2px}
+    .badge{display:inline-block;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700}
+    .bg{background:rgba(46,125,110,.18);color:#9ad5b6;border:1px solid rgba(46,125,110,.3)}
+    .bo{background:rgba(255,160,0,.1);color:#e8b87d;border:1px solid rgba(255,160,0,.25)}
+    .ec{color:#9ad5b6;font-weight:600}
+    .vc{color:var(--muted)}
+
+    /* ── WITHDRAWAL HISTORY ── */
+    .wl{list-style:none;display:grid;gap:8px}
+    .wi{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:9px;font-size:13px}
+    .wl-left{display:flex;flex-direction:column;gap:2px}
+    .wa{font-size:1.05rem;font-weight:700}
+    .wd{font-size:11px;color:var(--muted)}
+
+    /* ── RIGHT COLUMN ── */
+    .ws{display:flex;align-items:flex-start;gap:10px;padding:13px 15px;border-radius:10px;margin-bottom:16px;font-size:13px;line-height:1.6}
+    .ws.rdy{background:rgba(46,125,110,.12);border:1px solid rgba(46,125,110,.35)}
+    .ws.nrd{background:rgba(255,160,0,.07);border:1px solid rgba(255,160,0,.3)}
+    .wi-icon{font-size:19px;flex-shrink:0}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 20px;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:opacity .2s,transform .15s;text-decoration:none}
+    .btn:hover{opacity:.85;transform:translateY(-1px)}
+    .bp{background:linear-gradient(135deg,var(--teal),var(--teal-mid));color:#fff;box-shadow:0 4px 16px var(--teal-glow);width:100%;margin-top:4px}
+    .bs{background:rgba(255,255,255,.08);border:1px solid var(--brd);color:var(--text)}
+    .bd{opacity:.4;cursor:not-allowed}
+    .bd:hover{opacity:.4;transform:none}
+    .fg{margin-bottom:14px}
+    .fg label{display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:5px}
+    .fc{width:100%;padding:9px 12px;background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:8px;color:var(--text);font:14px 'Inter',sans-serif;transition:border-color .2s}
+    .fc:focus{outline:none;border-color:var(--teal-mid)}
+    .fc::placeholder{color:rgba(240,244,243,.3)}
+    .fsb{width:100%;padding:10px;background:rgba(255,255,255,.08);border:1px solid var(--brd);border-radius:8px;color:var(--text);font:600 13px 'Inter',sans-serif;cursor:pointer;transition:background .2s;margin-top:4px}
+    .fsb:hover{background:rgba(255,255,255,.14)}
+    .smsg{font-size:12px;color:#9ad5b6;margin-top:7px;display:none}
+    .ei{display:flex;align-items:center;gap:9px;padding:11px 14px;background:rgba(46,125,110,.07);border:1px solid rgba(46,125,110,.25);border-radius:9px;font-size:13px;color:rgba(240,244,243,.78);line-height:1.6;margin-bottom:16px}
+    .es{text-align:center;padding:28px 20px;color:var(--muted);font-size:14px}
+    .es .ei2{font-size:32px;margin-bottom:8px}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){.sg4{grid-template-columns:1fr 1fr}.mg{grid-template-columns:1fr}}
+    @media(max-width:640px){
+      nav{padding:0 16px}
+      .nr{display:none}
+      .nh{display:flex}
+      .mm{display:flex}
+      .wrap{padding:84px 16px 60px}
+      .sg4{grid-template-columns:1fr 1fr;gap:10px}
+      .sv{font-size:1.4rem}
+      .pt th:nth-child(3),.pt td:nth-child(3){display:none}
     }
-    html, body { font-family: 'Inter', sans-serif; min-height: 100vh; }
-    body {
-      background: linear-gradient(160deg, rgba(0,0,0,0.74) 0%, rgba(0,18,14,0.58) 100%),
-                  url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
-      color: var(--text); padding: 86px 20px 60px;
-      opacity: 0; animation: show 0s 0.4s forwards;
-    }
-    @keyframes show { to { opacity:1; } }
-    body.loaded { opacity:1; animation:none; }
-
-    /* Nav */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: 64px; display: flex; align-items: center; padding: 0 48px;
-      background: rgba(7,11,10,0.82); border-bottom: 1px solid rgba(255,255,255,0.07);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    }
-    .nav-inner { width: 100%; max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .nav-brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: #e8eeec; font-size: 14.5px; font-weight: 600; }
-    .nav-brand img { width: 26px; height: 26px; }
-    .nav-right { display: flex; align-items: center; gap: 8px; }
-    .nav-pill { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 500; color: rgba(232,238,236,0.6); border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); text-decoration: none; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
-    .nav-pill:hover { color: #e8eeec; border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.07); }
-    .nav-pill.active { color: #e8eeec; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
-    .nav-pill.write { background: #2e7d6e; border-color: transparent; color: #fff; font-weight: 600; }
-    .nav-pill.write:hover { background: #3d9e8c; }
-
-    /* Layout */
-    .page-wrap { max-width: 1060px; margin: 0 auto; }
-
-    .page-head { margin-bottom: 32px; }
-    .page-head .kicker { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-light); margin-bottom: 10px; }
-    .page-head h1 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; }
-    .page-head p { margin-top: 8px; color: var(--muted); font-size: 14px; }
-
-    /* Stats row */
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-    .stat-card {
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 14px; backdrop-filter: blur(14px);
-      padding: 22px 24px;
-    }
-    .stat-card.highlight { border-color: rgba(46,125,110,0.5); background: rgba(46,125,110,0.12); }
-    .stat-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
-    .stat-value { font-size: 1.9rem; font-weight: 700; color: var(--text); line-height: 1; }
-    .stat-value.green { color: #9ad5b6; }
-    .stat-value.orange { color: #e8b87d; }
-    .stat-sub { font-size: 11.5px; color: var(--muted); margin-top: 6px; }
-
-    /* Two-column layout */
-    .main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
-
-    /* Section cards */
-    .section-card {
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 14px; backdrop-filter: blur(14px);
-      overflow: hidden; margin-bottom: 22px;
-    }
-    .section-card:last-child { margin-bottom: 0; }
-    .section-header { padding: 18px 24px; border-bottom: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .section-header h2 { font-size: 1rem; font-weight: 700; }
-    .section-body { padding: 20px 24px; }
-
-    /* Withdrawal box */
-    .withdraw-status {
-      display: flex; align-items: flex-start; gap: 12px;
-      padding: 14px 16px;
-      border-radius: 10px; margin-bottom: 20px;
-      font-size: 13px; line-height: 1.6;
-    }
-    .withdraw-status.ready { background: rgba(46,125,110,0.12); border: 1px solid rgba(46,125,110,0.35); }
-    .withdraw-status.not-ready { background: rgba(255,160,0,0.07); border: 1px solid rgba(255,160,0,0.3); }
-    .ws-icon { font-size: 20px; flex-shrink: 0; }
-
-    .btn { display: inline-block; padding: 11px 22px; border-radius: 9px; font-size: 14px; font-weight: 600; text-decoration: none; cursor: pointer; border: none; font-family: inherit; transition: opacity 0.2s, transform 0.15s; }
-    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
-    .btn-primary { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; box-shadow: 0 4px 16px var(--teal-glow); width: 100%; text-align: center; margin-top: 4px; }
-    .btn-secondary { background: rgba(255,255,255,0.08); border: 1px solid var(--glass-border); color: var(--text); }
-    .btn-disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-disabled:hover { opacity: 0.4; transform: none; }
-
-    /* Bank account form */
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 12.5px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
-    .form-control {
-      width: 100%; padding: 10px 12px;
-      background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
-      border-radius: 8px; color: var(--text); font: 14px 'Inter', sans-serif;
-      transition: border-color 0.2s;
-    }
-    .form-control:focus { outline: none; border-color: var(--teal-light); box-shadow: 0 0 0 3px rgba(61,158,140,0.15); }
-    .form-control::placeholder { color: rgba(240,244,243,0.3); }
-    .form-save-btn {
-      width: 100%; padding: 11px; background: rgba(255,255,255,0.08);
-      border: 1px solid var(--glass-border); border-radius: 8px;
-      color: var(--text); font: 600 13.5px 'Inter', sans-serif;
-      cursor: pointer; transition: background 0.2s;
-      margin-top: 4px;
-    }
-    .form-save-btn:hover { background: rgba(255,255,255,0.14); }
-    .save-msg { font-size: 12px; color: #9ad5b6; margin-top: 8px; display: none; }
-
-    /* Posts table */
-    .posts-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .posts-table th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--glass-border); }
-    .posts-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
-    .posts-table tr:last-child td { border-bottom: none; }
-    .posts-table .title-cell { max-width: 280px; }
-    .posts-table .title-cell a { color: var(--text); text-decoration: none; font-weight: 600; }
-    .posts-table .title-cell a:hover { color: #9ad5b6; }
-    .posts-table .title-cell .sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
-    .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 700; }
-    .badge-green { background: rgba(46,125,110,0.18); color: #9ad5b6; border: 1px solid rgba(46,125,110,0.3); }
-    .badge-orange { background: rgba(255,160,0,0.1); color: #e8b87d; border: 1px solid rgba(255,160,0,0.25); }
-    .badge-grey { background: rgba(255,255,255,0.07); color: var(--muted); border: 1px solid var(--glass-border); }
-    .earned-cell { color: #9ad5b6; font-weight: 600; }
-
-    /* Withdrawal history */
-    .wd-list { list-style: none; display: grid; gap: 10px; }
-    .wd-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 9px; font-size: 13px; }
-    .wd-left { display: flex; flex-direction: column; gap: 3px; }
-    .wd-amount { font-size: 1.05rem; font-weight: 700; }
-    .wd-date { font-size: 11px; color: var(--muted); }
-    .wd-right { display: flex; align-items: center; gap: 8px; }
-
-    .empty-state { text-align: center; padding: 32px 20px; color: var(--muted); font-size: 14px; }
-    .empty-state .empty-icon { font-size: 36px; margin-bottom: 10px; }
-
-    /* Earn info box */
-    .earn-info { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(46,125,110,0.07); border: 1px solid rgba(46,125,110,0.25); border-radius: 9px; font-size: 13px; color: rgba(240,244,243,0.78); line-height: 1.6; margin-bottom: 20px; }
-
-    @media (max-width: 860px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .main-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 540px) {
-      nav { padding: 0 16px; }
-      body { padding-top: 88px; }
-      .stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-      .stat-value { font-size: 1.5rem; }
-    }
+    @media(max-width:380px){.sg4{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
+
+  <!-- LOADER -->
+  <div id="pl" aria-hidden="true">
+    <img class="ll" src="{% static 'core/logo.png' %}" alt="">
+    <div class="lt"><div class="lb"></div></div>
+    <div class="ld"><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- NAV -->
   <nav aria-label="Main navigation">
     <div class="nav-inner">
-      <a class="nav-brand" href="{% url 'welcome' %}">
-        <img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor
-      </a>
-      <div class="nav-right">
-        <a class="nav-pill" href="{% url 'sections' %}">Dashboard</a>
-        <a class="nav-pill active" href="{% url 'earnings_dashboard' %}">Earnings</a>
-        <a class="nav-pill" href="{% url 'blog_list' %}">Journal</a>
-        <a class="nav-pill write" href="{% url 'blog_create' %}">✍ Write</a>
-        <form method="post" action="{% url 'logout' %}" style="margin:0">
-          {% csrf_token %}
-          <button class="nav-pill" type="submit">Sign out</button>
-        </form>
+      <a class="nb" href="{% url 'welcome' %}"><img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor</a>
+      <div class="nr">
+        <a class="np" href="{% url 'sections' %}">Dashboard</a>
+        <a class="np active" href="{% url 'earnings_dashboard' %}">Earnings</a>
+        <a class="np" href="{% url 'blog_list' %}">Journal</a>
+        <a class="np w" href="{% url 'blog_create' %}">✍ Write</a>
+        <form method="post" action="{% url 'logout' %}" style="margin:0">{% csrf_token %}<button class="np" type="submit">Sign out</button></form>
       </div>
+      <button class="nh" id="ham" onclick="toggleMob()" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
 
-  <div class="page-wrap">
+  <!-- MOBILE MENU -->
+  <div class="mm" id="mob">
+    <a class="ml" href="{% url 'sections' %}">⚡ Dashboard</a>
+    <a class="ml active" href="{% url 'earnings_dashboard' %}">💰 Earnings</a>
+    <a class="ml" href="{% url 'blog_list' %}">📖 Journal</a>
+    <div class="ms"></div>
+    <a class="ml w" href="{% url 'blog_create' %}">✍ Write a Post</a>
+    <div class="ms"></div>
+    <form method="post" action="{% url 'logout' %}" style="display:contents">{% csrf_token %}
+      <button class="ml" type="submit" style="color:#f87171">↩ Sign out</button>
+    </form>
+  </div>
 
-    <div class="page-head">
+  <div class="wrap">
+
+    <!-- HEAD -->
+    <div class="ph rv">
       <div class="kicker">Creator Dashboard</div>
-      <h1>Your earnings</h1>
-      <p>Every 100 views on your published posts earns you ₦{{ naira_per_100_views }}. Withdraw once your balance reaches ₦1,000.</p>
+      <h1>Your <em>earnings</em></h1>
+      <p>Every 100 views on your published posts earns you ₦{{ naira_per_100_views }}. Withdraw when your balance reaches ₦1,000.</p>
     </div>
 
-    <!-- Stats -->
-    <div class="stats-grid">
-      <div class="stat-card highlight">
-        <div class="stat-label">Available to withdraw</div>
-        <div class="stat-value green">₦{{ withdrawable_balance|floatformat:2 }}</div>
-        <div class="stat-sub">After pending requests</div>
+    <!-- STATS -->
+    <div class="sg4 sg">
+      <div class="sc hi">
+        <div class="sl">Available</div>
+        <div class="sv g">₦{{ withdrawable_balance|floatformat:2 }}</div>
+        <div class="ss">After pending requests</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Total earned</div>
-        <div class="stat-value">₦{{ total_earned|floatformat:2 }}</div>
-        <div class="stat-sub">Across all published posts</div>
+      <div class="sc">
+        <div class="sl">Total Earned</div>
+        <div class="sv">₦{{ total_earned|floatformat:2 }}</div>
+        <div class="ss">All published posts</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Pending withdrawal</div>
-        <div class="stat-value orange">₦{{ pending|floatformat:2 }}</div>
-        <div class="stat-sub">Being processed</div>
+      <div class="sc">
+        <div class="sl">Pending</div>
+        <div class="sv o">₦{{ pending|floatformat:2 }}</div>
+        <div class="ss">Being processed</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Total paid out</div>
-        <div class="stat-value">₦{{ total_withdrawn|floatformat:2 }}</div>
-        <div class="stat-sub">Already sent to your bank</div>
+      <div class="sc">
+        <div class="sl">Total Paid Out</div>
+        <div class="sv">₦{{ total_withdrawn|floatformat:2 }}</div>
+        <div class="ss">Sent to bank</div>
       </div>
     </div>
 
-    <div class="main-grid">
-
-      <!-- Left col: posts + withdrawal history -->
+    <div class="mg">
+      <!-- LEFT: posts + withdrawal history -->
       <div>
-        <!-- My posts -->
-        <div class="section-card">
-          <div class="section-header">
+        <!-- Posts -->
+        <div class="card rv">
+          <div class="ch">
             <h2>My posts</h2>
-            <a class="btn btn-secondary" href="{% url 'blog_create' %}">+ Write new post</a>
+            <a class="btn bs" href="{% url 'blog_create' %}" style="padding:7px 14px;font-size:12.5px">+ Write new</a>
           </div>
-          <div class="section-body" style="padding:0;">
-            {% if posts %}
-            <table class="posts-table">
-              <thead>
-                <tr>
-                  <th>Post</th>
-                  <th>Status</th>
-                  <th>Views</th>
-                  <th>Earned</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for post in posts %}
-                <tr>
-                  <td class="title-cell">
-                    {% if post.is_published %}
-                      <a href="{% url 'blog_detail' post.slug %}">{{ post.title|truncatechars:55 }}</a>
-                    {% else %}
-                      <span>{{ post.title|truncatechars:55 }}</span>
-                    {% endif %}
-                    <div class="sub">{{ post.created_at|date:"M d, Y" }}</div>
-                  </td>
-                  <td>
-                    {% if post.is_published %}
-                      <span class="badge badge-green">Live</span>
-                    {% else %}
-                      <span class="badge badge-orange">Under review</span>
-                    {% endif %}
-                  </td>
-                  <td>{{ post.views_count }}</td>
-                  <td class="earned-cell">
-                    {% if post.is_published %}
-                      ₦{% widthratio post.views_count 100 naira_per_100_views %}
-                    {% else %}
-                      —
-                    {% endif %}
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-            {% else %}
-            <div class="empty-state">
-              <div class="empty-icon">✍️</div>
-              <p>You haven't written any posts yet.</p>
-              <a class="btn btn-secondary" href="{% url 'blog_create' %}" style="margin-top:14px; display:inline-block;">Write your first post</a>
-            </div>
-            {% endif %}
+          {% if posts %}
+          <div style="overflow-x:auto">
+          <table class="pt">
+            <thead>
+              <tr>
+                <th>Post</th>
+                <th>Status</th>
+                <th>Views</th>
+                <th>Earned</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for post in posts %}
+              <tr>
+                <td class="tc">
+                  {% if post.is_published %}
+                    <a href="{% url 'blog_detail' post.slug %}">{{ post.title|truncatechars:50 }}</a>
+                  {% else %}
+                    <span>{{ post.title|truncatechars:50 }}</span>
+                  {% endif %}
+                  <div class="sub">{{ post.created_at|date:"M d, Y" }}</div>
+                </td>
+                <td>
+                  {% if post.is_published %}<span class="badge bg">Live</span>
+                  {% else %}<span class="badge bo">Reviewing</span>{% endif %}
+                </td>
+                <td class="vc">
+                  {% if post.is_published %}
+                    <span title="{{ post.views_count }} total views">👁 {{ post.views_count }}</span>
+                  {% else %}—{% endif %}
+                </td>
+                <td class="ec">
+                  {% if post.is_published %}
+                    ₦{% widthratio post.views_count 100 naira_per_100_views %}
+                  {% else %}—{% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
           </div>
+          {% else %}
+          <div class="cb">
+            <div class="es"><div class="ei2">✍️</div><p>No posts yet.</p><a class="btn bs" href="{% url 'blog_create' %}" style="margin-top:12px;display:inline-flex">Write your first post</a></div>
+          </div>
+          {% endif %}
         </div>
 
         <!-- Withdrawal history -->
-        <div class="section-card">
-          <div class="section-header">
-            <h2>Withdrawal history</h2>
-          </div>
-          <div class="section-body">
+        <div class="card rv">
+          <div class="ch"><h2>Withdrawal history</h2></div>
+          <div class="cb">
             {% if withdrawals %}
-            <ul class="wd-list">
+            <ul class="wl">
               {% for wd in withdrawals %}
-              <li class="wd-item">
-                <div class="wd-left">
-                  <div class="wd-amount">₦{{ wd.amount|floatformat:2 }}</div>
-                  <div class="wd-date">Requested {{ wd.created_at|date:"M d, Y" }}{% if wd.sent_at %} · Sent {{ wd.sent_at|date:"M d, Y" }}{% endif %}</div>
+              <li class="wi">
+                <div class="wl-left">
+                  <div class="wa">₦{{ wd.amount|floatformat:2 }}</div>
+                  <div class="wd">{{ wd.created_at|date:"M d, Y" }}{% if wd.sent_at %} · Sent {{ wd.sent_at|date:"M d, Y" }}{% endif %}</div>
                 </div>
-                <div class="wd-right">
-                  {% if wd.status == 'sent' %}
-                    <span class="badge badge-green">Sent ✓</span>
-                  {% else %}
-                    <span class="badge badge-orange">Pending</span>
-                  {% endif %}
+                <div>
+                  {% if wd.status == 'sent' %}<span class="badge bg">Sent ✓</span>
+                  {% else %}<span class="badge bo">Pending</span>{% endif %}
                 </div>
               </li>
               {% endfor %}
             </ul>
             {% else %}
-            <div class="empty-state">
-              <div class="empty-icon">💸</div>
-              <p>No withdrawal requests yet.</p>
-            </div>
+            <div class="es"><div class="ei2">💸</div><p>No withdrawals yet.</p></div>
             {% endif %}
           </div>
         </div>
       </div>
 
-      <!-- Right col: withdrawal + bank details -->
+      <!-- RIGHT: withdraw + bank -->
       <div>
-        <!-- Request withdrawal -->
-        <div class="section-card" style="margin-bottom: 22px;">
-          <div class="section-header"><h2>Request withdrawal</h2></div>
-          <div class="section-body">
-            <div class="earn-info">
-              <span>💡</span>
-              <span>Minimum withdrawal is ₦1,000. You must have saved your bank details below first.</span>
-            </div>
-
+        <div class="card rv">
+          <div class="ch"><h2>Request withdrawal</h2></div>
+          <div class="cb">
+            <div class="ei"><span>💡</span><span>Min ₦1,000. Save bank details first.</span></div>
             {% if can_withdraw %}
-            <div class="withdraw-status ready">
-              <span class="ws-icon">✅</span>
-              <span>You have <strong>₦{{ withdrawable_balance|floatformat:2 }}</strong> available. Click below to request a transfer to your bank account.</span>
+            <div class="ws rdy">
+              <span class="wi-icon">✅</span>
+              <span>₦{{ withdrawable_balance|floatformat:2 }} ready. Transfers to {{ user.bank_name }} — {{ user.account_number }}.</span>
             </div>
-            <form method="post" action="{% url 'request_withdrawal' %}" onsubmit="return confirm('Request withdrawal of ₦{{ withdrawable_balance|floatformat:2 }} to {{ user.bank_name }} — {{ user.account_number }}?')">
-              {% csrf_token %}
-              <input type="hidden" name="confirm" value="1">
-              <button class="btn btn-primary" type="submit">Withdraw ₦{{ withdrawable_balance|floatformat:2 }}</button>
+            <form method="post" action="{% url 'request_withdrawal' %}" onsubmit="return confirm('Withdraw ₦{{ withdrawable_balance|floatformat:2 }}?')">
+              {% csrf_token %}<input type="hidden" name="confirm" value="1">
+              <button class="btn bp" type="submit">Withdraw ₦{{ withdrawable_balance|floatformat:2 }}</button>
             </form>
             {% else %}
-            <div class="withdraw-status not-ready">
-              <span class="ws-icon">🔒</span>
-              <span>
-                {% if withdrawable_balance < min_withdrawal %}
-                  You need ₦{{ min_withdrawal|floatformat:0 }} to withdraw. You currently have ₦{{ withdrawable_balance|floatformat:2 }}.
-                {% elif not user.bank_name %}
-                  Please add your bank details below before requesting a withdrawal.
-                {% endif %}
-              </span>
+            <div class="ws nrd">
+              <span class="wi-icon">🔒</span>
+              <span>{% if withdrawable_balance < min_withdrawal %}Need ₦{{ min_withdrawal|floatformat:0 }}. Have ₦{{ withdrawable_balance|floatformat:2 }}.{% else %}Add bank details below.{% endif %}</span>
             </div>
-            <button class="btn btn-primary btn-disabled" disabled>Withdraw</button>
+            <button class="btn bp bd" disabled>Withdraw</button>
             {% endif %}
           </div>
         </div>
 
-        <!-- Bank account details -->
-        <div class="section-card">
-          <div class="section-header"><h2>Bank account</h2></div>
-          <div class="section-body">
+        <div class="card rv">
+          <div class="ch"><h2>Bank account</h2></div>
+          <div class="cb">
             <form method="post" action="{% url 'update_bank_account' %}" id="bank-form">
               {% csrf_token %}
-              <div class="form-group">
-                <label for="id_bank_name">Bank name</label>
-                <input class="form-control" type="text" id="id_bank_name" name="bank_name"
-                       value="{{ bank_form.bank_name.value|default:'' }}"
-                       placeholder="e.g. Access Bank, GTBank, Opay">
-              </div>
-              <div class="form-group">
-                <label for="id_account_number">Account number</label>
-                <input class="form-control" type="text" id="id_account_number" name="account_number"
-                       value="{{ bank_form.account_number.value|default:'' }}"
-                       placeholder="10-digit account number" inputmode="numeric" maxlength="20">
-              </div>
-              <div class="form-group">
-                <label for="id_account_name">Account name</label>
-                <input class="form-control" type="text" id="id_account_name" name="account_name"
-                       value="{{ bank_form.account_name.value|default:'' }}"
-                       placeholder="Name on your bank account">
-              </div>
-              <button class="form-save-btn" type="submit">Save bank details</button>
-              <div class="save-msg" id="save-msg">✓ Saved successfully</div>
+              <div class="fg"><label>Bank name</label><input class="fc" type="text" name="bank_name" value="{{ bank_form.bank_name.value|default:'' }}" placeholder="e.g. Access Bank, GTBank, Opay"></div>
+              <div class="fg"><label>Account number</label><input class="fc" type="text" name="account_number" value="{{ bank_form.account_number.value|default:'' }}" placeholder="10-digit number" inputmode="numeric" maxlength="20"></div>
+              <div class="fg"><label>Account name</label><input class="fc" type="text" name="account_name" value="{{ bank_form.account_name.value|default:'' }}" placeholder="Name on account"></div>
+              <button class="fsb" type="submit">Save bank details</button>
+              <div class="smsg" id="smsg">✓ Saved!</div>
             </form>
           </div>
         </div>
       </div>
-
-    </div><!-- /main-grid -->
+    </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      requestAnimationFrame(() => document.body.classList.add('loaded'));
-
-      // AJAX bank form save
-      const bankForm = document.getElementById('bank-form');
-      if (bankForm) {
-        bankForm.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          const fd = new FormData(bankForm);
-          try {
-            const r = await fetch(bankForm.action, {
-              method: 'POST',
-              headers: { 'X-Requested-With': 'XMLHttpRequest' },
-              body: fd,
-            });
-            const data = await r.json();
-            const msg = document.getElementById('save-msg');
-            if (data.ok) {
-              msg.style.display = 'block';
-              setTimeout(() => msg.style.display = 'none', 3000);
-            }
-          } catch(err) {
-            bankForm.submit();
-          }
-        });
+    window.addEventListener('load', () => {
+      setTimeout(() => document.getElementById('pl').classList.add('h'), 800);
+      kick();
+    });
+    window.addEventListener('pageshow', () => { document.getElementById('pl').classList.add('h'); kick(); });
+    function kick() {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { threshold: 0.07 });
+      document.querySelectorAll('.rv,.sg').forEach(el => io.observe(el));
+    }
+    function toggleMob() {
+      const h = document.getElementById('ham'), m = document.getElementById('mob');
+      const o = m.classList.toggle('open'); h.classList.toggle('open', o);
+    }
+    document.addEventListener('click', e => {
+      const m = document.getElementById('mob');
+      if (m.classList.contains('open') && !m.contains(e.target) && !document.getElementById('ham').contains(e.target)) {
+        m.classList.remove('open'); document.getElementById('ham').classList.remove('open');
       }
+    });
+    // AJAX bank save
+    const bf = document.getElementById('bank-form');
+    if (bf) bf.addEventListener('submit', async e => {
+      e.preventDefault();
+      try {
+        const r = await fetch(bf.action, { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest'}, body:new FormData(bf) });
+        const d = await r.json();
+        if (d.ok) { const m = document.getElementById('smsg'); m.style.display='block'; setTimeout(()=>m.style.display='none',3000); }
+      } catch { bf.submit(); }
     });
   </script>
 </body>

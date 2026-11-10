@@ -1134,19 +1134,32 @@ def admin_withdrawals(request):
 
     status_filter = request.GET.get('status', 'pending')
     withdrawals = WithdrawalRequest.objects.select_related('user')
-    if status_filter == 'all':
-        pass
-    else:
+    if status_filter != 'all':
         withdrawals = withdrawals.filter(status=status_filter)
 
     pending_count = WithdrawalRequest.objects.filter(
         status=WithdrawalRequest.STATUS_PENDING
     ).count()
 
+    # Aggregate per-user post stats for the overview table
+    from django.db.models import Sum, Count
+    user_stats = (
+        Blog.objects
+        .filter(author_user__isnull=False)
+        .values('author_user__id', 'author_user__username', 'author_user__full_name', 'author_user__email')
+        .annotate(total_views=Sum('views_count'), total_posts=Count('id'))
+        .order_by('-total_views')
+    )
+    # Attach computed earnings
+    for row in user_stats:
+        row['total_earned'] = Decimal(str((row['total_views'] or 0) // 100 * NAIRA_PER_100_VIEWS))
+
     return render(request, 'core/admin_withdrawals.html', {
         'withdrawals': withdrawals,
         'status_filter': status_filter,
         'pending_count': pending_count,
+        'user_stats': user_stats,
+        'naira_per_100': NAIRA_PER_100_VIEWS,
     })
 
 

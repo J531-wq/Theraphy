@@ -57,17 +57,55 @@
     .blog-card h2 { margin-bottom: 11px; color: #fff; font: 600 26px/1.08 'Newsreader', Georgia, serif; }
     .excerpt { display: -webkit-box; margin-bottom: 24px; overflow: hidden; color: rgba(240,244,243,.72); font-size: 13px; line-height: 1.65; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
     .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 14px; border-top: 1px solid rgba(255,255,255,.14); color: rgba(240,244,243,.62); font-size: 11px; }
+    .views-count { display: inline-flex; align-items: center; gap: 4px; color: rgba(240,244,243,.5); }
     .read-link { color: #9ad5b6; font-weight: 700; }
     .empty-state { grid-column: 1 / -1; padding: 70px 20px; text-align: center; border: 1px dashed rgba(255,255,255,.3); color: var(--muted); }
     .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 44px; }
     .pagination a, .pagination span { min-width: 34px; padding: 9px 11px; text-align: center; border: 1px solid var(--line); color: var(--muted); font-size: 12px; text-decoration: none; }
     .pagination .selected { color: #fff; background: var(--green); border-color: var(--green); }
     footer { padding: 25px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; text-align: center; }
+    /* Loader */
+    #page-loader{position:fixed;inset:0;z-index:9999;background:rgba(7,11,10,0.97);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;transition:opacity 0.5s,visibility 0.5s}
+    #page-loader.hidden{opacity:0;visibility:hidden}
+    .loader-logo{width:38px;height:38px;animation:lp 1.4s ease-in-out infinite}
+    @keyframes lp{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.14);opacity:0.65}}
+    .loader-track{width:180px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden}
+    .loader-bar{height:100%;width:0;background:linear-gradient(90deg,#2e7d6e,#3d9e8c);border-radius:2px;animation:lbar 0.9s ease forwards}
+    @keyframes lbar{to{width:100%}}
+    .loader-dots{display:flex;gap:7px}
+    .loader-dot{width:7px;height:7px;border-radius:50%;background:#2e7d6e;animation:ldot 1.2s ease-in-out infinite}
+    .loader-dot:nth-child(2){animation-delay:.18s;background:#3d9e8c}
+    .loader-dot:nth-child(3){animation-delay:.36s;background:rgba(61,158,140,0.5)}
+    @keyframes ldot{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    /* Hamburger */
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;width:34px;height:34px;align-items:center;justify-content:center;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:7px;cursor:pointer}
+    .nav-hamburger span{display:block;width:16px;height:1.5px;background:#e8eeec;border-radius:2px;transition:transform .25s,opacity .25s}
+    .nav-hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+    .nav-hamburger.open span:nth-child(2){opacity:0}
+    .nav-hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+    .mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;z-index:190;background:rgba(7,11,10,0.98);border-bottom:1px solid rgba(255,255,255,0.07);backdrop-filter:blur(20px);padding:14px 20px 18px;flex-direction:column;gap:4px;opacity:0;transform:translateY(-8px);transition:opacity .2s,transform .2s}
+    .mobile-menu.open{opacity:1;transform:none}
+    .mm-link{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;font-size:14px;font-weight:500;color:rgba(232,238,236,.65);text-decoration:none;transition:background .15s,color .15s}
+    .mm-link:hover,.mm-link.active{background:rgba(255,255,255,.06);color:#e8eeec}
+    .mm-link.write{background:#2e7d6e;color:#fff;font-weight:600;margin-top:4px}
+    .mm-sep{height:1px;background:rgba(255,255,255,0.07);margin:5px 0}
+    /* Cards animation */
+    .blog-card{opacity:0;transform:translateY(18px);transition:opacity 0.5s ease,transform 0.5s ease,border-color .2s,box-shadow .2s}
+    .blog-card.in{opacity:1;transform:translateY(0)}
+    .blog-card:hover{border-color:#72b99a;box-shadow:0 16px 34px rgba(0,0,0,.4);transform:translateY(-5px) !important}
     @media (max-width: 820px) { .intro { grid-template-columns: 1fr; gap: 10px; } .intro-copy { margin: 0; } .blog-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .nav-center,.nav-right{display:none} .nav-hamburger{display:flex} .mobile-menu{display:flex} }
     @media (max-width: 560px) { .page-shell { padding-left: 16px; padding-right: 16px; padding-top: 90px; } h1 { font-size: 54px; } .filter-bar { align-items: flex-start; flex-direction: column; } .filters { justify-content: flex-start; } .blog-grid { grid-template-columns: 1fr; } .blog-media { height: 190px; } }
   </style>
 </head>
 <body>
+  <!-- Loader -->
+  <div id="page-loader" aria-hidden="true">
+    <img class="loader-logo" src="{% static 'core/logo.png' %}" alt="">
+    <div class="loader-track"><div class="loader-bar"></div></div>
+    <div class="loader-dots"><span class="loader-dot"></span><span class="loader-dot"></span><span class="loader-dot"></span></div>
+  </div>
+
   <nav class="site-nav" aria-label="Main navigation">
     <div class="nav-inner">
       <a class="nav-brand" href="{% url 'welcome' %}"><img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor</a>
@@ -85,18 +123,57 @@
           <a class="nav-pill write" href="{% url 'register' %}">Get started</a>
         {% endif %}
       </div>
+      <button class="nav-hamburger" id="ham" onclick="toggleMob()" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
+  <div class="mobile-menu" id="mob">
+    <a class="mm-link" href="{% url 'welcome' %}">🏠 Home</a>
+    <a class="mm-link active" href="{% url 'blog_list' %}">📖 Journal</a>
+    <a class="mm-link" href="{% url 'sections' %}">⚡ Therapy</a>
+    {% if request.session.user_id %}
+      <div class="mm-sep"></div>
+      <a class="mm-link" href="{% url 'earnings_dashboard' %}">💰 Earnings</a>
+      <a class="mm-link write" href="{% url 'blog_create' %}">✍ Write a Post</a>
+    {% else %}
+      <div class="mm-sep"></div>
+      <a class="mm-link" href="{% url 'login' %}">Sign in</a>
+      <a class="mm-link write" href="{% url 'register' %}">Get started free</a>
+    {% endif %}
+  </div>
   <main class="page-shell">
     <section class="intro"><div><div class="kicker">The MyTherapyDoctor journal</div><h1>Small steps toward a steadier mind.</h1></div><p class="intro-copy">Thoughtful notes on mental health, therapy, and the everyday practices that make support feel more accessible.</p></section>
     <div class="filter-bar"><div class="filter-label">Explore {{ total_blogs }} stories</div><div class="filters"><a class="filter {% if not selected_category %}active{% endif %}" href="{% url 'blog_list' %}">All</a>{% for value, label in categories %}<a class="filter {% if selected_category == value %}active{% endif %}" href="?category={{ value }}">{{ label }}</a>{% endfor %}</div></div>
     <section class="blog-grid">
       {% for blog in blogs %}
-        <a class="blog-card" href="{% url 'blog_detail' blog.slug %}"><div class="blog-media">{% if blog.featured_image %}<img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}" loading="lazy">{% elif blog.cover_image_url %}<img src="{{ blog.cover_image_url }}" alt="{{ blog.title }}" loading="lazy">{% else %}<div class="media-placeholder">+</div>{% endif %}<span class="category">{{ blog.get_category_display }}</span></div><div class="card-content"><div class="card-date">{{ blog.created_at|date:"M d, Y" }}</div><h2>{{ blog.title }}</h2><p class="excerpt">{{ blog.excerpt|truncatewords:30 }}</p><div class="card-footer"><span>By {{ blog.author }}</span><span class="read-link">Read story &rarr;</span></div></div></a>
+        <a class="blog-card" href="{% url 'blog_detail' blog.slug %}"><div class="blog-media">{% if blog.featured_image %}<img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}" loading="lazy">{% elif blog.cover_image_url %}<img src="{{ blog.cover_image_url }}" alt="{{ blog.title }}" loading="lazy">{% else %}<div class="media-placeholder">+</div>{% endif %}<span class="category">{{ blog.get_category_display }}</span></div><div class="card-content"><div class="card-date">{{ blog.created_at|date:"M d, Y" }}</div><h2>{{ blog.title }}</h2><p class="excerpt">{{ blog.excerpt|truncatewords:30 }}</p><div class="card-footer"><span>By {{ blog.author }}</span><span class="views-count">👁 {{ blog.views_count }}</span><span class="read-link">Read story &rarr;</span></div></div></a>
       {% empty %}<div class="empty-state"><h2>No stories in this collection yet.</h2><p>Try another category or return to all stories.</p></div>{% endfor %}
     </section>
     {% if page_obj.has_other_pages %}<nav class="pagination" aria-label="Blog pages">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&larr;</a>{% endif %}{% for number in page_obj.paginator.page_range %}{% if page_obj.number == number %}<span class="selected">{{ number }}</span>{% else %}<a href="?page={{ number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ number }}</a>{% endif %}{% endfor %}{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&rarr;</a>{% endif %}</nav>{% endif %}
   </main>
   <footer>MyTherapyDoctor &copy; 2026 &middot; Support between sessions, one story at a time.</footer>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 800);
+      animateCards();
+    });
+    function animateCards() {
+      const cards = document.querySelectorAll('.blog-card');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), i * 60); io.unobserve(e.target); } });
+      }, { threshold: 0.05 });
+      cards.forEach(c => io.observe(c));
+    }
+    function toggleMob() {
+      const ham = document.getElementById('ham'), mob = document.getElementById('mob');
+      const o = mob.classList.toggle('open'); ham.classList.toggle('open', o);
+    }
+    document.addEventListener('click', e => {
+      const mob = document.getElementById('mob');
+      if (mob.classList.contains('open') && !mob.contains(e.target) && !document.getElementById('ham').contains(e.target)) {
+        mob.classList.remove('open'); document.getElementById('ham').classList.remove('open');
+      }
+    });
+    window.addEventListener('pageshow', () => { document.getElementById('page-loader').classList.add('hidden'); animateCards(); });
+  </script>
 </body>
 </html>

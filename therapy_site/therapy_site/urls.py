@@ -1,17 +1,5 @@
 """
 URL configuration for therapy_site project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add a URL to urlpatterns:  path('', views.MyView.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
 from django.urls import path
@@ -35,89 +23,34 @@ urlpatterns = [
     path('sitemap.xml', views.sitemap_xml, name='sitemap_xml'),
 
     path('login/', views.login_view, name='login'),
-
     path('register/', views.register_view, name='register'),
 
     # Email verification after registration
-    path(
-        'verify-email/',
-        views.verify_email,
-        name='verify_email'
-    ),
+    path('verify-email/', views.verify_email, name='verify_email'),
 
     # Forgot password / username
-    path(
-        'forgot-password/',
-        views.forgot_password,
-        name='forgot_password'
-    ),
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
 
     # Verification code for password / username recovery
-    path(
-        'verify-reset-code/',
-        views.verify_reset_code,
-        name='verify_reset_code'
-    ),
+    path('verify-reset-code/', views.verify_reset_code, name='verify_reset_code'),
 
     # Reset password
-    path(
-        'reset-password/',
-        views.reset_password,
-        name='reset_password'
-    ),
+    path('reset-password/', views.reset_password, name='reset_password'),
 
     path('sections/', views.sections, name='sections'),
     path('logout/', views.logout_view, name='logout'),
 
     # Therapy section AI chat routes
-    path(
-        'therapy/child/',
-        views.child_therapy,
-        name='child_therapy'
-    ),
-
-    path(
-        'therapy/teen/',
-        views.teen_therapy,
-        name='teen_therapy'
-    ),
-
-    path(
-        'therapy/trauma/',
-        views.trauma_therapy,
-        name='trauma_therapy'
-    ),
-
-    path(
-    'therapy/general/',
-    views.general_ai_search,
-    name='general_ai_search'
-),
-
-    path(
-        'therapy/addiction/',
-        views.addiction_therapy,
-        name='addiction_therapy'
-    ),
-
-    path(
-        'therapy/family/',
-        views.family_therapy,
-        name='family_therapy'
-    ),
-
-    path(
-        'therapy/relationship/',
-        views.relationship_therapy,
-        name='relationship_therapy'
-    ),
+    path('therapy/child/', views.child_therapy, name='child_therapy'),
+    path('therapy/teen/', views.teen_therapy, name='teen_therapy'),
+    path('therapy/trauma/', views.trauma_therapy, name='trauma_therapy'),
+    path('therapy/general/', views.general_ai_search, name='general_ai_search'),
+    path('therapy/addiction/', views.addiction_therapy, name='addiction_therapy'),
+    path('therapy/family/', views.family_therapy, name='family_therapy'),
+    path('therapy/relationship/', views.relationship_therapy, name='relationship_therapy'),
 
     # Generic therapy section route
-    path(
-        'therapy/<str:section>/',
-        views.therapy_section,
-        name='therapy_section'
-    ),
+    path('therapy/<str:section>/', views.therapy_section, name='therapy_section'),
 
     # Switch to a past chat session
     path(
@@ -126,72 +59,38 @@ urlpatterns = [
         name='switch_session'
     ),
 
-    # ✅ NEW route to reset users (preserves superuser)
-    path(
-        'reset/',
-        views.reset_users,
-        name='reset_users'
-    ),
+    # Route to reset users (preserves superuser)
+    path('reset/', views.reset_users, name='reset_users'),
 
-    # Blog routes
-    path(
-        'blog/',
-        views.blog_list,
-        name='blog_list'
-    ),
+    # Blog routes — fixed paths MUST come before the slug catcher
+    path('blog/', views.blog_list, name='blog_list'),
+    path('blog/feed/', views.blog_feed, name='blog_feed'),
+    path('blog/subscribe/', views.blog_subscribe, name='blog_subscribe'),
+    path('blog/unsubscribe/<uuid:token>/', views.blog_unsubscribe, name='blog_unsubscribe'),
 
-    path(
-        'blog/feed/',
-        views.blog_feed,
-        name='blog_feed'
-    ),
+    # Blog creation (user-generated posts) — before <slug:slug>
+    path('blog/create/', views.blog_create, name='blog_create'),
+    path('blog/create/success/', views.blog_create_success, name='blog_create_success'),
 
-    path(
-        'blog/subscribe/',
-        views.blog_subscribe,
-        name='blog_subscribe'
-    ),
+    path('blog/comment/<int:comment_id>/vote/', views.blog_comment_vote, name='blog_comment_vote'),
+    path('blog/comment/<int:comment_id>/edit/', views.blog_comment_edit, name='blog_comment_edit'),
+    path('blog/comment/<int:comment_id>/delete/', views.blog_comment_delete, name='blog_comment_delete'),
 
-    path(
-        'blog/unsubscribe/<uuid:token>/',
-        views.blog_unsubscribe,
-        name='blog_unsubscribe'
-    ),
+    path('blog/<slug:slug>/comment/', views.blog_comment_create, name='blog_comment_create'),
+    path('blog/<slug:slug>/like/', views.blog_post_like, name='blog_post_like'),
+    path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
 
-    path(
-        'blog/<slug:slug>/comment/',
-        views.blog_comment_create,
-        name='blog_comment_create'
-    ),
+    # Earnings dashboard
+    path('dashboard/earnings/', views.earnings_dashboard, name='earnings_dashboard'),
+    path('dashboard/bank-account/', views.update_bank_account, name='update_bank_account'),
+    path('dashboard/withdraw/', views.request_withdrawal, name='request_withdrawal'),
 
+    # Admin withdrawal management (accessible only to Django superusers)
+    path('admin-panel/withdrawals/', views.admin_withdrawals, name='admin_withdrawals'),
     path(
-        'blog/comment/<int:comment_id>/vote/',
-        views.blog_comment_vote,
-        name='blog_comment_vote'
-    ),
-
-    path(
-        'blog/comment/<int:comment_id>/edit/',
-        views.blog_comment_edit,
-        name='blog_comment_edit'
-    ),
-
-    path(
-        'blog/comment/<int:comment_id>/delete/',
-        views.blog_comment_delete,
-        name='blog_comment_delete'
-    ),
-
-    path(
-        'blog/<slug:slug>/like/',
-        views.blog_post_like,
-        name='blog_post_like'
-    ),
-
-    path(
-        'blog/<slug:slug>/',
-        views.blog_detail,
-        name='blog_detail'
+        'admin-panel/withdrawals/<int:withdrawal_id>/mark-sent/',
+        views.admin_mark_withdrawal_sent,
+        name='admin_mark_withdrawal_sent'
     ),
 ]
 

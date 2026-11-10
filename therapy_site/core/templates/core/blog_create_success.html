@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Submitted — MyTherapyDoctor</title>
+  {% load static %}
+  <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --teal: #2e7d6e; --teal-light: #3d9e8c; --teal-glow: rgba(46,125,110,0.4); --glass-bg: rgba(6,14,12,0.65); --glass-border: rgba(255,255,255,0.09); --text: #f0f4f3; --muted: rgba(240,244,243,0.55); }
+    body {
+      font-family: 'Inter', sans-serif; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      background: linear-gradient(160deg, rgba(0,0,0,0.74) 0%, rgba(0,18,14,0.58) 100%),
+                  url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
+      color: var(--text);
+    }
+    .card {
+      max-width: 500px; width: 100%;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      backdrop-filter: blur(16px);
+      padding: 50px 40px;
+      text-align: center;
+    }
+    .icon { font-size: 56px; margin-bottom: 20px; }
+    h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 14px; }
+    p { color: var(--muted); font-size: 15px; line-height: 1.7; margin-bottom: 10px; }
+    .actions { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; }
+    .btn { display: block; padding: 13px 24px; border-radius: 9px; font-size: 14px; font-weight: 600; text-decoration: none; text-align: center; transition: opacity 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; box-shadow: 0 4px 18px var(--teal-glow); }
+    .btn-ghost { border: 1px solid var(--glass-border); color: var(--text); background: rgba(255,255,255,0.07); }
+    .btn:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🎉</div>
+    <h1>Post submitted!</h1>
+    <p>Your blog post is now under review by our team. We'll publish it shortly and notify you by email once it goes live.</p>
+    <p>Once published, every 100 views earns you <strong style="color: #9ad5b6;">₦10</strong>. Track your earnings in your dashboard.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="{% url 'earnings_dashboard' %}">View my earnings dashboard</a>
+      <a class="btn btn-ghost" href="{% url 'blog_create' %}">Write another post</a>
+      <a class="btn btn-ghost" href="{% url 'blog_list' %}">Browse the blog</a>
+    </div>
+  </div>
+</body>
+</html>

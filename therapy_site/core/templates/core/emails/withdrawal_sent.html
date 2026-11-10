@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Withdrawal Sent — MyTherapyDoctor</title>
+  <style>
+    body { margin:0; padding:0; background:#f4f7f6; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
+    .wrapper { max-width:600px; margin:40px auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.08); }
+    .header { background:linear-gradient(135deg,#2e7d6e 0%,#4CAF93 100%); padding:46px 40px 36px; text-align:center; }
+    .header .amount { font-size:48px; font-weight:800; color:#fff; letter-spacing:-1px; margin:0 0 6px; }
+    .header p { margin:0; color:rgba(255,255,255,0.88); font-size:16px; }
+    .body { padding:40px; }
+    .body h2 { color:#2e7d6e; font-size:20px; margin:0 0 14px; }
+    .body p { color:#444; font-size:15px; line-height:1.75; margin:0 0 16px; }
+    .detail-box { background:#f0faf7; border:1px solid #c3e8dc; border-radius:10px; padding:20px 22px; margin:24px 0; }
+    .detail-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #d7f0e6; font-size:14px; }
+    .detail-row:last-child { border-bottom:none; }
+    .detail-label { color:#666; }
+    .detail-value { font-weight:700; color:#2e7d6e; }
+    .cta-wrap { text-align:center; margin:30px 0; }
+    .cta-btn { display:inline-block; background:linear-gradient(135deg,#2e7d6e,#4CAF93); color:#fff; text-decoration:none; font-size:15px; font-weight:700; padding:14px 36px; border-radius:30px; letter-spacing:0.5px; }
+    .divider { border:none; border-top:1px solid #ececec; margin:28px 0; }
+    .footer { background:#f9f9f9; border-top:1px solid #ececec; padding:22px 40px; text-align:center; }
+    .footer p { margin:0; font-size:12px; color:#aaa; line-height:1.6; }
+    .footer a { color:#2e7d6e; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="amount">₦{{ amount }}</div>
+      <p>Your withdrawal has been sent!</p>
+    </div>
+    <div class="body">
+      <h2>Hi {{ full_name }}, great news! 🎉</h2>
+      <p>We have processed your withdrawal request and transferred the funds to your bank account. The money should reflect in your account within a few minutes to a few hours depending on your bank.</p>
+
+      <div class="detail-box">
+        <div class="detail-row">
+          <span class="detail-label">Amount Sent</span>
+          <span class="detail-value">₦{{ amount }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Bank</span>
+          <span class="detail-value">{{ bank_name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Account Number</span>
+          <span class="detail-value">{{ account_number }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Account Name</span>
+          <span class="detail-value">{{ account_name }}</span>
+        </div>
+        {% if sent_at %}
+        <div class="detail-row">
+          <span class="detail-label">Date Sent</span>
+          <span class="detail-value">{{ sent_at|date:"F d, Y – g:i A" }}</span>
+        </div>
+        {% endif %}
+      </div>
+
+      <p>Keep writing great content — your earnings continue to grow with every view on your published posts.</p>
+
+      <div class="cta-wrap">
+        <a href="https://mytherapydoctor.com/dashboard/earnings/" class="cta-btn">View My Dashboard</a>
+      </div>
+
+      <hr class="divider"/>
+
+      <p style="font-size:13px; color:#888;">If you have any questions about this transfer, please reply to this email and our team will assist you promptly.</p>
+      <p>With appreciation,<br/><strong>The MyTherapyDoctor Team</strong></p>
+    </div>
+    <div class="footer">
+      <p>&copy; 2026 MyTherapyDoctor &bull; <a href="https://mytherapydoctor.com">mytherapydoctor.com</a><br/>You're receiving this because you have a creator account with us.</p>
+    </div>
+  </div>
+</body>
+</html>

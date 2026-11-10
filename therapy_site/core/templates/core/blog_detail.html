@@ -407,6 +407,7 @@
       <a class="btn-ghost active" href="{% url 'blog_list' %}" onclick="navTo(event, this.href)">Blog</a>
       <a class="btn-ghost nav-ghost-desktop" href="{% url 'sections' %}" onclick="navTo(event, this.href)">Therapy</a>
       {% if request.session.user_id %}
+        <a class="btn-ghost nav-ghost-desktop" href="{% url 'blog_create' %}" onclick="navTo(event, this.href)">Write Post</a>
         <button class="btn-primary-sm" onclick="navTo('{% url 'sections' %}')">Dashboard</button>
       {% else %}
         <button class="btn-primary-sm" onclick="navTo('{% url 'register' %}')">Get Started</button>

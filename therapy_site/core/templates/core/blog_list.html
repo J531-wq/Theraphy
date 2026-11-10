@@ -25,8 +25,7 @@
     .nav-links a:hover, .nav-links .current { color: #fff; }
     .nav-links a:not(.nav-cta) { padding: 9px 22px; border: 1px solid rgba(255,255,255,.09); border-radius: 8px; background: rgba(255,255,255,.07); }
     .nav-links a.current { background: rgba(46,125,110,.2); border-color: rgba(46,125,110,.45); color: #9ad5b6; }
-    .nav-cta { padding: 9px 22px; border-radius: 8px; color: #fff !important; background: linear-gradient(135deg, var(--green), #3d9e8c); box-shadow: 0 4px 16px rgba(46,125,110,.4); }
-    .page-shell { width: min(1180px, 100%); margin: auto; padding: 138px 28px 90px; }
+    .nav-cta { padding: 9px 22px; border-radius: 8px; color: #fff !important; background: linear-gradient(135deg, var(--green), #3d9e8c); box-shadow: 0 4px 16px rgba(46,125,110,.4); }    .page-shell { width: min(1180px, 100%); margin: auto; padding: 138px 28px 90px; }
     .intro { display: grid; grid-template-columns: 1.2fr .8fr; align-items: end; gap: 48px; padding-bottom: 44px; border-bottom: 1px solid var(--line); }
     .kicker { display: flex; align-items: center; gap: 9px; margin-bottom: 18px; color: #e28b70; font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
     .kicker::before { content: ''; width: 28px; height: 2px; background: #e28b70; }
@@ -64,7 +63,7 @@
 <body>
   <nav class="site-nav">
     <a class="brand" href="{% url 'welcome' %}"><img class="brand-mark" src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor</a>
-    <div class="nav-links"><a href="{% url 'welcome' %}">Home</a><a class="current" href="{% url 'blog_list' %}">Journal</a><a href="{% url 'sections' %}">Therapy</a>{% if request.session.user_id %}<a class="nav-cta" href="{% url 'sections' %}">Dashboard</a>{% else %}<a class="nav-cta" href="{% url 'register' %}">Get started</a>{% endif %}</div>
+    <div class="nav-links"><a href="{% url 'welcome' %}">Home</a><a class="current" href="{% url 'blog_list' %}">Journal</a><a href="{% url 'sections' %}">Therapy</a>{% if request.session.user_id %}<a href="{% url 'blog_create' %}">Write</a><a class="nav-cta" href="{% url 'sections' %}">Dashboard</a>{% else %}<a class="nav-cta" href="{% url 'register' %}">Get started</a>{% endif %}</div>
   </nav>
   <main class="page-shell">
     <section class="intro"><div><div class="kicker">The MyTherapyDoctor journal</div><h1>Small steps toward a steadier mind.</h1></div><p class="intro-copy">Thoughtful notes on mental health, therapy, and the everyday practices that make support feel more accessible.</p></section>

@@ -3,41 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Therapy Sections — MyTherapyDoctor</title>
+  <title>Dashboard — MyTherapyDoctor</title>
   {% load static %}
   <meta name="description" content="Explore MyTherapyDoctor's specialised AI therapy sections: Child Therapy, Teen Therapy, Trauma Therapy, Family Therapy, Relationship Therapy, Addiction Support, and General AI Search.">
-  <meta name="keywords" content="therapy sections, AI therapy, child therapy, teen therapy, trauma therapy, family therapy, relationship therapy, addiction support, mental wellness">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://mytherapydoctor.com/sections/">
-  <!-- Favicon & Site Icon -->
   <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
   <link rel="apple-touch-icon" href="{% static 'core/logo.png' %}">
-  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="MyTherapyDoctor">
   <meta property="og:title" content="Therapy Sections — MyTherapyDoctor">
-  <meta property="og:description" content="Choose a specialised AI therapy section — child, teen, trauma, family, relationship, addiction, or general AI search.">
   <meta property="og:url" content="https://mytherapydoctor.com/sections/">
   <meta property="og:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
-  <meta property="og:image:type" content="image/jpeg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Therapy Sections — MyTherapyDoctor">
-  <meta name="twitter:description" content="Choose a specialised AI therapy section.">
-  <meta name="twitter:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
     @font-face {
       font-family: 'Playfair Display';
       src: url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype');
       font-weight: 600; font-style: italic; font-display: swap;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --teal:         #2e7d6e;
       --teal-light:   #3d9e8c;
@@ -47,166 +32,138 @@
       --text:         #f0f4f3;
       --muted:        rgba(240,244,243,0.5);
     }
-
     html, body { width:100%; min-height:100%; font-family:'Inter',sans-serif; }
-
     body {
       min-height: 100vh;
       background:
         linear-gradient(160deg, rgba(0,0,0,0.68) 0%, rgba(0,12,10,0.5) 100%),
         url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 118px 20px 48px;
-      opacity: 0;
-      transition: opacity 0.45s ease;
-      /* CSS fallback: if JS is delayed, fade in automatically after 600ms */
+      display: flex; flex-direction: column; align-items: center;
+      padding: 86px 20px 60px;
+      opacity: 0; transition: opacity 0.45s ease;
       animation: fallback-show 0s 0.6s forwards;
     }
     @keyframes fallback-show { to { opacity: 1; } }
     body.page-loaded { opacity: 1; animation: none; }
     body.page-exit   { opacity: 0; animation: none; transition: opacity 0.35s ease; }
 
+    /* ── Nav ── */
     .site-nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 48px; background: rgba(0,0,0,.25);
-      border-bottom: 1px solid var(--glass-border); backdrop-filter: blur(14px);
+      padding: 0 48px; height: 68px;
+      background: rgba(0,0,0,0.3); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
     }
     .site-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-size: 15px; font-weight: 700; }
     .site-brand img { width: 26px; height: 26px; object-fit: contain; }
-    .site-links { display: flex; align-items: center; gap: 12px; }
-    .site-links a { padding: 9px 22px; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); background: rgba(255,255,255,.07); font-size: 14px; text-decoration: none; }
-    .site-links a:hover, .site-links a.active { background: rgba(46,125,110,.24); border-color: rgba(46,125,110,.5); }
-    .site-links .site-blog { background: linear-gradient(135deg, var(--teal), var(--teal-light)); border-color: transparent; }
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .nav-btn { padding: 8px 18px; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); background: rgba(255,255,255,.07); font-size: 13.5px; font-weight: 500; text-decoration: none; transition: background 0.2s, border-color 0.2s; white-space: nowrap; }
+    .nav-btn:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.18); }
+    .nav-btn.active { background: rgba(46,125,110,.2); border-color: rgba(46,125,110,.5); color: #9ad5b6; }
+    .nav-btn.earn { background: rgba(46,125,110,.18); border-color: rgba(46,125,110,.4); color: #9ad5b6; }
+    .nav-btn.write { background: linear-gradient(135deg, var(--teal), var(--teal-light)); border-color: transparent; color: #fff; font-weight: 600; }
 
-    /* ── Header ── */
-    .page-header {
-      text-align: center;
-      margin-bottom: 48px;
+    /* ── Dashboard header hero ── */
+    .dash-hero {
+      width: 100%; max-width: 1100px;
+      margin-bottom: 36px;
     }
-    .brand-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--teal-light);
-      margin-bottom: 14px;
+    .dash-hero-top {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      flex-wrap: wrap; margin-bottom: 20px;
     }
-    .page-header h1 {
+    .dash-greeting { display: flex; flex-direction: column; gap: 4px; }
+    .dash-greeting .greeting-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-light); }
+    .dash-greeting h1 {
       font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(32px, 5vw, 52px);
-      font-weight: 600;
-      font-style: italic;
-      color: var(--text);
-      text-shadow: 0 2px 20px rgba(0,0,0,0.6);
-      line-height: 1.15;
+      font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+      font-weight: 600; font-style: italic;
+      color: var(--text); line-height: 1.15;
     }
-    .page-header p {
-      margin-top: 12px;
-      font-size: 15px;
-      color: var(--muted);
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.7;
-    }
+    .dash-greeting .sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
 
-    /* ── Grid ── */
+    .dash-quick-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .dqa-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 10px 18px; border-radius: 9px;
+      font-size: 13.5px; font-weight: 600; text-decoration: none;
+      transition: all 0.2s; white-space: nowrap;
+      border: 1px solid var(--glass-border);
+    }
+    .dqa-btn.primary { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; border: none; box-shadow: 0 4px 16px var(--teal-glow); }
+    .dqa-btn.secondary { background: rgba(255,255,255,.08); color: var(--text); }
+    .dqa-btn.logout-btn { background: rgba(220,53,69,.12); border-color: rgba(220,53,69,.28); color: #f88; cursor: pointer; font-family: inherit; }
+    .dqa-btn.logout-btn:hover { background: rgba(220,53,69,.22); }
+    .dqa-btn:not(.logout-btn):hover { opacity: 0.85; transform: translateY(-1px); }
+
+    /* ── Stats strip ── */
+    {% if current_user %}
+    .stats-strip {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    }
+    .stat-pill {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px; backdrop-filter: blur(14px);
+      text-decoration: none; color: inherit;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .stat-pill:hover { border-color: var(--teal); transform: translateY(-2px); }
+    .stat-icon { font-size: 22px; flex-shrink: 0; }
+    .stat-info { display: flex; flex-direction: column; gap: 2px; }
+    .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--text); line-height: 1; }
+    .stat-val.green { color: #9ad5b6; }
+    .stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); }
+    {% endif %}
+
+    /* ── Section header ── */
+    .section-label {
+      width: 100%; max-width: 1100px;
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .section-label h2 { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--glass-border); }
+
+    /* ── Therapy grid ── */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 18px;
-      width: 100%;
-      max-width: 1100px;
+      width: 100%; max-width: 1100px;
     }
-
-    /* ── Card ── */
     .therapy-card {
-      display: flex;
-      flex-direction: column;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 16px;
-      padding: 28px 26px 22px;
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      text-decoration: none;
-      cursor: pointer;
+      display: flex; flex-direction: column;
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: 16px; padding: 28px 26px 22px;
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      text-decoration: none; cursor: pointer;
       transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
       box-shadow: 0 8px 32px rgba(0,0,0,0.35);
     }
-    .therapy-card:hover {
-      transform: translateY(-5px);
-      border-color: var(--teal);
-      box-shadow: 0 16px 48px rgba(0,0,0,0.45), 0 0 0 1px var(--teal-glow);
-    }
-
-    .card-icon {
-      font-size: 32px;
-      margin-bottom: 16px;
-      line-height: 1;
-    }
-    .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .card-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-      flex: 1;
-    }
-    .card-arrow {
-      margin-top: 18px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--teal-light);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      transition: gap 0.2s;
-    }
+    .therapy-card:hover { transform: translateY(-5px); border-color: var(--teal); box-shadow: 0 16px 48px rgba(0,0,0,0.45), 0 0 0 1px var(--teal-glow); }
+    .card-icon { font-size: 32px; margin-bottom: 16px; line-height: 1; }
+    .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
+    .card-arrow { margin-top: 18px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--teal-light); letter-spacing: 0.5px; text-transform: uppercase; transition: gap 0.2s; }
     .therapy-card:hover .card-arrow { gap: 10px; }
 
-    /* ── Logout ── */
-    .footer-actions {
-      margin-top: 44px;
-      display: flex;
-      justify-content: center;
+    @media (max-width: 860px) {
+      .stats-strip { grid-template-columns: 1fr 1fr; }
     }
-    .btn-logout {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 28px;
-      background: rgba(220,53,69,0.15);
-      border: 1px solid rgba(220,53,69,0.3);
-      border-radius: 10px;
-      color: #f88;
-      font-size: 14px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .btn-logout:hover {
-      background: rgba(220,53,69,0.28);
-      border-color: rgba(220,53,69,0.55);
-    }
-
-    @media (max-width: 540px) {
-      body { padding: 100px 14px 40px; }
+    @media (max-width: 600px) {
+      .site-nav { padding: 0 16px; }
+      .nav-actions { gap: 6px; }
+      .nav-btn { padding: 7px 11px; font-size: 12px; }
+      body { padding: 86px 14px 50px; }
+      .dash-hero-top { flex-direction: column; align-items: flex-start; }
+      .dash-quick-actions { width: 100%; }
+      .dqa-btn { flex: 1; justify-content: center; }
+      .stats-strip { grid-template-columns: 1fr; }
       .grid { grid-template-columns: 1fr; }
-      .site-nav { padding: 14px 16px; }
-      .site-links { gap: 6px; }
-      .site-links a { padding: 8px 12px; font-size: 12px; }
     }
   </style>
 </head>
@@ -216,17 +173,83 @@
     <a class="site-brand" href="{% url 'welcome' %}" onclick="navTo(event,this.href)">
       <img src="{% static 'core/logo.png' %}" alt="">MyTherapyDoctor
     </a>
-    <div class="site-links">
-      <a href="{% url 'welcome' %}" onclick="navTo(event,this.href)">Home</a>
-      <a class="site-blog" href="{% url 'blog_list' %}" onclick="navTo(event,this.href)">Blog</a>
+    <div class="nav-actions">
+      <a class="nav-btn" href="{% url 'welcome' %}" onclick="navTo(event,this.href)">Home</a>
+      <a class="nav-btn" href="{% url 'blog_list' %}" onclick="navTo(event,this.href)">Blog</a>
+      {% if current_user %}
+        <a class="nav-btn earn" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">💰 Earnings</a>
+        <a class="nav-btn write" href="{% url 'blog_create' %}" onclick="navTo(event,this.href)">✍️ Write</a>
+      {% endif %}
     </div>
   </nav>
 
-  <header class="page-header">
-    <p class="brand-label">MyTherapyDoctor</p>
-    <h1>How can we help you today?</h1>
-    <p>Choose a therapy section and start a confidential conversation with your AI therapist.</p>
-  </header>
+  <!-- ── Dashboard Hero ── -->
+  <div class="dash-hero">
+    <div class="dash-hero-top">
+      <div class="dash-greeting">
+        <span class="greeting-label">MyTherapyDoctor</span>
+        {% if current_user %}
+          <h1>Welcome back, {{ current_user.full_name|default:current_user.username }}.</h1>
+          <span class="sub">Your mental wellness space — available 24/7.</span>
+        {% else %}
+          <h1>How can we help you today?</h1>
+          <span class="sub">Choose a therapy section to begin your session.</span>
+        {% endif %}
+      </div>
+      <div class="dash-quick-actions">
+        {% if current_user %}
+          <a class="dqa-btn primary" href="{% url 'blog_create' %}" onclick="navTo(event,this.href)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+            Write a Post
+          </a>
+          <a class="dqa-btn secondary" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            My Earnings
+          </a>
+          <form method="post" action="{% url 'logout' %}" id="logout-form" style="display:contents;">
+            {% csrf_token %}
+            <button class="dqa-btn logout-btn" type="submit" onclick="handleLogout(event)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign out
+            </button>
+          </form>
+        {% else %}
+          <a class="dqa-btn primary" href="{% url 'register' %}" onclick="navTo(event,this.href)">Get started</a>
+          <a class="dqa-btn secondary" href="{% url 'login' %}" onclick="navTo(event,this.href)">Sign in</a>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if current_user %}
+    <!-- Stats strip -->
+    <div class="stats-strip">
+      <a class="stat-pill" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">
+        <span class="stat-icon">💰</span>
+        <div class="stat-info">
+          <span class="stat-val green">₦{{ withdrawable_balance|floatformat:2 }}</span>
+          <span class="stat-lbl">Available to Withdraw</span>
+        </div>
+      </a>
+      <a class="stat-pill" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">
+        <span class="stat-icon">📊</span>
+        <div class="stat-info">
+          <span class="stat-val">₦{{ total_earned|floatformat:2 }}</span>
+          <span class="stat-lbl">Total Earned</span>
+        </div>
+      </a>
+      <a class="stat-pill" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">
+        <span class="stat-icon">📝</span>
+        <div class="stat-info">
+          <span class="stat-val">{{ post_count }}</span>
+          <span class="stat-lbl">Published Posts</span>
+        </div>
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── Therapy Sections ── -->
+  <div class="section-label"><h2>Therapy Sessions</h2></div>
 
   <div class="grid">
 
@@ -279,46 +302,39 @@
       <div class="card-arrow">Begin session <span>→</span></div>
     </a>
 
-  </div>
+    {% if current_user %}
+    <a class="therapy-card" href="{% url 'blog_create' %}" onclick="navTo(event,this.href)" style="border-color: rgba(46,125,110,0.35); background: rgba(46,125,110,0.08);">
+      <div class="card-icon">✍️</div>
+      <div class="card-title">Write a Blog Post</div>
+      <div class="card-desc">Share your insights with the community and earn ₦10 per 100 views on your published posts.</div>
+      <div class="card-arrow">Start writing <span>→</span></div>
+    </a>
+    {% endif %}
 
-  <div class="footer-actions">
-    <form method="post" action="{% url 'logout' %}" id="logout-form">
-      {% csrf_token %}
-      <button class="btn-logout" type="submit" onclick="handleLogout(event)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Sign Out
-      </button>
-    </form>
   </div>
 
   <script>
-    // DOMContentLoaded + rAF is more reliable than 'load' — fires before
-    // images finish loading so the page is never invisible waiting for assets.
     document.addEventListener("DOMContentLoaded", () => {
       requestAnimationFrame(() => document.body.classList.add("page-loaded"));
     });
-
-    // Handle browser back-forward cache restores (bfcache).
-    // When the browser restores a cached page the 'load' event does NOT fire,
-    // so we listen for 'pageshow' and force the visible state.
-    window.addEventListener("pageshow", (e) => {
+    window.addEventListener("pageshow", () => {
       document.body.classList.remove("page-exit");
       document.body.classList.add("page-loaded");
     });
-
     function navTo(e, href) {
+      if (!href) return;
       e.preventDefault();
       if (document.body.classList.contains("page-exit")) return;
       document.body.classList.remove("page-loaded");
       document.body.classList.add("page-exit");
-      setTimeout(() => window.location.href = href, 380);
+      setTimeout(() => window.location.href = href, 350);
     }
     function handleLogout(e) {
       e.preventDefault();
       if (document.body.classList.contains("page-exit")) return;
       document.body.classList.remove("page-loaded");
       document.body.classList.add("page-exit");
-      setTimeout(() => document.getElementById("logout-form").submit(), 380);
+      setTimeout(() => document.getElementById("logout-form").submit(), 350);
     }
   </script>
 </body>

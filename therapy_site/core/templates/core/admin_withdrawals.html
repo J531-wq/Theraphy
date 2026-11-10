@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Withdrawal Requests — Admin Panel</title>
+  {% load static %}
+  <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal: #2e7d6e; --teal-light: #3d9e8c; --teal-glow: rgba(46,125,110,0.4);
+      --glass-bg: rgba(6,14,12,0.65); --glass-border: rgba(255,255,255,0.09);
+      --text: #f0f4f3; --muted: rgba(240,244,243,0.55);
+    }
+    html, body { font-family: 'Inter', sans-serif; min-height: 100vh; }
+    body {
+      background: linear-gradient(160deg, rgba(0,0,0,0.78) 0%, rgba(0,18,14,0.62) 100%),
+                  url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
+      color: var(--text); padding: 100px 24px 60px;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 68px;
+      background: rgba(0,0,0,0.3); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-size: 15px; font-weight: 700; }
+    .nav-brand img { width: 26px; height: 26px; }
+    .nav-pill { padding: 8px 16px; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); font-size: 13px; text-decoration: none; background: rgba(255,255,255,0.07); transition: background 0.2s; }
+    .nav-pill:hover { background: rgba(255,255,255,0.14); }
+    .nav-pill.admin { background: rgba(220,53,69,0.15); border-color: rgba(220,53,69,0.3); color: #f88; }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
+
+    /* Page */
+    .page-wrap { max-width: 1100px; margin: 0 auto; }
+    .page-head { margin-bottom: 28px; }
+    .page-head .kicker { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #f88; margin-bottom: 8px; }
+    .page-head h1 { font-size: 1.9rem; font-weight: 700; }
+    .page-head p { margin-top: 6px; color: var(--muted); font-size: 14px; }
+
+    /* Tabs */
+    .tab-row { display: flex; gap: 8px; margin-bottom: 24px; }
+    .tab { padding: 8px 18px; border: 1px solid var(--glass-border); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; transition: all 0.2s; }
+    .tab:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+    .tab.active { background: rgba(46,125,110,0.18); border-color: rgba(46,125,110,0.5); color: #9ad5b6; }
+    .tab .count { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: rgba(220,53,69,0.3); color: #f88; font-size: 11px; font-weight: 700; }
+
+    /* Cards */
+    .wd-card {
+      background: var(--glass-bg); border: 1px solid var(--glass-border);
+      border-radius: 14px; backdrop-filter: blur(14px);
+      padding: 22px 26px; margin-bottom: 14px;
+      display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start;
+    }
+    .wd-card.sent { opacity: 0.65; }
+    .wd-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+    .wd-amount { font-size: 1.75rem; font-weight: 700; color: #9ad5b6; }
+    .wd-user { font-size: 15px; font-weight: 600; }
+    .wd-date { font-size: 12px; color: var(--muted); }
+    .detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
+    .detail-item { background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px 14px; }
+    .detail-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .detail-value { font-size: 14px; font-weight: 600; }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .badge-orange { background: rgba(255,160,0,0.1); color: #e8b87d; border: 1px solid rgba(255,160,0,0.3); }
+    .badge-green { background: rgba(46,125,110,0.18); color: #9ad5b6; border: 1px solid rgba(46,125,110,0.3); }
+
+    /* Mark sent form */
+    .mark-sent-form { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; min-width: 200px; }
+    .note-input {
+      width: 100%; padding: 9px 12px;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
+      border-radius: 8px; color: var(--text); font: 13px 'Inter', sans-serif;
+      resize: none;
+    }
+    .note-input::placeholder { color: rgba(240,244,243,0.3); }
+    .note-input:focus { outline: none; border-color: var(--teal-light); }
+    .btn-send {
+      padding: 10px 20px; border: none; border-radius: 8px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      color: #fff; font: 600 13.5px 'Inter', sans-serif;
+      cursor: pointer; box-shadow: 0 4px 14px var(--teal-glow);
+      white-space: nowrap; transition: opacity 0.2s;
+    }
+    .btn-send:hover { opacity: 0.85; }
+    .sent-info { font-size: 12px; color: #9ad5b6; text-align: right; }
+
+    .user-email { font-size: 12px; color: var(--muted); }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state .ei { font-size: 48px; margin-bottom: 12px; }
+
+    @media (max-width: 700px) {
+      nav { padding: 0 16px; }
+      body { padding-top: 88px; }
+      .wd-card { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr 1fr; }
+      .mark-sent-form { align-items: stretch; min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a class="nav-brand" href="{% url 'welcome' %}">
+      <img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor
+    </a>
+    <div class="nav-right">
+      <a class="nav-pill" href="{% url 'sections' %}">Site Home</a>
+      <a class="nav-pill" href="/admin/">Django Admin</a>
+      <span class="nav-pill admin">🔐 Admin Panel</span>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+    <div class="page-head">
+      <div class="kicker">Admin Panel</div>
+      <h1>Withdrawal Requests</h1>
+      <p>Review pending requests, send payments manually, then mark as sent — the user will receive an email confirmation.</p>
+    </div>
+
+    <div class="tab-row">
+      <a class="tab {% if status_filter == 'pending' %}active{% endif %}"
+         href="?status=pending">Pending{% if pending_count %}<span class="count">{{ pending_count }}</span>{% endif %}</a>
+      <a class="tab {% if status_filter == 'sent' %}active{% endif %}"
+         href="?status=sent">Sent</a>
+      <a class="tab {% if status_filter == 'all' %}active{% endif %}"
+         href="?status=all">All</a>
+    </div>
+
+    {% if withdrawals %}
+      {% for wd in withdrawals %}
+      <div class="wd-card {% if wd.status == 'sent' %}sent{% endif %}">
+        <div>
+          <div class="wd-top">
+            <span class="wd-amount">₦{{ wd.amount|floatformat:2 }}</span>
+            <div>
+              <div class="wd-user">{{ wd.user.full_name|default:wd.user.username }}</div>
+              <div class="user-email">{{ wd.user.email|default:"No email" }}</div>
+            </div>
+            <div>
+              <div class="wd-date">Requested {{ wd.created_at|date:"M d, Y – g:i A" }}</div>
+              {% if wd.sent_at %}<div class="wd-date">Sent {{ wd.sent_at|date:"M d, Y – g:i A" }}</div>{% endif %}
+            </div>
+            {% if wd.status == 'sent' %}
+              <span class="badge badge-green">Sent ✓</span>
+            {% else %}
+              <span class="badge badge-orange">Pending</span>
+            {% endif %}
+          </div>
+
+          <div class="detail-grid">
+            <div class="detail-item">
+              <div class="detail-label">Bank</div>
+              <div class="detail-value">{{ wd.bank_name }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Account Number</div>
+              <div class="detail-value">{{ wd.account_number }}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Account Name</div>
+              <div class="detail-value">{{ wd.account_name }}</div>
+            </div>
+          </div>
+
+          {% if wd.admin_note %}
+            <p style="font-size:12px; color: var(--muted);">Note: {{ wd.admin_note }}</p>
+          {% endif %}
+        </div>
+
+        <div>
+          {% if wd.status == 'pending' %}
+          <form class="mark-sent-form" method="post"
+                action="{% url 'admin_mark_withdrawal_sent' wd.id %}"
+                onsubmit="return confirm('Mark ₦{{ wd.amount|floatformat:2 }} to {{ wd.user.username }} as SENT? This will email the user.')">
+            {% csrf_token %}
+            <textarea class="note-input" name="note" rows="2"
+                      placeholder="Optional note (e.g. transfer ref)…"></textarea>
+            <button class="btn-send" type="submit">✓ Mark as Sent &amp; Email User</button>
+          </form>
+          {% else %}
+          <div class="sent-info">✓ Sent on {{ wd.sent_at|date:"M d, Y" }}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty-state">
+      <div class="ei">💸</div>
+      <p>No {% if status_filter != 'all' %}{{ status_filter }}{% endif %} withdrawal requests found.</p>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.hashers import make_password
-from .models import User
+from .models import Blog, User, WithdrawalRequest
 
 
 class RegisterForm(forms.ModelForm):
@@ -154,3 +154,68 @@ class ResetPasswordForm(forms.Form):
                 )
 
         return cleaned_data
+
+
+class BlogCreateForm(forms.ModelForm):
+    """Form for users to create their own blog post."""
+
+    class Meta:
+        model = Blog
+        fields = [
+            'title', 'category', 'excerpt', 'content',
+            'cover_image_url', 'featured_image',
+        ]
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'placeholder': 'Enter your blog title',
+            }),
+            'excerpt': forms.Textarea(attrs={
+                'placeholder': 'Write a short summary (shown on the listing page)…',
+                'rows': 3,
+            }),
+            'content': forms.Textarea(attrs={
+                'placeholder': 'Write your full article here…',
+                'rows': 18,
+            }),
+            'cover_image_url': forms.URLInput(attrs={
+                'placeholder': 'https://example.com/image.jpg (optional)',
+            }),
+        }
+
+    def clean_title(self):
+        title = self.cleaned_data.get('title', '').strip()
+        if len(title) < 5:
+            raise forms.ValidationError('Title must be at least 5 characters.')
+        return title
+
+    def clean_content(self):
+        content = self.cleaned_data.get('content', '').strip()
+        if len(content) < 50:
+            raise forms.ValidationError('Content must be at least 50 characters.')
+        return content
+
+
+class BankAccountForm(forms.ModelForm):
+    """Let a user update their payout bank account details."""
+
+    class Meta:
+        model = User
+        fields = ['bank_name', 'account_number', 'account_name']
+        widgets = {
+            'bank_name': forms.TextInput(attrs={
+                'placeholder': 'e.g. Access Bank, GTBank, Opay…',
+            }),
+            'account_number': forms.TextInput(attrs={
+                'placeholder': '10-digit account number',
+                'maxlength': '20',
+                'inputmode': 'numeric',
+            }),
+            'account_name': forms.TextInput(attrs={
+                'placeholder': 'Account name as it appears on your bank',
+            }),
+        }
+
+
+class WithdrawalRequestForm(forms.Form):
+    """Confirm a withdrawal request — amount is derived from their balance."""
+    confirm = forms.BooleanField(required=True)

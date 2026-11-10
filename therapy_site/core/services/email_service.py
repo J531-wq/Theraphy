@@ -163,3 +163,44 @@ def notify_subscribers_of_new_post(blog, base_url: str) -> int:
             sent += 1
     logger.info("New-post notification for '%s': %d/%d sent", blog.slug, sent, subscribers.count() if hasattr(subscribers, 'count') else sent)
     return sent
+
+# ---------------------------------------------------------------------------
+# Withdrawal / earnings emails
+# ---------------------------------------------------------------------------
+
+def send_withdrawal_sent_email(user, withdrawal) -> bool:
+    """
+    Notify a user that their withdrawal request has been processed and
+    the money has been sent to their bank account.
+    """
+    return _send(
+        subject="Your Withdrawal Has Been Sent – MyTherapyDoctor",
+        to_email=user.email,
+        template="core/emails/withdrawal_sent.html",
+        context={
+            "full_name": user.full_name,
+            "amount": withdrawal.amount,
+            "bank_name": withdrawal.bank_name,
+            "account_number": withdrawal.account_number,
+            "account_name": withdrawal.account_name,
+            "sent_at": withdrawal.sent_at,
+        },
+    )
+
+
+def send_blog_post_approved_email(user, blog, base_url: str) -> bool:
+    """
+    Notify a user-created blog post author that their post has been
+    approved and published by admin.
+    """
+    post_url = f"{base_url}{blog.get_absolute_url()}"
+    return _send(
+        subject=f'Your post "{blog.title}" is now live – MyTherapyDoctor',
+        to_email=user.email,
+        template="core/emails/blog_post_approved.html",
+        context={
+            "full_name": user.full_name,
+            "post_title": blog.title,
+            "post_url": post_url,
+        },
+    )

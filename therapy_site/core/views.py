@@ -1,18 +1,24 @@
 import hashlib
 import logging
 import random
+import re
+
+from decimal import Decimal
 
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.db.models import F
+from django.db.models import F, Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 
 from .forms import (
+    BankAccountForm,
+    BlogCreateForm,
     ForgotPasswordForm,
     LoginForm,
     RegisterForm,
@@ -27,13 +33,17 @@ from .models import (
     BlogSubscriber,
     ChatMessage,
     ChatSession,
+    NAIRA_PER_100_VIEWS,
     User,
+    WithdrawalRequest,
 )
 from .services.email_service import (
+    send_blog_post_approved_email,
     send_blog_subscription_welcome,
     send_reset_email,
     send_verification_email,
     send_welcome_email,
+    send_withdrawal_sent_email,
 )
 from .services.groq_client import get_ai_response
 
@@ -426,7 +436,29 @@ def reset_password(request):
 
 
 def sections(request):
-    return render(request, "core/sections.html")
+    user = get_chat_user(request)
+    context = {}
+    if user:
+        # Compute earnings inline (avoid forward-reference to _user_earnings)
+        posts_qs = Blog.objects.filter(author_user=user, is_published=True)
+        from django.db.models import Sum as _Sum
+        total_views = posts_qs.aggregate(tv=_Sum('views_count'))['tv'] or 0
+        total_earned = Decimal(str(total_views // 100 * NAIRA_PER_100_VIEWS))
+        all_wd = WithdrawalRequest.objects.filter(user=user)
+        total_withdrawn = all_wd.aggregate(t=_Sum('amount'))['t'] or Decimal('0')
+        available = max(total_earned - total_withdrawn, Decimal('0'))
+        pending = all_wd.filter(
+            status=WithdrawalRequest.STATUS_PENDING
+        ).aggregate(t=_Sum('amount'))['t'] or Decimal('0')
+        withdrawable_balance = max(available - pending, Decimal('0'))
+        post_count = posts_qs.count()
+        context = {
+            'current_user': user,
+            'total_earned': total_earned,
+            'withdrawable_balance': withdrawable_balance,
+            'post_count': post_count,
+        }
+    return render(request, "core/sections.html", context)
 
 
 def logout_view(request):
@@ -614,6 +646,14 @@ def blog_detail(request, slug):
     post_liked = BlogPostLike.objects.filter(
         post=blog, voter_key=_voter_key(request)
     ).exists()
+
+    # Track unique view per session+post to count earnings
+    view_session_key = f"viewed_blog_{blog.id}"
+    if not request.session.get(view_session_key):
+        Blog.objects.filter(id=blog.id).update(views_count=F('views_count') + 1)
+        request.session[view_session_key] = True
+        request.session.modified = True
+        blog.refresh_from_db()
 
     context = {
         'blog': blog,
@@ -891,3 +931,244 @@ def blog_feed(request):
         '</rss>\n'
     )
     return HttpResponse(xml, content_type="application/rss+xml")
+
+
+# ---------------------------------------------------------------------------
+# Blog creation (user-generated posts)
+# ---------------------------------------------------------------------------
+
+def _unique_slug(title: str) -> str:
+    """Generate a slug from title and append a suffix if it already exists."""
+    base = slugify(title)[:80] or 'post'
+    slug = base
+    counter = 1
+    while Blog.objects.filter(slug=slug).exists():
+        slug = f"{base}-{counter}"
+        counter += 1
+    return slug
+
+
+def blog_create(request):
+    """Allow logged-in users to write and submit a new blog post."""
+    user = get_chat_user(request)
+    if not user:
+        return redirect(f"{reverse('login')}?next={reverse('blog_create')}")
+
+    if request.method == 'POST':
+        form = BlogCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            blog = form.save(commit=False)
+            blog.slug = _unique_slug(blog.title)
+            blog.author = user.full_name or user.username
+            blog.author_user = user
+            blog.is_published = False  # admin must approve
+            blog.save()
+            return redirect('blog_create_success')
+    else:
+        form = BlogCreateForm()
+
+    return render(request, 'core/blog_create.html', {'form': form})
+
+
+def blog_create_success(request):
+    return render(request, 'core/blog_create_success.html')
+
+
+# ---------------------------------------------------------------------------
+# User earnings dashboard
+# ---------------------------------------------------------------------------
+
+def _user_earnings(user):
+    """
+    Return (total_earned, pending_withdrawn, available_balance) as Decimals.
+    total_earned   = sum of ₦10 per 100 views across all user's published posts.
+    pending        = sum of pending withdrawal requests.
+    available      = total_earned - all-time approved/sent withdrawals.
+    """
+    posts = Blog.objects.filter(author_user=user, is_published=True)
+    total_views = posts.aggregate(tv=Sum('views_count'))['tv'] or 0
+    total_earned = Decimal(str(total_views // 100 * NAIRA_PER_100_VIEWS))
+
+    all_withdrawals = WithdrawalRequest.objects.filter(user=user)
+    total_withdrawn = all_withdrawals.aggregate(
+        t=Sum('amount')
+    )['t'] or Decimal('0')
+
+    available = total_earned - total_withdrawn
+    if available < 0:
+        available = Decimal('0')
+
+    pending = all_withdrawals.filter(
+        status=WithdrawalRequest.STATUS_PENDING
+    ).aggregate(t=Sum('amount'))['t'] or Decimal('0')
+
+    return total_earned, total_withdrawn, available, pending
+
+
+def earnings_dashboard(request):
+    """User's personal earnings overview."""
+    user = get_chat_user(request)
+    if not user:
+        return redirect(f"{reverse('login')}?next={reverse('earnings_dashboard')}")
+
+    total_earned, total_withdrawn, available, pending = _user_earnings(user)
+    posts = Blog.objects.filter(author_user=user).order_by('-created_at')
+    withdrawals = WithdrawalRequest.objects.filter(user=user)
+    bank_form = BankAccountForm(instance=user)
+
+    MIN_WITHDRAWAL = Decimal('1000')
+    can_withdraw = (available - pending) >= MIN_WITHDRAWAL and bool(
+        user.bank_name and user.account_number and user.account_name
+    )
+    withdrawable_balance = available - pending
+
+    context = {
+        'total_earned': total_earned,
+        'total_withdrawn': total_withdrawn,
+        'available': available,
+        'pending': pending,
+        'withdrawable_balance': withdrawable_balance,
+        'posts': posts,
+        'withdrawals': withdrawals,
+        'bank_form': bank_form,
+        'can_withdraw': can_withdraw,
+        'min_withdrawal': MIN_WITHDRAWAL,
+        'naira_per_100_views': NAIRA_PER_100_VIEWS,
+    }
+    return render(request, 'core/earnings_dashboard.html', context)
+
+
+@require_POST
+def update_bank_account(request):
+    """AJAX/form handler — save user bank details."""
+    user = get_chat_user(request)
+    if not user:
+        return redirect('login')
+
+    form = BankAccountForm(request.POST, instance=user)
+    if form.is_valid():
+        form.save()
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': True, 'message': 'Bank details saved!'})
+        return redirect('earnings_dashboard')
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        errors = {f: e.get_json_data() for f, e in form.errors.items()}
+        return JsonResponse({'ok': False, 'errors': errors}, status=400)
+    # Re-render dashboard with errors
+    total_earned, total_withdrawn, available, pending = _user_earnings(user)
+    posts = Blog.objects.filter(author_user=user).order_by('-created_at')
+    withdrawals = WithdrawalRequest.objects.filter(user=user)
+    MIN_WITHDRAWAL = Decimal('1000')
+    withdrawable_balance = available - pending
+    can_withdraw = withdrawable_balance >= MIN_WITHDRAWAL and bool(
+        user.bank_name and user.account_number and user.account_name
+    )
+    return render(request, 'core/earnings_dashboard.html', {
+        'total_earned': total_earned,
+        'total_withdrawn': total_withdrawn,
+        'available': available,
+        'pending': pending,
+        'withdrawable_balance': withdrawable_balance,
+        'posts': posts,
+        'withdrawals': withdrawals,
+        'bank_form': form,
+        'can_withdraw': can_withdraw,
+        'min_withdrawal': MIN_WITHDRAWAL,
+        'naira_per_100_views': NAIRA_PER_100_VIEWS,
+    })
+
+
+@require_POST
+def request_withdrawal(request):
+    """Submit a withdrawal request for the full available balance."""
+    user = get_chat_user(request)
+    if not user:
+        return redirect('login')
+
+    total_earned, total_withdrawn, available, pending = _user_earnings(user)
+    withdrawable_balance = available - pending
+    MIN_WITHDRAWAL = Decimal('1000')
+
+    if not (user.bank_name and user.account_number and user.account_name):
+        return redirect('earnings_dashboard')
+
+    if withdrawable_balance < MIN_WITHDRAWAL:
+        return redirect('earnings_dashboard')
+
+    WithdrawalRequest.objects.create(
+        user=user,
+        amount=withdrawable_balance,
+        bank_name=user.bank_name,
+        account_number=user.account_number,
+        account_name=user.account_name,
+        status=WithdrawalRequest.STATUS_PENDING,
+    )
+    return redirect('earnings_dashboard')
+
+
+# ---------------------------------------------------------------------------
+# Admin withdrawal management (custom non-Django-admin page)
+# ---------------------------------------------------------------------------
+
+def _require_admin(request):
+    """Return True if the session user is a Django superuser, else redirect."""
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return False
+    # We use Django's native auth check for superuser
+    from django.contrib.auth.models import User as DjangoUser
+    try:
+        DjangoUser.objects.get(id=user_id, is_superuser=True)
+        return True
+    except DjangoUser.DoesNotExist:
+        pass
+    # Fallback: check if logged in via Django admin session
+    return request.user.is_authenticated and request.user.is_superuser
+
+
+def admin_withdrawals(request):
+    """Custom admin page — lists all pending withdrawal requests."""
+    if not (request.user.is_authenticated and request.user.is_superuser):
+        return redirect('/admin/')
+
+    status_filter = request.GET.get('status', 'pending')
+    withdrawals = WithdrawalRequest.objects.select_related('user')
+    if status_filter == 'all':
+        pass
+    else:
+        withdrawals = withdrawals.filter(status=status_filter)
+
+    pending_count = WithdrawalRequest.objects.filter(
+        status=WithdrawalRequest.STATUS_PENDING
+    ).count()
+
+    return render(request, 'core/admin_withdrawals.html', {
+        'withdrawals': withdrawals,
+        'status_filter': status_filter,
+        'pending_count': pending_count,
+    })
+
+
+@require_POST
+def admin_mark_withdrawal_sent(request, withdrawal_id):
+    """Mark a withdrawal as sent and email the user."""
+    if not (request.user.is_authenticated and request.user.is_superuser):
+        return redirect('/admin/')
+
+    withdrawal = get_object_or_404(WithdrawalRequest, id=withdrawal_id)
+    if withdrawal.status == WithdrawalRequest.STATUS_PENDING:
+        withdrawal.status = WithdrawalRequest.STATUS_SENT
+        withdrawal.sent_at = timezone.now()
+        withdrawal.admin_note = request.POST.get('note', '').strip()
+        withdrawal.save()
+
+        # Email the user
+        try:
+            send_withdrawal_sent_email(withdrawal.user, withdrawal)
+        except Exception:
+            logger.exception(
+                "Failed to send withdrawal email for withdrawal #%s", withdrawal.id
+            )
+
+    return redirect('admin_withdrawals')

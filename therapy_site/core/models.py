@@ -11,6 +11,11 @@ class User(models.Model):
     password = models.CharField(max_length=128, null=True, blank=True)
     is_active = models.BooleanField(default=False)
 
+    # Bank / payout details (filled in by user before requesting withdrawal)
+    bank_name = models.CharField(max_length=100, blank=True, default='')
+    account_number = models.CharField(max_length=20, blank=True, default='')
+    account_name = models.CharField(max_length=100, blank=True, default='')
+
     def __str__(self):
         return self.username
 
@@ -87,9 +92,18 @@ class Blog(models.Model):
         help_text="External cover photo URL (used when no uploaded featured image)",
     )
     likes_count = models.PositiveIntegerField(default=0)
+    views_count = models.PositiveIntegerField(default=0)
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    # Author user link (null for admin-created posts without a user author)
+    author_user = models.ForeignKey(
+        User, on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='blog_posts',
+        help_text="Registered user who authored this post (for earnings tracking)",
+    )
     
     class Meta:
         ordering = ['-created_at']
@@ -192,3 +206,44 @@ class BlogPostLike(models.Model):
 
     def __str__(self):
         return f"{self.voter_key} likes {self.post.slug}"
+
+
+# ---------------------------------------------------------------------------
+# Earnings & Withdrawal
+# ---------------------------------------------------------------------------
+
+NAIRA_PER_100_VIEWS = 10  # ₦10 per 100 views
+
+
+class WithdrawalRequest(models.Model):
+    """A user's request to withdraw their accumulated blog earnings."""
+    STATUS_PENDING = 'pending'
+    STATUS_SENT    = 'sent'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_SENT,    'Sent'),
+    ]
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='withdrawal_requests',
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    # Snapshot of bank details at time of request
+    bank_name      = models.CharField(max_length=100)
+    account_number = models.CharField(max_length=20)
+    account_name   = models.CharField(max_length=100)
+
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING
+    )
+    admin_note = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent_at    = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} — ₦{self.amount} [{self.status}]"

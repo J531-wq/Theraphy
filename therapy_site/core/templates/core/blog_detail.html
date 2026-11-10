@@ -354,6 +354,20 @@
     .sidebar-cta { display: block; padding: 11px 14px; color: #fff; background: linear-gradient(135deg, var(--teal), var(--teal-light)); border-radius: 8px; font-size: .84rem; font-weight: 600; text-align: center; text-decoration: none; }
     .ad-slot { min-width: 0; min-height: 120px; padding: 16px; overflow: hidden; background: rgba(6,14,12,.72); border: 1px solid var(--glass-border); border-radius: 14px; }
     .ad-slot-label { margin-bottom: 12px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
+    .low-views-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin: 24px 0;
+      padding: 18px 20px;
+      border: 1px solid rgba(46,125,110,0.25);
+      border-radius: 14px;
+      background: rgba(46,125,110,0.10);
+    }
+    .lv-icon { flex-shrink: 0; font-size: 24px; }
+    .lv-content strong { display: block; margin-bottom: 6px; color: #e8eeec; font-size: 15px; }
+    .lv-content p { margin: 0; color: rgba(232,238,236,0.65); font-size: 13.5px; line-height: 1.6; }
+    .lv-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
 
     /* ── Responsive ── */
     @media (max-width: 640px) {
@@ -672,22 +686,19 @@
   <div class="comment-toast" id="comment-toast" role="status" aria-live="polite"></div>
 
   <script>
-    // Fade-in on load (with CSS fallback for delayed JS) and bfcache restore.
+    // Reveal the page as soon as its DOM is ready; remote assets may load later.
     document.addEventListener("DOMContentLoaded", () => {
       requestAnimationFrame(() => document.body.classList.add("page-loaded"));
+      document.getElementById('page-loader').classList.add('hidden');
       fillShareLinks();
     });
     window.addEventListener("pageshow", () => {
       document.body.classList.remove("page-exit");
       document.body.classList.add("page-loaded");
+      document.getElementById('page-loader').classList.add('hidden');
     });
 
     // ── Page loader + hamburger ──
-    window.addEventListener('load', () => {
-      setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 800);
-    });
-    window.addEventListener('pageshow', () => document.getElementById('page-loader').classList.add('hidden'));
-
     function toggleMob() {
       const h = document.getElementById('ham'), m = document.getElementById('mob');
       const o = m.classList.toggle('open'); h.classList.toggle('open', o);
@@ -863,44 +874,6 @@
     editModal.querySelector('.modal-close').addEventListener('click', () => editModal.classList.remove('open'));
     editModal.querySelector('.modal-cancel').addEventListener('click', () => editModal.classList.remove('open'));
     editModal.addEventListener('click', (event) => { if (event.target === editModal) editModal.classList.remove('open'); });
-  <style>
-    .low-views-alert {
-      background: rgba(46,125,110,0.10);
-      border: 1px solid rgba(46,125,110,0.25);
-      border-radius: 14px;
-      padding: 18px 20px;
-      margin: 24px 0;
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-    }
-    .lv-icon { font-size: 24px; flex-shrink: 0; }
-    .lv-content strong { display: block; color: #e8eeec; font-size: 15px; margin-bottom: 6px; }
-    .lv-content p { color: rgba(232,238,236,0.65); font-size: 13.5px; line-height: 1.6; margin: 0; }
-    .lv-actions {
-      margin-left: auto;
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .share-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.05);
-      color: #e8eeec;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-    .share-btn:hover { background: rgba(46,125,110,0.20); border-color: var(--teal, #2e7d6e); color: #fff; }
-    .share-btn.copy { font-size: 18px; }
-  </style>
   </script>
 <!-- Ads Section -->
   <section class="ads-section">

@@ -5,336 +5,574 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — MyTherapyDoctor</title>
   {% load static %}
-  <meta name="description" content="Explore MyTherapyDoctor's specialised AI therapy sections: Child Therapy, Teen Therapy, Trauma Therapy, Family Therapy, Relationship Therapy, Addiction Support, and General AI Search.">
+  <meta name="description" content="Your MyTherapyDoctor dashboard. Access AI therapy sessions across child, teen, trauma, family, relationship, addiction, and general support.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://mytherapydoctor.com/sections/">
   <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
   <link rel="apple-touch-icon" href="{% static 'core/logo.png' %}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="MyTherapyDoctor">
-  <meta property="og:title" content="Therapy Sections — MyTherapyDoctor">
+  <meta property="og:title" content="Dashboard — MyTherapyDoctor">
   <meta property="og:url" content="https://mytherapydoctor.com/sections/">
   <meta property="og:image" content="https://mytherapydoctor.com{% static 'core/Social.jpg' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    @font-face {
-      font-family: 'Playfair Display';
-      src: url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype');
-      font-weight: 600; font-style: italic; font-display: swap;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ─── TOKENS ─── */
     :root {
-      --teal:         #2e7d6e;
-      --teal-light:   #3d9e8c;
-      --teal-glow:    rgba(46,125,110,0.3);
-      --glass-bg:     rgba(8,16,14,0.65);
-      --glass-border: rgba(255,255,255,0.08);
-      --text:         #f0f4f3;
-      --muted:        rgba(240,244,243,0.5);
+      --bg:          #0c0f0e;
+      --bg-2:        #111614;
+      --bg-3:        #161c1a;
+      --surface:     #1a2220;
+      --surface-2:   #1f2b28;
+      --border:      rgba(255,255,255,0.07);
+      --border-2:    rgba(255,255,255,0.13);
+      --teal:        #2e7d6e;
+      --teal-mid:    #3d9e8c;
+      --teal-pale:   rgba(46,125,110,0.14);
+      --teal-glow:   rgba(46,125,110,0.32);
+      --text:        #e8eeec;
+      --text-2:      rgba(232,238,236,0.60);
+      --text-3:      rgba(232,238,236,0.35);
+      --red-pale:    rgba(220,53,69,0.12);
+      --red-border:  rgba(220,53,69,0.28);
+      --red:         #f87171;
+      --serif:       'DM Serif Display', Georgia, serif;
+      --sans:        'Inter', system-ui, sans-serif;
     }
-    html, body { width:100%; min-height:100%; font-family:'Inter',sans-serif; }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
       min-height: 100vh;
-      background:
-        linear-gradient(160deg, rgba(0,0,0,0.68) 0%, rgba(0,12,10,0.5) 100%),
-        url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
-      display: flex; flex-direction: column; align-items: center;
-      padding: 86px 20px 60px;
-      opacity: 0; transition: opacity 0.45s ease;
-      animation: fallback-show 0s 0.6s forwards;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      opacity: 0;
+      animation: fade-in 0s 0.3s forwards;
     }
-    @keyframes fallback-show { to { opacity: 1; } }
-    body.page-loaded { opacity: 1; animation: none; }
-    body.page-exit   { opacity: 0; animation: none; transition: opacity 0.35s ease; }
+    @keyframes fade-in { to { opacity: 1; } }
+    body.loaded  { opacity: 1; animation: none; }
+    body.exiting { opacity: 0; animation: none; transition: opacity 0.3s ease; }
 
-    /* ── Nav ── */
+    a { color: inherit; text-decoration: none; }
+    a:focus-visible { outline: 2px solid var(--teal-mid); outline-offset: 3px; }
+
+    /* ─── NAV ─── */
     .site-nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 48px; height: 68px;
-      background: rgba(0,0,0,0.3); backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--glass-border);
+      height: 64px;
+      display: flex; align-items: center;
+      padding: 0 48px;
+      background: rgba(12,15,14,0.80);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
-    .site-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-size: 15px; font-weight: 700; }
-    .site-brand img { width: 26px; height: 26px; object-fit: contain; }
-    .nav-actions { display: flex; align-items: center; gap: 10px; }
-    .nav-btn { padding: 8px 18px; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); background: rgba(255,255,255,.07); font-size: 13.5px; font-weight: 500; text-decoration: none; transition: background 0.2s, border-color 0.2s; white-space: nowrap; }
-    .nav-btn:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.18); }
-    .nav-btn.active { background: rgba(46,125,110,.2); border-color: rgba(46,125,110,.5); color: #9ad5b6; }
-    .nav-btn.earn { background: rgba(46,125,110,.18); border-color: rgba(46,125,110,.4); color: #9ad5b6; }
-    .nav-btn.write { background: linear-gradient(135deg, var(--teal), var(--teal-light)); border-color: transparent; color: #fff; font-weight: 600; }
+    .nav-inner {
+      width: 100%; max-width: 1240px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 14.5px; font-weight: 600; letter-spacing: -0.1px;
+      color: var(--text);
+    }
+    .nav-brand img { width: 26px; height: 26px; object-fit: contain; }
 
-    /* ── Dashboard header hero ── */
-    .dash-hero {
-      width: 100%; max-width: 1100px;
+    .nav-center {
+      display: flex; align-items: center; gap: 2px;
+    }
+    .nav-link {
+      padding: 7px 14px; border-radius: 7px;
+      font-size: 13px; font-weight: 500; color: var(--text-2);
+      transition: color 0.15s, background 0.15s;
+    }
+    .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .nav-link.active { color: var(--text); background: rgba(255,255,255,0.07); }
+
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+    .nav-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 7px;
+      font-size: 13px; font-weight: 500;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
+      transition: all 0.15s;
+    }
+    .nav-pill:hover { color: var(--text); border-color: var(--border-2); background: rgba(255,255,255,0.07); }
+    .nav-pill.earn { color: #9ad5b6; border-color: rgba(46,125,110,0.3); background: rgba(46,125,110,0.07); }
+    .nav-pill.earn:hover { background: rgba(46,125,110,0.14); }
+    .nav-pill.write {
+      background: var(--teal); border-color: transparent; color: #fff; font-weight: 600;
+      box-shadow: 0 2px 12px var(--teal-glow);
+    }
+    .nav-pill.write:hover { background: var(--teal-mid); }
+    .nav-btn-logout {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 7px;
+      font-size: 13px; font-weight: 500;
+      color: var(--red); border: 1px solid var(--red-border);
+      background: var(--red-pale);
+      cursor: pointer; font-family: inherit;
+      transition: background 0.15s;
+    }
+    .nav-btn-logout:hover { background: rgba(220,53,69,0.22); }
+
+    /* ─── PAGE SHELL ─── */
+    .page {
+      max-width: 1240px; margin: 0 auto;
+      padding: 96px 48px 80px;
+    }
+
+    /* ─── DASHBOARD HEADER ─── */
+    .dash-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: start;
+      gap: 32px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid var(--border);
       margin-bottom: 36px;
     }
-    .dash-hero-top {
-      display: flex; align-items: center; justify-content: space-between; gap: 16px;
-      flex-wrap: wrap; margin-bottom: 20px;
-    }
-    .dash-greeting { display: flex; flex-direction: column; gap: 4px; }
-    .dash-greeting .greeting-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--teal-light); }
-    .dash-greeting h1 {
-      font-family: 'Playfair Display', Georgia, serif;
-      font-size: clamp(1.5rem, 3.5vw, 2.5rem);
-      font-weight: 600; font-style: italic;
-      color: var(--text); line-height: 1.15;
-    }
-    .dash-greeting .sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
 
-    .dash-quick-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .dqa-btn {
-      display: flex; align-items: center; gap: 7px;
-      padding: 10px 18px; border-radius: 9px;
-      font-size: 13.5px; font-weight: 600; text-decoration: none;
-      transition: all 0.2s; white-space: nowrap;
-      border: 1px solid var(--glass-border);
+    .dash-meta { display: flex; flex-direction: column; gap: 6px; }
+    .dash-eyebrow {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--teal-mid);
     }
-    .dqa-btn.primary { background: linear-gradient(135deg, var(--teal), var(--teal-light)); color: #fff; border: none; box-shadow: 0 4px 16px var(--teal-glow); }
-    .dqa-btn.secondary { background: rgba(255,255,255,.08); color: var(--text); }
-    .dqa-btn.logout-btn { background: rgba(220,53,69,.12); border-color: rgba(220,53,69,.28); color: #f88; cursor: pointer; font-family: inherit; }
-    .dqa-btn.logout-btn:hover { background: rgba(220,53,69,.22); }
-    .dqa-btn:not(.logout-btn):hover { opacity: 0.85; transform: translateY(-1px); }
+    .dash-eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--teal-mid); }
 
-    /* ── Stats strip ── */
+    .dash-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 400; line-height: 1.1; letter-spacing: -0.5px;
+      color: var(--text);
+    }
+    .dash-title em { font-style: italic; color: var(--teal-mid); }
+    .dash-sub { font-size: 14px; color: var(--text-2); line-height: 1.65; max-width: 480px; }
+
+    .dash-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border-radius: 8px;
+      font-size: 13.5px; font-weight: 600; color: #fff;
+      background: var(--teal); border: 1px solid transparent;
+      box-shadow: 0 3px 16px var(--teal-glow);
+      transition: background 0.15s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: var(--teal-mid); transform: translateY(-1px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px;
+      font-size: 13.5px; font-weight: 500; color: var(--text-2);
+      border: 1px solid var(--border-2); background: rgba(255,255,255,0.03);
+      transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-secondary:hover { color: var(--text); border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.07); }
+    .btn-logout-sm {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 18px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: var(--red);
+      border: 1px solid var(--red-border); background: var(--red-pale);
+      cursor: pointer; font-family: inherit; transition: background 0.15s;
+    }
+    .btn-logout-sm:hover { background: rgba(220,53,69,0.2); }
+
+    /* ─── STAT CARDS ─── */
     {% if current_user %}
-    .stats-strip {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    .stats-row {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+      background: var(--border);
+      margin-bottom: 48px;
     }
-    .stat-pill {
-      display: flex; align-items: center; gap: 14px;
-      padding: 16px 20px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-      border-radius: 12px; backdrop-filter: blur(14px);
+    .stat-card {
+      display: flex; align-items: center; gap: 16px;
+      padding: 22px 26px;
+      background: var(--bg-2);
       text-decoration: none; color: inherit;
-      transition: border-color 0.2s, transform 0.15s;
+      transition: background 0.15s;
     }
-    .stat-pill:hover { border-color: var(--teal); transform: translateY(-2px); }
-    .stat-icon { font-size: 22px; flex-shrink: 0; }
+    .stat-card:hover { background: var(--surface); }
+    .stat-icon-wrap {
+      width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--teal-pale); border: 1px solid rgba(46,125,110,0.25);
+      font-size: 18px;
+    }
     .stat-info { display: flex; flex-direction: column; gap: 2px; }
-    .stat-val { font-size: 1.3rem; font-weight: 700; color: var(--text); line-height: 1; }
-    .stat-val.green { color: #9ad5b6; }
-    .stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); }
+    .stat-val {
+      font-family: var(--serif); font-size: 1.6rem; font-weight: 400; line-height: 1;
+      color: var(--text);
+    }
+    .stat-val.accent { color: #9ad5b6; }
+    .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text-3); }
     {% endif %}
 
-    /* ── Section header ── */
-    .section-label {
-      width: 100%; max-width: 1100px;
-      margin-bottom: 18px;
-      display: flex; align-items: center; gap: 14px;
+    /* ─── SECTION DIVIDER ─── */
+    .section-heading {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 24px;
     }
-    .section-label h2 { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
-    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--glass-border); }
+    .section-heading span {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-3); white-space: nowrap;
+    }
+    .section-heading::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
 
-    /* ── Therapy grid ── */
-    .grid {
+    /* ─── THERAPY GRID ─── */
+    .therapy-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 18px;
-      width: 100%; max-width: 1100px;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border);
+      border-left: 1px solid var(--border);
     }
-    .therapy-card {
-      display: flex; flex-direction: column;
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 16px; padding: 28px 26px 22px;
-      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-      text-decoration: none; cursor: pointer;
-      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
-    }
-    .therapy-card:hover { transform: translateY(-5px); border-color: var(--teal); box-shadow: 0 16px 48px rgba(0,0,0,0.45), 0 0 0 1px var(--teal-glow); }
-    .card-icon { font-size: 32px; margin-bottom: 16px; line-height: 1; }
-    .card-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
-    .card-arrow { margin-top: 18px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--teal-light); letter-spacing: 0.5px; text-transform: uppercase; transition: gap 0.2s; }
-    .therapy-card:hover .card-arrow { gap: 10px; }
 
-    @media (max-width: 860px) {
-      .stats-strip { grid-template-columns: 1fr 1fr; }
+    .therapy-card {
+      position: relative;
+      display: flex; flex-direction: column;
+      padding: 28px 24px 24px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      text-decoration: none;
+      transition: background 0.2s;
+      overflow: hidden;
     }
-    @media (max-width: 600px) {
-      .site-nav { padding: 0 16px; }
-      .nav-actions { gap: 6px; }
-      .nav-btn { padding: 7px 11px; font-size: 12px; }
-      body { padding: 86px 14px 50px; }
-      .dash-hero-top { flex-direction: column; align-items: flex-start; }
-      .dash-quick-actions { width: 100%; }
-      .dqa-btn { flex: 1; justify-content: center; }
-      .stats-strip { grid-template-columns: 1fr; }
-      .grid { grid-template-columns: 1fr; }
+    .therapy-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: var(--teal);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.25s ease;
+    }
+    .therapy-card:hover { background: rgba(46,125,110,0.05); }
+    .therapy-card:hover::after { transform: scaleX(1); }
+
+    .tc-num {
+      font-family: var(--serif); font-size: 13px; font-style: italic;
+      color: var(--text-3); margin-bottom: 18px; display: block;
+    }
+    .tc-icon {
+      font-size: 26px; margin-bottom: 14px; line-height: 1;
+    }
+    .tc-title {
+      font-family: var(--serif);
+      font-size: 19px; font-weight: 400; line-height: 1.2;
+      color: var(--text); margin-bottom: 10px;
+    }
+    .tc-desc {
+      font-size: 13px; line-height: 1.65;
+      color: var(--text-2); flex: 1;
+    }
+    .tc-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 20px;
+      font-size: 11.5px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase;
+      color: var(--teal-mid);
+      transition: gap 0.2s, color 0.2s;
+    }
+    .therapy-card:hover .tc-cta { gap: 10px; color: var(--text); }
+
+    /* special: write card */
+    .therapy-card.write-card {
+      border-color: rgba(46,125,110,0.3);
+      background: rgba(46,125,110,0.04);
+    }
+    .therapy-card.write-card::after { background: var(--teal-mid); }
+    .therapy-card.write-card:hover { background: rgba(46,125,110,0.09); }
+
+    /* ─── QUICK ACCESS STRIP ─── */
+    {% if current_user %}
+    .quick-strip {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+      margin-top: 32px;
+    }
+    .quick-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-2);
+      text-decoration: none; color: inherit;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .quick-card:hover { border-color: var(--border-2); background: var(--surface); }
+    .qc-icon {
+      width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      background: var(--surface-2); border: 1px solid var(--border);
+    }
+    .qc-info { display: flex; flex-direction: column; gap: 2px; }
+    .qc-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .qc-sub { font-size: 12px; color: var(--text-3); }
+    {% endif %}
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      .therapy-grid { grid-template-columns: repeat(3, 1fr); }
+      .quick-strip  { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .site-nav { padding: 0 20px; }
+      .nav-center { display: none; }
+      .page { padding: 86px 20px 60px; }
+      .dash-header { grid-template-columns: 1fr; gap: 24px; }
+      .dash-actions { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .therapy-grid { grid-template-columns: repeat(2, 1fr); }
+      .quick-strip { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .therapy-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
+      .dash-actions { flex-direction: column; width: 100%; }
+      .btn-primary, .btn-secondary, .btn-logout-sm { width: 100%; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
+  <!-- ══ NAV ══ -->
   <nav class="site-nav" aria-label="Main navigation">
-    <a class="site-brand" href="{% url 'welcome' %}" onclick="navTo(event,this.href)">
-      <img src="{% static 'core/logo.png' %}" alt="">MyTherapyDoctor
-    </a>
-    <div class="nav-actions">
-      <a class="nav-btn" href="{% url 'welcome' %}" onclick="navTo(event,this.href)">Home</a>
-      <a class="nav-btn" href="{% url 'blog_list' %}" onclick="navTo(event,this.href)">Blog</a>
-      {% if current_user %}
-        <a class="nav-btn earn" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">💰 Earnings</a>
-        <a class="nav-btn write" href="{% url 'blog_create' %}" onclick="navTo(event,this.href)">✍️ Write</a>
-      {% endif %}
+    <div class="nav-inner">
+      <a class="nav-brand" href="{% url 'welcome' %}" onclick="go(event,this.href)">
+        <img src="{% static 'core/logo.png' %}" alt="">MyTherapyDoctor
+      </a>
+      <div class="nav-center">
+        <a class="nav-link" href="{% url 'welcome' %}" onclick="go(event,this.href)">Home</a>
+        <a class="nav-link active" href="{% url 'sections' %}">Dashboard</a>
+        <a class="nav-link" href="{% url 'blog_list' %}" onclick="go(event,this.href)">Journal</a>
+      </div>
+      <div class="nav-right">
+        {% if current_user %}
+          <a class="nav-pill earn" href="{% url 'earnings_dashboard' %}" onclick="go(event,this.href)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Earnings
+          </a>
+          <a class="nav-pill write" href="{% url 'blog_create' %}" onclick="go(event,this.href)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            Write
+          </a>
+        {% else %}
+          <a class="nav-pill" href="{% url 'login' %}" onclick="go(event,this.href)">Sign in</a>
+          <a class="nav-pill write" href="{% url 'register' %}" onclick="go(event,this.href)">Get started</a>
+        {% endif %}
+      </div>
     </div>
   </nav>
 
-  <!-- ── Dashboard Hero ── -->
-  <div class="dash-hero">
-    <div class="dash-hero-top">
-      <div class="dash-greeting">
-        <span class="greeting-label">MyTherapyDoctor</span>
+  <div class="page">
+
+    <!-- ══ DASHBOARD HEADER ══ -->
+    <header class="dash-header">
+      <div class="dash-meta">
+        <div class="dash-eyebrow">MyTherapyDoctor</div>
         {% if current_user %}
-          <h1>Welcome back, {{ current_user.full_name|default:current_user.username }}.</h1>
-          <span class="sub">Your mental wellness space — available 24/7.</span>
+          <h1 class="dash-title">
+            Good to have you back,<br>
+            <em>{{ current_user.full_name|default:current_user.username }}.</em>
+          </h1>
+          <p class="dash-sub">Your mental wellness space — available any time, entirely confidential. Choose a session below or check your earnings.</p>
         {% else %}
-          <h1>How can we help you today?</h1>
-          <span class="sub">Choose a therapy section to begin your session.</span>
+          <h1 class="dash-title">
+            How can we<br>
+            <em>help you today?</em>
+          </h1>
+          <p class="dash-sub">Choose a therapy section and start a confidential AI-guided conversation. No appointment needed.</p>
         {% endif %}
       </div>
-      <div class="dash-quick-actions">
+      <div class="dash-actions">
         {% if current_user %}
-          <a class="dqa-btn primary" href="{% url 'blog_create' %}" onclick="navTo(event,this.href)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+          <a class="btn-primary" href="{% url 'blog_create' %}" onclick="go(event,this.href)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             Write a Post
           </a>
-          <a class="dqa-btn secondary" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <a class="btn-secondary" href="{% url 'earnings_dashboard' %}" onclick="go(event,this.href)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             My Earnings
           </a>
-          <form method="post" action="{% url 'logout' %}" id="logout-form" style="display:contents;">
+          <form method="post" action="{% url 'logout' %}" id="lf" style="display:contents">
             {% csrf_token %}
-            <button class="dqa-btn logout-btn" type="submit" onclick="handleLogout(event)">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <button class="btn-logout-sm" type="submit" onclick="signOut(event)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               Sign out
             </button>
           </form>
         {% else %}
-          <a class="dqa-btn primary" href="{% url 'register' %}" onclick="navTo(event,this.href)">Get started</a>
-          <a class="dqa-btn secondary" href="{% url 'login' %}" onclick="navTo(event,this.href)">Sign in</a>
+          <a class="btn-primary" href="{% url 'register' %}" onclick="go(event,this.href)">Create free account</a>
+          <a class="btn-secondary" href="{% url 'login' %}" onclick="go(event,this.href)">Sign in</a>
         {% endif %}
       </div>
-    </div>
+    </header>
 
+    <!-- ══ EARNINGS STATS (logged in only) ══ -->
     {% if current_user %}
-    <!-- Stats strip -->
-    <div class="stats-strip">
-      <a class="stat-pill" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">
-        <span class="stat-icon">💰</span>
+    <div class="stats-row">
+      <a class="stat-card" href="{% url 'earnings_dashboard' %}" onclick="go(event,this.href)">
+        <div class="stat-icon-wrap">💰</div>
         <div class="stat-info">
-          <span class="stat-val green">₦{{ withdrawable_balance|floatformat:2 }}</span>
-          <span class="stat-lbl">Available to Withdraw</span>
+          <div class="stat-val accent">₦{{ withdrawable_balance|floatformat:2 }}</div>
+          <div class="stat-label">Available to Withdraw</div>
         </div>
       </a>
-      <a class="stat-pill" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">
-        <span class="stat-icon">📊</span>
+      <a class="stat-card" href="{% url 'earnings_dashboard' %}" onclick="go(event,this.href)">
+        <div class="stat-icon-wrap">📈</div>
         <div class="stat-info">
-          <span class="stat-val">₦{{ total_earned|floatformat:2 }}</span>
-          <span class="stat-lbl">Total Earned</span>
+          <div class="stat-val">₦{{ total_earned|floatformat:2 }}</div>
+          <div class="stat-label">Total Earned</div>
         </div>
       </a>
-      <a class="stat-pill" href="{% url 'earnings_dashboard' %}" onclick="navTo(event,this.href)">
-        <span class="stat-icon">📝</span>
+      <a class="stat-card" href="{% url 'earnings_dashboard' %}" onclick="go(event,this.href)">
+        <div class="stat-icon-wrap">📝</div>
         <div class="stat-info">
-          <span class="stat-val">{{ post_count }}</span>
-          <span class="stat-lbl">Published Posts</span>
+          <div class="stat-val">{{ post_count }}</div>
+          <div class="stat-label">Published Posts</div>
         </div>
       </a>
     </div>
     {% endif %}
-  </div>
 
-  <!-- ── Therapy Sections ── -->
-  <div class="section-label"><h2>Therapy Sessions</h2></div>
+    <!-- ══ THERAPY SESSIONS ══ -->
+    <div class="section-heading"><span>Therapy Sessions</span></div>
 
-  <div class="grid">
+    <div class="therapy-grid">
 
-    <a class="therapy-card" href="{% url 'therapy_section' 'child' %}" onclick="navTo(event,this.href)">
-      <div class="card-icon">🧒</div>
-      <div class="card-title">Child Therapy</div>
-      <div class="card-desc">Supportive guidance for children navigating emotional, behavioral, and developmental challenges.</div>
-      <div class="card-arrow">Begin session <span>→</span></div>
-    </a>
+      <a class="therapy-card" href="{% url 'therapy_section' 'child' %}" onclick="go(event,this.href)">
+        <span class="tc-num">01</span>
+        <div class="tc-icon">🧒</div>
+        <div class="tc-title">Child Therapy</div>
+        <p class="tc-desc">Supportive guidance for children navigating emotional, behavioural and developmental challenges.</p>
+        <div class="tc-cta">Begin session <span>→</span></div>
+      </a>
 
-    <a class="therapy-card" href="{% url 'therapy_section' 'teen' %}" onclick="navTo(event,this.href)">
-      <div class="card-icon">🧑</div>
-      <div class="card-title">Teen Therapy</div>
-      <div class="card-desc">A safe space for teenagers dealing with peer pressure, identity, academic stress, and more.</div>
-      <div class="card-arrow">Begin session <span>→</span></div>
-    </a>
+      <a class="therapy-card" href="{% url 'therapy_section' 'teen' %}" onclick="go(event,this.href)">
+        <span class="tc-num">02</span>
+        <div class="tc-icon">🧑</div>
+        <div class="tc-title">Teen Therapy</div>
+        <p class="tc-desc">A safe space for teenagers dealing with peer pressure, identity, academic stress and more.</p>
+        <div class="tc-cta">Begin session <span>→</span></div>
+      </a>
 
-    <a class="therapy-card" href="{% url 'therapy_section' 'trauma' %}" onclick="navTo(event,this.href)">
-      <div class="card-icon">💔</div>
-      <div class="card-title">Trauma Therapy</div>
-      <div class="card-desc">Compassionate support for processing painful experiences and building emotional resilience.</div>
-      <div class="card-arrow">Begin session <span>→</span></div>
-    </a>
+      <a class="therapy-card" href="{% url 'therapy_section' 'trauma' %}" onclick="go(event,this.href)">
+        <span class="tc-num">03</span>
+        <div class="tc-icon">💔</div>
+        <div class="tc-title">Trauma Therapy</div>
+        <p class="tc-desc">Compassionate support for processing painful experiences and building emotional resilience.</p>
+        <div class="tc-cta">Begin session <span>→</span></div>
+      </a>
 
-    <a class="therapy-card" href="{% url 'therapy_section' 'family' %}" onclick="navTo(event,this.href)">
-      <div class="card-icon">👨‍👩‍👧</div>
-      <div class="card-title">Family Therapy</div>
-      <div class="card-desc">Tools to strengthen communication, resolve conflict, and improve family bonds.</div>
-      <div class="card-arrow">Begin session <span>→</span></div>
-    </a>
+      <a class="therapy-card" href="{% url 'therapy_section' 'family' %}" onclick="go(event,this.href)">
+        <span class="tc-num">04</span>
+        <div class="tc-icon">👨‍👩‍👧</div>
+        <div class="tc-title">Family Therapy</div>
+        <p class="tc-desc">Tools to strengthen communication, resolve conflict and improve family bonds over time.</p>
+        <div class="tc-cta">Begin session <span>→</span></div>
+      </a>
 
-    <a class="therapy-card" href="{% url 'therapy_section' 'relationship' %}" onclick="navTo(event,this.href)">
-      <div class="card-icon">💞</div>
-      <div class="card-title">Relationship Therapy</div>
-      <div class="card-desc">Guidance for building healthy romantic relationships, improving trust and communication.</div>
-      <div class="card-arrow">Begin session <span>→</span></div>
-    </a>
+      <a class="therapy-card" href="{% url 'therapy_section' 'relationship' %}" onclick="go(event,this.href)">
+        <span class="tc-num">05</span>
+        <div class="tc-icon">💞</div>
+        <div class="tc-title">Relationship Therapy</div>
+        <p class="tc-desc">Guidance for building healthy romantic relationships, improving trust and communication.</p>
+        <div class="tc-cta">Begin session <span>→</span></div>
+      </a>
 
-    <a class="therapy-card" href="{% url 'therapy_section' 'addiction' %}" onclick="navTo(event,this.href)">
-      <div class="card-icon">🌿</div>
-      <div class="card-title">Addiction Support</div>
-      <div class="card-desc">Non-judgmental help navigating addiction, recovery, cravings, and relapse prevention.</div>
-      <div class="card-arrow">Begin session <span>→</span></div>
-    </a>
+      <a class="therapy-card" href="{% url 'therapy_section' 'addiction' %}" onclick="go(event,this.href)">
+        <span class="tc-num">06</span>
+        <div class="tc-icon">🌿</div>
+        <div class="tc-title">Addiction Support</div>
+        <p class="tc-desc">Non-judgmental help navigating addiction, recovery, cravings, and relapse prevention.</p>
+        <div class="tc-cta">Begin session <span>→</span></div>
+      </a>
 
-    <a class="therapy-card" href="{% url 'therapy_section' 'stress' %}" onclick="navTo(event,this.href)">
-      <div class="card-icon">🔍</div>
-      <div class="card-title">General AI Search</div>
-      <div class="card-desc">Ask anything — general knowledge, advice, explanations, and more with full conversation context.</div>
-      <div class="card-arrow">Begin session <span>→</span></div>
-    </a>
+      <a class="therapy-card" href="{% url 'therapy_section' 'stress' %}" onclick="go(event,this.href)">
+        <span class="tc-num">07</span>
+        <div class="tc-icon">🔍</div>
+        <div class="tc-title">General AI Search</div>
+        <p class="tc-desc">Ask anything — knowledge, advice, explanations and more with full conversation context.</p>
+        <div class="tc-cta">Begin session <span>→</span></div>
+      </a>
 
+      {% if current_user %}
+      <a class="therapy-card write-card" href="{% url 'blog_create' %}" onclick="go(event,this.href)">
+        <span class="tc-num">08</span>
+        <div class="tc-icon">✍️</div>
+        <div class="tc-title">Write a Post</div>
+        <p class="tc-desc">Share your insight and earn ₦10 per 100 views on published posts. Withdraw from ₦1,000.</p>
+        <div class="tc-cta">Start writing <span>→</span></div>
+      </a>
+      {% else %}
+      <a class="therapy-card" href="{% url 'register' %}" onclick="go(event,this.href)">
+        <span class="tc-num">08</span>
+        <div class="tc-icon">✨</div>
+        <div class="tc-title">Not sure yet?</div>
+        <p class="tc-desc">Create a free account to save your sessions, write posts and track your earnings.</p>
+        <div class="tc-cta">Get started <span>→</span></div>
+      </a>
+      {% endif %}
+
+    </div><!-- /therapy-grid -->
+
+    <!-- ══ QUICK ACCESS (logged in) ══ -->
     {% if current_user %}
-    <a class="therapy-card" href="{% url 'blog_create' %}" onclick="navTo(event,this.href)" style="border-color: rgba(46,125,110,0.35); background: rgba(46,125,110,0.08);">
-      <div class="card-icon">✍️</div>
-      <div class="card-title">Write a Blog Post</div>
-      <div class="card-desc">Share your insights with the community and earn ₦10 per 100 views on your published posts.</div>
-      <div class="card-arrow">Start writing <span>→</span></div>
-    </a>
+    <div class="quick-strip">
+      <a class="quick-card" href="{% url 'earnings_dashboard' %}" onclick="go(event,this.href)">
+        <div class="qc-icon">💸</div>
+        <div class="qc-info">
+          <div class="qc-title">Earnings Dashboard</div>
+          <div class="qc-sub">Views, withdrawals and bank details</div>
+        </div>
+      </a>
+      <a class="quick-card" href="{% url 'blog_list' %}" onclick="go(event,this.href)">
+        <div class="qc-icon">📖</div>
+        <div class="qc-info">
+          <div class="qc-title">Browse the Journal</div>
+          <div class="qc-sub">Mental health articles and insights</div>
+        </div>
+      </a>
+      <a class="quick-card" href="{% url 'blog_create' %}" onclick="go(event,this.href)">
+        <div class="qc-icon">✍️</div>
+        <div class="qc-info">
+          <div class="qc-title">Write an Article</div>
+          <div class="qc-sub">Submit for review and start earning</div>
+        </div>
+      </a>
+    </div>
     {% endif %}
 
-  </div>
+  </div><!-- /page -->
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      requestAnimationFrame(() => document.body.classList.add("page-loaded"));
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => document.body.classList.add('loaded'));
     });
-    window.addEventListener("pageshow", () => {
-      document.body.classList.remove("page-exit");
-      document.body.classList.add("page-loaded");
+    window.addEventListener('pageshow', () => {
+      document.body.classList.remove('exiting');
+      document.body.classList.add('loaded');
     });
-    function navTo(e, href) {
-      if (!href) return;
+    function go(e, href) {
+      if (!href || href === '#') return;
       e.preventDefault();
-      if (document.body.classList.contains("page-exit")) return;
-      document.body.classList.remove("page-loaded");
-      document.body.classList.add("page-exit");
-      setTimeout(() => window.location.href = href, 350);
+      if (document.body.classList.contains('exiting')) return;
+      document.body.classList.remove('loaded');
+      document.body.classList.add('exiting');
+      setTimeout(() => { window.location.href = href; }, 320);
     }
-    function handleLogout(e) {
+    function signOut(e) {
       e.preventDefault();
-      if (document.body.classList.contains("page-exit")) return;
-      document.body.classList.remove("page-loaded");
-      document.body.classList.add("page-exit");
-      setTimeout(() => document.getElementById("logout-form").submit(), 350);
+      if (document.body.classList.contains('exiting')) return;
+      document.body.classList.remove('loaded');
+      document.body.classList.add('exiting');
+      setTimeout(() => document.getElementById('lf').submit(), 320);
     }
   </script>
 </body>

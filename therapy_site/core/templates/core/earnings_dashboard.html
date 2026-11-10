@@ -18,7 +18,7 @@
     body {
       background: linear-gradient(160deg, rgba(0,0,0,0.74) 0%, rgba(0,18,14,0.58) 100%),
                   url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
-      color: var(--text); padding: 100px 20px 60px;
+      color: var(--text); padding: 86px 20px 60px;
       opacity: 0; animation: show 0s 0.4s forwards;
     }
     @keyframes show { to { opacity:1; } }
@@ -27,18 +27,19 @@
     /* Nav */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 48px; height: 68px;
-      background: rgba(0,0,0,0.3); backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--glass-border);
+      height: 64px; display: flex; align-items: center; padding: 0 48px;
+      background: rgba(7,11,10,0.82); border-bottom: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     }
-    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-size: 15px; font-weight: 700; }
+    .nav-inner { width: 100%; max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .nav-brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: #e8eeec; font-size: 14.5px; font-weight: 600; }
     .nav-brand img { width: 26px; height: 26px; }
-    .nav-right { display: flex; align-items: center; gap: 10px; }
-    .nav-pill { padding: 8px 18px; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text); font-size: 13.5px; text-decoration: none; background: rgba(255,255,255,0.07); transition: background 0.2s; }
-    .nav-pill:hover { background: rgba(255,255,255,0.14); }
-    .nav-pill.active { background: rgba(46,125,110,0.2); border-color: rgba(46,125,110,0.45); color: #9ad5b6; }
-    .nav-cta { background: linear-gradient(135deg, var(--teal), var(--teal-light)); border: none !important; color: #fff !important; font-weight: 600; box-shadow: 0 3px 12px var(--teal-glow); }
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+    .nav-pill { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 500; color: rgba(232,238,236,0.6); border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); text-decoration: none; cursor: pointer; font-family: inherit; transition: all 0.15s; white-space: nowrap; }
+    .nav-pill:hover { color: #e8eeec; border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.07); }
+    .nav-pill.active { color: #e8eeec; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
+    .nav-pill.write { background: #2e7d6e; border-color: transparent; color: #fff; font-weight: 600; }
+    .nav-pill.write:hover { background: #3d9e8c; }
 
     /* Layout */
     .page-wrap { max-width: 1060px; margin: 0 auto; }
@@ -157,19 +158,21 @@
   </style>
 </head>
 <body>
-  <nav>
-    <a class="nav-brand" href="{% url 'welcome' %}">
-      <img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor
-    </a>
-    <div class="nav-right">
-      <a class="nav-pill" href="{% url 'sections' %}">Dashboard</a>
-      <a class="nav-pill active" href="{% url 'earnings_dashboard' %}">Earnings</a>
-      <a class="nav-pill" href="{% url 'blog_create' %}">Write Post</a>
-      <a class="nav-pill" href="{% url 'blog_list' %}">Blog</a>
-      <form method="post" action="{% url 'logout' %}" style="margin:0">
-        {% csrf_token %}
-        <button class="nav-pill" type="submit" style="cursor:pointer;">Sign out</button>
-      </form>
+  <nav aria-label="Main navigation">
+    <div class="nav-inner">
+      <a class="nav-brand" href="{% url 'welcome' %}">
+        <img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor
+      </a>
+      <div class="nav-right">
+        <a class="nav-pill" href="{% url 'sections' %}">Dashboard</a>
+        <a class="nav-pill active" href="{% url 'earnings_dashboard' %}">Earnings</a>
+        <a class="nav-pill" href="{% url 'blog_list' %}">Journal</a>
+        <a class="nav-pill write" href="{% url 'blog_create' %}">✍ Write</a>
+        <form method="post" action="{% url 'logout' %}" style="margin:0">
+          {% csrf_token %}
+          <button class="nav-pill" type="submit">Sign out</button>
+        </form>
+      </div>
     </div>
   </nav>
 

@@ -3,202 +3,315 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Withdrawal Requests — Admin Panel</title>
+  <title>Admin — Withdrawals · MyTherapyDoctor</title>
   {% load static %}
   <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --teal: #2e7d6e; --teal-light: #3d9e8c; --teal-glow: rgba(46,125,110,0.4);
-      --glass-bg: rgba(6,14,12,0.65); --glass-border: rgba(255,255,255,0.09);
-      --text: #f0f4f3; --muted: rgba(240,244,243,0.55);
+    :root{
+      --bg:#0c0f0e;--bg2:#111614;--bg3:#161c1a;
+      --surface:#1a2220;
+      --brd:rgba(255,255,255,0.07);--brd2:rgba(255,255,255,0.13);
+      --teal:#2e7d6e;--teal-mid:#3d9e8c;--teal-glow:rgba(46,125,110,0.35);
+      --text:#e8eeec;--text2:rgba(232,238,236,0.60);--text3:rgba(232,238,236,0.35);
+      --red:#f87171;--red-b:rgba(220,53,69,0.28);--red-p:rgba(220,53,69,0.10);
+      --serif:'DM Serif Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
     }
-    html, body { font-family: 'Inter', sans-serif; min-height: 100vh; }
-    body {
-      background: linear-gradient(160deg, rgba(0,0,0,0.78) 0%, rgba(0,18,14,0.62) 100%),
-                  url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
-      color: var(--text); padding: 86px 24px 60px;
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--sans);min-height:100vh;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
 
-    /* Nav */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: 64px; display: flex; align-items: center; padding: 0 48px;
-      background: rgba(7,11,10,0.9); border-bottom: 1px solid rgba(255,255,255,0.07);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    }
-    .nav-inner { width: 100%; max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .nav-brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: #e8eeec; font-size: 14.5px; font-weight: 600; }
-    .nav-brand img { width: 26px; height: 26px; }
-    .nav-right { display: flex; gap: 8px; align-items: center; }
-    .nav-pill { display: flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 7px; font-size: 13px; font-weight: 500; color: rgba(232,238,236,0.6); border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); text-decoration: none; transition: all 0.15s; }
-    .nav-pill:hover { color: #e8eeec; border-color: rgba(255,255,255,0.14); background: rgba(255,255,255,0.07); }
-    .nav-pill.admin { color: #f87171; border-color: rgba(220,53,69,0.3); background: rgba(220,53,69,0.08); }
-    .nav-right { display: flex; gap: 10px; align-items: center; }
+    /* ── LOADER ── */
+    #pl{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;transition:opacity .5s,visibility .5s}
+    #pl.h{opacity:0;visibility:hidden}
+    .ll{width:38px;height:38px;animation:lp 1.4s ease-in-out infinite}
+    @keyframes lp{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.14);opacity:.65}}
+    .lt{width:180px;height:2px;background:var(--brd);border-radius:2px;overflow:hidden}
+    .lb{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--teal-mid));animation:lb .9s ease forwards}
+    @keyframes lb{to{width:100%}}
+    .ld{display:flex;gap:7px}
+    .ld span{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:ldot 1.2s ease-in-out infinite}
+    .ld span:nth-child(2){animation-delay:.18s;background:var(--teal-mid)}
+    .ld span:nth-child(3){animation-delay:.36s;background:rgba(61,158,140,.5)}
+    @keyframes ldot{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
-    /* Page */
-    .page-wrap { max-width: 1100px; margin: 0 auto; }
-    .page-head { margin-bottom: 28px; }
-    .page-head .kicker { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #f88; margin-bottom: 8px; }
-    .page-head h1 { font-size: 1.9rem; font-weight: 700; }
-    .page-head p { margin-top: 6px; color: var(--muted); font-size: 14px; }
+    /* ── REVEAL ── */
+    .rv{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
+    .rv.in{opacity:1;transform:none}
+    .sg>*{opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
+    .sg.in>*{opacity:1;transform:none}
+    .sg.in>*:nth-child(1){transition-delay:0s}
+    .sg.in>*:nth-child(2){transition-delay:.06s}
+    .sg.in>*:nth-child(3){transition-delay:.12s}
+    .sg.in>*:nth-child(4){transition-delay:.18s}
+    .sg.in>*:nth-child(5){transition-delay:.24s}
+    .sg.in>*:nth-child(6){transition-delay:.30s}
 
-    /* Tabs */
-    .tab-row { display: flex; gap: 8px; margin-bottom: 24px; }
-    .tab { padding: 8px 18px; border: 1px solid var(--glass-border); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; transition: all 0.2s; }
-    .tab:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
-    .tab.active { background: rgba(46,125,110,0.18); border-color: rgba(46,125,110,0.5); color: #9ad5b6; }
-    .tab .count { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: rgba(220,53,69,0.3); color: #f88; font-size: 11px; font-weight: 700; }
+    /* ── NAV ── */
+    nav{position:fixed;top:0;left:0;right:0;z-index:200;height:64px;display:flex;align-items:center;padding:0 48px;background:rgba(12,15,14,.92);border-bottom:1px solid var(--brd);backdrop-filter:blur(20px)}
+    .ni{width:100%;max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .nb{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:600;color:var(--text)}
+    .nb img{width:26px;height:26px}
+    .nr{display:flex;align-items:center;gap:8px}
+    .np{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:500;color:var(--text2);border:1px solid var(--brd);background:rgba(255,255,255,.03);text-decoration:none;transition:all .15s;white-space:nowrap}
+    .np:hover{color:var(--text);border-color:var(--brd2);background:rgba(255,255,255,.07)}
+    .np.admin{color:var(--red);border-color:var(--red-b);background:var(--red-p);font-weight:600}
+    /* Hamburger */
+    .nh{display:none;flex-direction:column;gap:5px;width:34px;height:34px;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:7px;cursor:pointer}
+    .nh span{display:block;width:16px;height:1.5px;background:var(--text);border-radius:2px;transition:transform .25s,opacity .25s}
+    .nh.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+    .nh.open span:nth-child(2){opacity:0}
+    .nh.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+    .mm{display:none;position:fixed;top:64px;left:0;right:0;z-index:190;background:rgba(12,15,14,.98);border-bottom:1px solid var(--brd);backdrop-filter:blur(20px);padding:14px 20px 18px;flex-direction:column;gap:4px;opacity:0;transform:translateY(-8px);transition:opacity .2s,transform .2s}
+    .mm.open{opacity:1;transform:none}
+    .ml{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text2);text-decoration:none;transition:background .15s,color .15s}
+    .ml:hover{background:rgba(255,255,255,.06);color:var(--text)}
+    .ml.red{color:var(--red)}
+    .ms{height:1px;background:var(--brd);margin:5px 0}
 
-    /* Cards */
-    .wd-card {
-      background: var(--glass-bg); border: 1px solid var(--glass-border);
-      border-radius: 14px; backdrop-filter: blur(14px);
-      padding: 22px 26px; margin-bottom: 14px;
-      display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start;
-    }
-    .wd-card.sent { opacity: 0.65; }
-    .wd-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
-    .wd-amount { font-size: 1.75rem; font-weight: 700; color: #9ad5b6; }
-    .wd-user { font-size: 15px; font-weight: 600; }
-    .wd-date { font-size: 12px; color: var(--muted); }
-    .detail-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 14px; }
-    .detail-item { background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px 14px; }
-    .detail-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-    .detail-value { font-size: 14px; font-weight: 600; }
+    /* ── PAGE ── */
+    .page{max-width:1200px;margin:0 auto;padding:88px 48px 80px}
 
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-    .badge-orange { background: rgba(255,160,0,0.1); color: #e8b87d; border: 1px solid rgba(255,160,0,0.3); }
-    .badge-green { background: rgba(46,125,110,0.18); color: #9ad5b6; border: 1px solid rgba(46,125,110,0.3); }
+    /* ── PAGE HEAD ── */
+    .ph{margin-bottom:32px}
+    .kicker{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    .kicker::before{content:'';width:24px;height:1px;background:var(--red)}
+    .ph h1{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;line-height:1.1}
+    .ph p{margin-top:8px;color:var(--text2);font-size:14px;line-height:1.65}
 
-    /* Mark sent form */
-    .mark-sent-form { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; min-width: 200px; }
-    .note-input {
-      width: 100%; padding: 9px 12px;
-      background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
-      border-radius: 8px; color: var(--text); font: 13px 'Inter', sans-serif;
-      resize: none;
-    }
-    .note-input::placeholder { color: rgba(240,244,243,0.3); }
-    .note-input:focus { outline: none; border-color: var(--teal-light); }
-    .btn-send {
-      padding: 10px 20px; border: none; border-radius: 8px;
-      background: linear-gradient(135deg, var(--teal), var(--teal-light));
-      color: #fff; font: 600 13.5px 'Inter', sans-serif;
-      cursor: pointer; box-shadow: 0 4px 14px var(--teal-glow);
-      white-space: nowrap; transition: opacity 0.2s;
-    }
-    .btn-send:hover { opacity: 0.85; }
-    .sent-info { font-size: 12px; color: #9ad5b6; text-align: right; }
+    /* ── SECTION HEADER ── */
+    .sh{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+    .sh span{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);white-space:nowrap}
+    .sh::after{content:'';flex:1;height:1px;background:var(--brd)}
 
-    .user-email { font-size: 12px; color: var(--muted); }
+    /* ── TABS ── */
+    .tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+    .tab{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid var(--brd);border-radius:999px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:all .2s}
+    .tab:hover{color:var(--text);border-color:var(--brd2)}
+    .tab.active{background:rgba(46,125,110,.15);border-color:rgba(46,125,110,.5);color:#9ad5b6}
+    .tab-count{padding:1px 7px;border-radius:999px;background:rgba(220,53,69,.28);color:var(--red);font-size:10.5px;font-weight:700}
 
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
-    .empty-state .ei { font-size: 48px; margin-bottom: 12px; }
+    /* ── WITHDRAWAL CARDS ── */
+    .wd-card{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:22px 26px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;transition:border-color .2s}
+    .wd-card:hover{border-color:var(--brd2)}
+    .wd-card.sent{opacity:.6}
+    .wd-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+    .wd-amount{font-family:var(--serif);font-size:2rem;font-weight:400;color:#9ad5b6;line-height:1;flex-shrink:0}
+    .wd-user-info{}
+    .wd-name{font-size:15px;font-weight:600;color:var(--text)}
+    .wd-email{font-size:12px;color:var(--text3);margin-top:2px}
+    .wd-date{font-size:12px;color:var(--text3);margin-top:4px}
+    .detail-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+    .di{background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:8px;padding:10px 14px}
+    .dl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+    .dv{font-size:14px;font-weight:600;color:var(--text)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+    .bg{background:rgba(46,125,110,.18);color:#9ad5b6;border:1px solid rgba(46,125,110,.3)}
+    .bo{background:rgba(255,160,0,.10);color:#e8b87d;border:1px solid rgba(255,160,0,.3)}
 
-    @media (max-width: 700px) {
-      nav { padding: 0 16px; }
-      body { padding-top: 88px; }
-      .wd-card { grid-template-columns: 1fr; }
-      .detail-grid { grid-template-columns: 1fr 1fr; }
-      .mark-sent-form { align-items: stretch; min-width: 0; }
+    /* Mark sent */
+    .sent-form{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:190px}
+    .note-input{width:100%;padding:9px 12px;background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:8px;color:var(--text);font:13px var(--sans);resize:none;transition:border-color .2s}
+    .note-input::placeholder{color:rgba(232,238,236,.3)}
+    .note-input:focus{outline:none;border-color:var(--teal-mid)}
+    .btn-send{padding:10px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--teal),var(--teal-mid));color:#fff;font:600 13px var(--sans);cursor:pointer;box-shadow:0 4px 14px var(--teal-glow);white-space:nowrap;transition:opacity .2s}
+    .btn-send:hover{opacity:.85}
+    .sent-label{font-size:12px;color:#9ad5b6;text-align:right}
+    .admin-note{font-size:12px;color:var(--text3);margin-top:6px}
+
+    /* ── USER STATS TABLE ── */
+    .stats-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--brd)}
+    .st{width:100%;border-collapse:collapse;font-size:13px}
+    .st thead{background:var(--bg3)}
+    .st th{padding:11px 16px;text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--brd);white-space:nowrap}
+    .st td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+    .st tr:last-child td{border-bottom:none}
+    .st tr:hover td{background:rgba(255,255,255,.025)}
+    .st .user-col{display:flex;flex-direction:column;gap:2px}
+    .st .un{font-weight:600;color:var(--text)}
+    .st .ue{font-size:11px;color:var(--text3)}
+    .st .earn{color:#9ad5b6;font-weight:700}
+    .st .views{color:var(--text2)}
+    .st .posts{color:var(--text2)}
+
+    /* ── EMPTY ── */
+    .empty{text-align:center;padding:60px 24px;color:var(--text3)}
+    .empty-icon{font-size:44px;margin-bottom:14px}
+    .empty p{font-size:15px}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:900px){.wd-card{grid-template-columns:1fr}.sent-form{align-items:stretch;min-width:0}.detail-row{grid-template-columns:1fr 1fr}}
+    @media(max-width:640px){
+      nav{padding:0 16px}
+      .nr{display:none}.nh{display:flex}.mm{display:flex}
+      .page{padding:84px 16px 60px}
+      .detail-row{grid-template-columns:1fr}
+      .st th:nth-child(4),.st td:nth-child(4){display:none}
     }
   </style>
 </head>
 <body>
+
+  <!-- LOADER -->
+  <div id="pl" aria-hidden="true">
+    <img class="ll" src="{% static 'core/logo.png' %}" alt="">
+    <div class="lt"><div class="lb"></div></div>
+    <div class="ld"><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- NAV -->
   <nav aria-label="Admin navigation">
-    <div class="nav-inner">
-      <a class="nav-brand" href="{% url 'welcome' %}">
-        <img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor
-      </a>
-      <div class="nav-right">
-        <a class="nav-pill" href="{% url 'sections' %}">Site Home</a>
-        <a class="nav-pill" href="/admin/">Django Admin</a>
-        <span class="nav-pill admin">🔐 Admin Panel</span>
+    <div class="ni">
+      <a class="nb" href="{% url 'welcome' %}"><img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor</a>
+      <div class="nr">
+        <a class="np" href="{% url 'sections' %}">Site</a>
+        <a class="np" href="/admin/">Django Admin</a>
+        <span class="np admin">🔐 Admin Panel</span>
       </div>
+      <button class="nh" id="ham" onclick="toggleMob()" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
 
-  <div class="page-wrap">
-    <div class="page-head">
+  <!-- MOBILE MENU -->
+  <div class="mm" id="mob">
+    <a class="ml" href="{% url 'sections' %}">⚡ Site Home</a>
+    <a class="ml" href="/admin/">⚙ Django Admin</a>
+    <div class="ms"></div>
+    <a class="ml" href="?status=pending">Pending Withdrawals</a>
+    <a class="ml" href="?status=sent">Sent Withdrawals</a>
+    <a class="ml" href="?status=all">All Withdrawals</a>
+  </div>
+
+  <div class="page">
+
+    <!-- HEAD -->
+    <div class="ph rv">
       <div class="kicker">Admin Panel</div>
       <h1>Withdrawal Requests</h1>
-      <p>Review pending requests, send payments manually, then mark as sent — the user will receive an email confirmation.</p>
+      <p>Review pending requests, send payments, then mark as sent — the user gets an email confirmation automatically.</p>
     </div>
 
-    <div class="tab-row">
-      <a class="tab {% if status_filter == 'pending' %}active{% endif %}"
-         href="?status=pending">Pending{% if pending_count %}<span class="count">{{ pending_count }}</span>{% endif %}</a>
-      <a class="tab {% if status_filter == 'sent' %}active{% endif %}"
-         href="?status=sent">Sent</a>
-      <a class="tab {% if status_filter == 'all' %}active{% endif %}"
-         href="?status=all">All</a>
+    <!-- TABS -->
+    <div class="tabs rv">
+      <a class="tab {% if status_filter == 'pending' %}active{% endif %}" href="?status=pending">
+        Pending {% if pending_count %}<span class="tab-count">{{ pending_count }}</span>{% endif %}
+      </a>
+      <a class="tab {% if status_filter == 'sent' %}active{% endif %}" href="?status=sent">Sent</a>
+      <a class="tab {% if status_filter == 'all' %}active{% endif %}" href="?status=all">All</a>
     </div>
+
+    <!-- WITHDRAWAL CARDS -->
+    <div class="sh"><span>Withdrawal Queue</span></div>
 
     {% if withdrawals %}
       {% for wd in withdrawals %}
-      <div class="wd-card {% if wd.status == 'sent' %}sent{% endif %}">
+      <div class="wd-card {% if wd.status == 'sent' %}sent{% endif %} rv">
         <div>
           <div class="wd-top">
-            <span class="wd-amount">₦{{ wd.amount|floatformat:2 }}</span>
-            <div>
-              <div class="wd-user">{{ wd.user.full_name|default:wd.user.username }}</div>
-              <div class="user-email">{{ wd.user.email|default:"No email" }}</div>
-            </div>
-            <div>
-              <div class="wd-date">Requested {{ wd.created_at|date:"M d, Y – g:i A" }}</div>
-              {% if wd.sent_at %}<div class="wd-date">Sent {{ wd.sent_at|date:"M d, Y – g:i A" }}</div>{% endif %}
+            <div class="wd-amount">₦{{ wd.amount|floatformat:2 }}</div>
+            <div class="wd-user-info">
+              <div class="wd-name">{{ wd.user.full_name|default:wd.user.username }}</div>
+              <div class="wd-email">{{ wd.user.email|default:"No email" }}</div>
+              <div class="wd-date">Requested {{ wd.created_at|date:"M d, Y · g:i A" }}</div>
+              {% if wd.sent_at %}<div class="wd-date">Sent {{ wd.sent_at|date:"M d, Y · g:i A" }}</div>{% endif %}
             </div>
             {% if wd.status == 'sent' %}
-              <span class="badge badge-green">Sent ✓</span>
+              <span class="badge bg">Sent ✓</span>
             {% else %}
-              <span class="badge badge-orange">Pending</span>
+              <span class="badge bo">Pending</span>
             {% endif %}
           </div>
 
-          <div class="detail-grid">
-            <div class="detail-item">
-              <div class="detail-label">Bank</div>
-              <div class="detail-value">{{ wd.bank_name }}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Account Number</div>
-              <div class="detail-value">{{ wd.account_number }}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Account Name</div>
-              <div class="detail-value">{{ wd.account_name }}</div>
-            </div>
+          <div class="detail-row">
+            <div class="di"><div class="dl">Bank</div><div class="dv">{{ wd.bank_name }}</div></div>
+            <div class="di"><div class="dl">Account Number</div><div class="dv">{{ wd.account_number }}</div></div>
+            <div class="di"><div class="dl">Account Name</div><div class="dv">{{ wd.account_name }}</div></div>
           </div>
 
           {% if wd.admin_note %}
-            <p style="font-size:12px; color: var(--muted);">Note: {{ wd.admin_note }}</p>
+            <p class="admin-note">Note: {{ wd.admin_note }}</p>
           {% endif %}
         </div>
 
         <div>
           {% if wd.status == 'pending' %}
-          <form class="mark-sent-form" method="post"
-                action="{% url 'admin_mark_withdrawal_sent' wd.id %}"
-                onsubmit="return confirm('Mark ₦{{ wd.amount|floatformat:2 }} to {{ wd.user.username }} as SENT? This will email the user.')">
+          <form class="sent-form" method="post" action="{% url 'admin_mark_withdrawal_sent' wd.id %}"
+                onsubmit="return confirm('Mark ₦{{ wd.amount|floatformat:2 }} to {{ wd.user.username }} as SENT?\nThis will email the user.')">
             {% csrf_token %}
-            <textarea class="note-input" name="note" rows="2"
-                      placeholder="Optional note (e.g. transfer ref)…"></textarea>
-            <button class="btn-send" type="submit">✓ Mark as Sent &amp; Email User</button>
+            <textarea class="note-input" name="note" rows="2" placeholder="Optional note (transfer ref…)"></textarea>
+            <button class="btn-send" type="submit">✓ Mark Sent &amp; Email User</button>
           </form>
           {% else %}
-          <div class="sent-info">✓ Sent on {{ wd.sent_at|date:"M d, Y" }}</div>
+          <div class="sent-label">✓ Sent {{ wd.sent_at|date:"M d, Y" }}</div>
           {% endif %}
         </div>
       </div>
       {% endfor %}
     {% else %}
-    <div class="empty-state">
-      <div class="ei">💸</div>
-      <p>No {% if status_filter != 'all' %}{{ status_filter }}{% endif %} withdrawal requests found.</p>
+    <div class="empty rv">
+      <div class="empty-icon">💸</div>
+      <p>No {% if status_filter != 'all' %}{{ status_filter }} {% endif %}withdrawal requests found.</p>
     </div>
     {% endif %}
-  </div>
+
+    <!-- USER EARNINGS OVERVIEW -->
+    {% if user_stats %}
+    <div style="margin-top:52px">
+      <div class="sh"><span>Creator Earnings Overview</span></div>
+      <div class="stats-table-wrap rv">
+        <table class="st">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Posts</th>
+              <th>Total Views</th>
+              <th>Total Earned</th>
+            </tr>
+          </thead>
+          <tbody class="sg">
+            {% for row in user_stats %}
+            <tr>
+              <td>
+                <div class="user-col">
+                  <span class="un">{{ row.author_user__full_name|default:row.author_user__username }}</span>
+                  <span class="ue">{{ row.author_user__email|default:"" }}</span>
+                </div>
+              </td>
+              <td class="posts">{{ row.total_posts }}</td>
+              <td class="views">👁 {{ row.total_views|default:0 }}</td>
+              <td class="earn">₦{{ row.total_earned }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+  </div><!-- /page -->
+
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => document.getElementById('pl').classList.add('h'), 800);
+      kick();
+    });
+    window.addEventListener('pageshow', () => { document.getElementById('pl').classList.add('h'); kick(); });
+    function kick() {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { threshold: 0.05 });
+      document.querySelectorAll('.rv,.sg').forEach(el => io.observe(el));
+    }
+    function toggleMob() {
+      const h = document.getElementById('ham'), m = document.getElementById('mob');
+      const o = m.classList.toggle('open'); h.classList.toggle('open', o);
+    }
+    document.addEventListener('click', e => {
+      const m = document.getElementById('mob');
+      if (m.classList.contains('open') && !m.contains(e.target) && !document.getElementById('ham').contains(e.target)) {
+        m.classList.remove('open'); document.getElementById('ham').classList.remove('open');
+      }
+    });
+  </script>
 </body>
 </html>

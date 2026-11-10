@@ -368,9 +368,40 @@
       .article-layout { grid-template-columns: 1fr; }
       .article-sidebar { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
-    @media (max-width: 560px) {
-      .article-sidebar { grid-template-columns: 1fr; }
-    }
+    /* ── Loader ── */
+    #page-loader{position:fixed;inset:0;z-index:9999;background:rgba(6,12,10,0.97);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;transition:opacity .5s,visibility .5s}
+    #page-loader.hidden{opacity:0;visibility:hidden}
+    .loader-logo{width:38px;height:38px;animation:ll 1.4s ease-in-out infinite}
+    @keyframes ll{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.14);opacity:.65}}
+    .loader-track{width:180px;height:2px;background:var(--glass-border);border-radius:2px;overflow:hidden}
+    .loader-bar{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--teal-light));border-radius:2px;animation:lbar .9s ease forwards}
+    @keyframes lbar{to{width:100%}}
+    .loader-dots{display:flex;gap:7px}
+    .loader-dots span{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:ldot 1.2s ease-in-out infinite}
+    .loader-dots span:nth-child(2){animation-delay:.18s;background:var(--teal-light)}
+    .loader-dots span:nth-child(3){animation-delay:.36s;background:rgba(61,158,140,.5)}
+    @keyframes ldot{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    /* ── Mobile nav ── */
+    .nav-hamburger{display:none;flex-direction:column;gap:5px;width:34px;height:34px;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid var(--glass-border);border-radius:7px;cursor:pointer}
+    .nav-hamburger span{display:block;width:16px;height:1.5px;background:var(--text);border-radius:2px;transition:transform .25s,opacity .25s}
+    .nav-hamburger.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+    .nav-hamburger.open span:nth-child(2){opacity:0}
+    .nav-hamburger.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+    .mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;z-index:190;background:rgba(6,14,12,.98);border-bottom:1px solid var(--glass-border);backdrop-filter:blur(20px);padding:14px 20px 18px;flex-direction:column;gap:4px;opacity:0;transform:translateY(-8px);transition:opacity .2s,transform .2s}
+    .mobile-menu.open{opacity:1;transform:none}
+    .mm-link{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;font-size:14px;font-weight:500;color:rgba(240,244,243,.65);text-decoration:none;transition:background .15s,color .15s}
+    .mm-link:hover,.mm-link.active{background:rgba(255,255,255,.07);color:var(--text)}
+    .mm-link.write{background:var(--teal);color:#fff;font-weight:600;margin-top:4px}
+    .mm-sep{height:1px;background:var(--glass-border);margin:5px 0}
+    /* ── Entrance animations ── */
+    .reveal{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s ease}
+    .reveal.in{opacity:1;transform:none}
+    .stagger>*{opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
+    .stagger.in>*{opacity:1;transform:none}
+    .stagger.in>*:nth-child(1){transition-delay:0s}
+    .stagger.in>*:nth-child(2){transition-delay:.08s}
+    .stagger.in>*:nth-child(3){transition-delay:.16s}
+    @media(max-width:640px){.site-nav{padding:0 14px;}.nav-center-links{display:none!important}.nav-hamburger{display:flex}.mobile-menu{display:flex}}
   </style>
   <!-- Google AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4077944879189341"
@@ -378,12 +409,51 @@
 </head>
 <body data-signed-in="{% if current_user %}true{% else %}false{% endif %}">
 
+  <!-- ── Loader ── -->
+  <div id="page-loader" aria-hidden="true">
+    <img class="loader-logo" src="{% static 'core/logo.png' %}" alt="">
+    <div class="loader-track"><div class="loader-bar"></div></div>
+    <div class="loader-dots"><span></span><span></span><span></span></div>
+  </div>
+
   <!-- ── Navigation ── -->
   <nav class="site-nav" aria-label="Main navigation">
     <div class="nav-inner">
       <a href="{% url 'welcome' %}" class="nav-brand" onclick="navTo(event, this.href)">
         <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor" class="nav-logo">
         MyTherapyDoctor
+      </a>
+      <div class="nav-center nav-center-links">
+        <a class="nav-link" href="{% url 'welcome' %}" onclick="navTo(event,this.href)">Home</a>
+        <a class="nav-link active" href="{% url 'blog_list' %}" onclick="navTo(event,this.href)">Journal</a>
+        <a class="nav-link" href="{% url 'sections' %}" onclick="navTo(event,this.href)">Therapy</a>
+      </div>
+      <div class="nav-right">
+        {% if request.session.user_id %}
+          <a class="nav-pill" href="{% url 'blog_create' %}" onclick="navTo(event,this.href)">Write Post</a>
+          <a class="nav-pill write" href="{% url 'sections' %}" onclick="navTo(event,this.href)">Dashboard</a>
+        {% else %}
+          <a class="nav-pill" href="{% url 'login' %}" onclick="navTo(event,this.href)">Sign in</a>
+          <a class="nav-pill write" href="{% url 'register' %}" onclick="navTo(event,this.href)">Get Started</a>
+        {% endif %}
+      </div>
+      <button class="nav-hamburger" id="ham" onclick="toggleMob()" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <!-- ── Mobile Menu ── -->
+  <div class="mobile-menu" id="mob">
+    <a class="mm-link" href="{% url 'welcome' %}" onclick="navTo(event,this.href)">🏠 Home</a>
+    <a class="mm-link active" href="{% url 'blog_list' %}" onclick="navTo(event,this.href)">📖 Journal</a>
+    <a class="mm-link" href="{% url 'sections' %}" onclick="navTo(event,this.href)">⚡ Therapy</a>
+    {% if request.session.user_id %}
+      <div class="mm-sep"></div>
+      <a class="mm-link write" href="{% url 'blog_create' %}" onclick="navTo(event,this.href)">✍ Write a Post</a>
+    {% else %}
+      <div class="mm-sep"></div>
+      <a class="mm-link write" href="{% url 'register' %}">Get started free</a>
+    {% endif %}
+  </div>        MyTherapyDoctor
       </a>
       <div class="nav-center">
         <a class="nav-link" href="{% url 'welcome' %}" onclick="navTo(event, this.href)">Home</a>
@@ -403,8 +473,6 @@
   </nav>
 
   <div class="page-wrap">
-
-    <!-- ── Breadcrumb ── -->
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <a href="{% url 'welcome' %}">Home</a>
       <span>/</span>
@@ -592,12 +660,30 @@
       document.body.classList.add("page-loaded");
     });
 
+    // ── Page loader + hamburger ──
+    window.addEventListener('load', () => {
+      setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 800);
+    });
+    window.addEventListener('pageshow', () => document.getElementById('page-loader').classList.add('hidden'));
+
+    function toggleMob() {
+      const h = document.getElementById('ham'), m = document.getElementById('mob');
+      const o = m.classList.toggle('open'); h.classList.toggle('open', o);
+    }
+    document.addEventListener('click', e => {
+      const m = document.getElementById('mob');
+      if (m && m.classList.contains('open') && !m.contains(e.target) && !document.getElementById('ham').contains(e.target)) {
+        m.classList.remove('open'); document.getElementById('ham').classList.remove('open');
+      }
+    });
+
     function navTo(e, href) {
       if (e) e.preventDefault();
       if (document.body.classList.contains("page-exit")) return;
+      document.getElementById('page-loader').classList.remove('hidden');
       document.body.classList.remove("page-loaded");
       document.body.classList.add("page-exit");
-      setTimeout(() => window.location.href = href, 380);
+      setTimeout(() => window.location.href = href, 320);
     }
 
     // Fill share buttons with the real URL of this post.

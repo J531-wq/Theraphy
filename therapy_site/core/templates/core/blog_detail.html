@@ -352,6 +352,8 @@
     .sidebar-link:first-of-type { padding-top: 0; border-top: 0; }
     .sidebar-link:hover { color: #fff; }
     .sidebar-cta { display: block; padding: 11px 14px; color: #fff; background: linear-gradient(135deg, var(--teal), var(--teal-light)); border-radius: 8px; font-size: .84rem; font-weight: 600; text-align: center; text-decoration: none; }
+    .ad-slot { min-width: 0; min-height: 120px; padding: 16px; overflow: hidden; background: rgba(6,14,12,.72); border: 1px solid var(--glass-border); border-radius: 14px; }
+    .ad-slot-label { margin-bottom: 12px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; }
 
     /* ── Responsive ── */
     @media (max-width: 640px) {
@@ -562,6 +564,10 @@
             <li><span>Published</span><strong>{{ blog.created_at|date:"M d, Y" }}</strong></li>
             <li><span>Length</span><strong>{{ blog.content|wordcount }} words</strong></li>
           </ul>
+        </section>
+        <section class="ad-slot" aria-label="Advertisement">
+          <div class="ad-slot-label">Advertisement</div>
+          <script src="https://quge5.com/88/tag.min.js" data-zone="308595" async data-cfasync="false"></script>
         </section>
         {% if related_blogs %}
           <section class="sidebar-card">
@@ -898,4 +904,3 @@
   </script>
 </body>
 </html>
-

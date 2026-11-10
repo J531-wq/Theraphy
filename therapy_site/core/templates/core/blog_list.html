@@ -169,6 +169,7 @@
     </section>
     {% if page_obj.has_other_pages %}<nav class="pagination" aria-label="Blog pages">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&larr;</a>{% endif %}{% for number in page_obj.paginator.page_range %}{% if page_obj.number == number %}<span class="selected">{{ number }}</span>{% else %}<a href="?page={{ number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ number }}</a>{% endif %}{% endfor %}{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&rarr;</a>{% endif %}</nav>{% endif %}
   </main>
+  {% include "core/includes/monetag_ad.html" %}
   <footer>MyTherapyDoctor &copy; 2026 &middot; Support between sessions, one story at a time.</footer>
   <script>
     window.addEventListener('load', () => {

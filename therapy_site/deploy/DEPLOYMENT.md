@@ -202,7 +202,7 @@ Lock the file down: `chmod 600 .env`
 
 ```bash
 python manage.py migrate
-python manage.py collectstatic --noinput   # → staticfiles/ (served by nginx)
+python manage.py collectstatic --noinput   # → staticfiles/ (served by WhiteNoise)
 python manage.py createsuperuser
 ```
 
@@ -212,7 +212,7 @@ Quick sanity test with gunicorn:
 gunicorn --bind 0.0.0.0:8000 therapy_site.wsgi:application
 ```
 
-Visit `http://YOUR.VPS.IP:8000` — the welcome page should load (CSS included thanks to whitenoise). Stop it with `CTRL+C`.
+Visit `http://YOUR.VPS.IP:8000` — the welcome page and its images should load (static files are served by WhiteNoise). Stop it with `CTRL+C`.
 
 ---
 
@@ -247,6 +247,17 @@ sudo systemctl restart nginx
 ```
 
 Now open `http://yourdomain.com` — the site should be live over HTTP.
+
+Static requests are proxied to Gunicorn and served by WhiteNoise. If you are
+updating an existing Nginx configuration, remove any `location /static/` or
+`location = /favicon.ico` blocks that use filesystem `alias` paths under
+`/home/deploy`; keep the proxy `location /` block and any HTTPS blocks added by
+Certbot. Then validate and reload Nginx:
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
 
 ---
 
@@ -287,7 +298,7 @@ sudo systemctl restart therapy_site
 | Symptom | Check |
 |---|---|
 | 502 Bad Gateway | `sudo systemctl status therapy_site` — gunicorn down. `sudo journalctl -u therapy_site -n 50` for the error. |
-| CSS/images missing | `collectstatic` not run, or wrong `alias` path in nginx; check `staticfiles/` exists. |
+| CSS/images return 403 | Remove Nginx static `alias` locations under `/home/deploy` and proxy requests through Gunicorn to WhiteNoise; then reload Nginx. Confirm `collectstatic` completed successfully. |
 | 400 Bad Request on POST | Domain missing from `ALLOWED_HOSTS` / `CSRF_TRUSTED_ORIGINS` in `.env`, then restart the service. |
 | `SECRET_KEY must be set when DEBUG=False` | `.env` unreadable by the service user or key missing. |
 | Emails not sending | Verify `EMAIL_HOST_PASSWORD`; confirm VPS allows outbound port 587. |
@@ -304,4 +315,3 @@ sudo systemctl restart therapy_site
 - [ ] `ufw` enabled (done in step 2 — verify with `sudo ufw status`)
 - [ ] Optional: `sudo apt install unattended-upgrades` for auto security patches
 - [ ] Optional: nightly DB backup via cron: `sudo -u postgres pg_dump therapy_db > ~/backups/therapy_db_$(date +\%F).sql`
-

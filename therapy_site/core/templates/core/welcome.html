@@ -629,6 +629,23 @@
 </head>
 <body>
 
+  <!-- ══ LOADER ══ -->
+  <div id="page-loader" aria-hidden="true" style="position:fixed;inset:0;z-index:9999;background:#0c0f0e;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;transition:opacity .5s,visibility .5s">
+    <img style="width:42px;height:42px;animation:ll 1.4s ease-in-out infinite" src="{% static 'core/logo.png' %}" alt="">
+    <div style="width:200px;height:2px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden"><div style="height:100%;width:0;background:linear-gradient(90deg,#2e7d6e,#3d9e8c);border-radius:2px;animation:lbar .9s ease forwards"></div></div>
+    <div style="display:flex;gap:7px">
+      <span style="width:7px;height:7px;border-radius:50%;background:#2e7d6e;display:block;animation:ldot 1.2s ease-in-out infinite"></span>
+      <span style="width:7px;height:7px;border-radius:50%;background:#3d9e8c;display:block;animation:ldot 1.2s .18s ease-in-out infinite"></span>
+      <span style="width:7px;height:7px;border-radius:50%;background:rgba(61,158,140,.5);display:block;animation:ldot 1.2s .36s ease-in-out infinite"></span>
+    </div>
+  </div>
+  <style>
+    @keyframes ll{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.14);opacity:.65}}
+    @keyframes lbar{to{width:100%}}
+    @keyframes ldot{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    #page-loader.h{opacity:0;visibility:hidden}
+  </style>
+
   <a class="skip-link" href="#main-content">Skip to content</a>
 
   <!-- ══════════════════════════════════════
@@ -984,6 +1001,9 @@
       </p>
     </div>
   </footer>
-
+  <script>
+    window.addEventListener('load', () => setTimeout(() => document.getElementById('page-loader').classList.add('h'), 900));
+    window.addEventListener('pageshow', () => document.getElementById('page-loader').classList.add('h'));
+  </script>
 </body>
 </html>

@@ -138,6 +138,13 @@
   </style>
 </head>
 <body>
+  <!-- Loader -->
+  <div id="page-loader" aria-hidden="true">
+    <img class="loader-logo" src="{% static 'core/logo.png' %}" alt="">
+    <div class="loader-track"><div class="loader-bar"></div></div>
+    <div class="loader-dots"><span></span><span></span><span></span></div>
+  </div>
+
   <nav aria-label="Main navigation">
     <div class="nav-inner">
       <a class="nav-brand" href="{% url 'welcome' %}">
@@ -147,8 +154,17 @@
         <a class="nav-pill" href="{% url 'blog_list' %}">← Journal</a>
         <a class="nav-pill earn" href="{% url 'earnings_dashboard' %}">My Earnings</a>
       </div>
+      <button class="nav-hamburger" id="ham" onclick="toggleMob()" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
+
+  <!-- Mobile menu -->
+  <div class="mobile-menu" id="mob">
+    <a class="mm-link" href="{% url 'sections' %}">⚡ Dashboard</a>
+    <a class="mm-link" href="{% url 'blog_list' %}">📖 Journal</a>
+    <div class="mm-sep"></div>
+    <a class="mm-link earn" href="{% url 'earnings_dashboard' %}">💰 My Earnings</a>
+  </div>
 
   <div class="page-wrap">
     <div class="page-title">
@@ -240,6 +256,18 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(() => document.body.classList.add('loaded'));
+    });
+    window.addEventListener('load', () => setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 700));
+    window.addEventListener('pageshow', () => document.getElementById('page-loader').classList.add('hidden'));
+    function toggleMob() {
+      const h = document.getElementById('ham'), m = document.getElementById('mob');
+      const o = m.classList.toggle('open'); h.classList.toggle('open', o);
+    }
+    document.addEventListener('click', e => {
+      const m = document.getElementById('mob');
+      if (m && m.classList.contains('open') && !m.contains(e.target) && !document.getElementById('ham').contains(e.target)) {
+        m.classList.remove('open'); document.getElementById('ham').classList.remove('open');
+      }
     });
   </script>
 </body>

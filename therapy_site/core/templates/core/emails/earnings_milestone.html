@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>You've reached ₦1,000 — MyTherapyDoctor</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f7f6; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #2e7d6e 0%, #4CAF93 100%); padding: 46px 40px 36px; text-align: center; }
+    .header .amount { font-size: 48px; font-weight: 800; color: #fff; letter-spacing: -1px; margin: 0 0 6px; }
+    .header p { margin: 0; color: rgba(255,255,255,0.88); font-size: 16px; }
+    .body { padding: 40px; }
+    .body h2 { color: #2e7d6e; font-size: 20px; margin: 0 0 14px; }
+    .body p { color: #444; font-size: 15px; line-height: 1.75; margin: 0 0 16px; }
+    .detail-box { background: #f0faf7; border: 1px solid #c3e8dc; border-radius: 10px; padding: 20px 22px; margin: 24px 0; }
+    .detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #d7f0e6; font-size: 14px; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: #666; }
+    .detail-value { font-weight: 700; color: #2e7d6e; }
+    .cta-wrap { text-align: center; margin: 30px 0; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #2e7d6e, #4CAF93); color: #fff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 14px 36px; border-radius: 30px; letter-spacing: 0.5px; }
+    .divider { border: none; border-top: 1px solid #ececec; margin: 28px 0; }
+    .footer { background: #f9f9f9; border-top: 1px solid #ececec; padding: 22px 40px; text-align: center; }
+    .footer p { margin: 0; font-size: 12px; color: #aaa; line-height: 1.6; }
+    .footer a { color: #2e7d6e; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="amount">₦1,000</div>
+      <p>You've reached the withdrawal threshold!</p>
+    </div>
+    <div class="body">
+      <h2>Hi {{ full_name }}, your earnings have hit ₦1,000 🎉</h2>
+      <p>
+        Your blog posts on MyTherapyDoctor have earned you at least ₦1,000.
+        You can now withdraw this money to your bank account — or keep writing
+        and let it grow even further.
+      </p>
+      <div class="detail-box">
+        <div class="detail-row">
+          <span class="detail-label">Available to withdraw</span>
+          <span class="detail-value">₦1,000+</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Earnings rate</span>
+          <span class="detail-value">₦10 per 100 views</span>
+        </div>
+      </div>
+      <p>
+        To withdraw, go to your <strong>Creator Earnings dashboard</strong>,
+        add your bank details (if you haven't already), and request a payout.
+        An admin will review and send your payment.
+      </p>
+      <div class="cta-wrap">
+        <a href="{{ dashboard_url }}" class="cta-btn">Go to My Earnings →</a>
+      </div>
+      <hr class="divider"/>
+      <p style="font-size:13px; color:#888;">
+        Questions? Reply to this email and our team will help you.
+      </p>
+      <p>With appreciation,<br/><strong>The MyTherapyDoctor Team</strong></p>
+    </div>
+    <div class="footer">
+      <p>&copy; 2026 MyTherapyDoctor &bull; <a href="https://mytherapydoctor.com">mytherapydoctor.com</a><br/>You're receiving this because your blog earnings reached ₦1,000.</p>
+    </div>
+  </div>
+</body>
+</html>

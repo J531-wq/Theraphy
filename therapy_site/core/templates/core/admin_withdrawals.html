@@ -254,6 +254,63 @@
     </div>
     {% endif %}
 
+    </div><!-- /pending list -->
+    </div><!-- /page -->
+
+    <!-- ═══════════════════════════════════════════════════════
+         ADMIN: BLOG APPROVAL SECTION
+    ═══════════════════════════════════════════════════════ -->
+    <div class="pending rv" style="margin-top:42px">
+      <div class="sh"><span>📝 Pending Blog Posts</span></div>
+      <div class="rv in">
+        <div class="blog-pending-list">
+          {% for blog in blog_approvals %}
+          <div class="bp-card">
+            <div class="bp-head">
+              <strong>{{ blog.title }}</strong>
+              <span class="bp-status">Pending approval</span>
+            </div>
+            <p class="bp-excerpt">{{ blog.excerpt|truncatechars:120 }}</p>
+            <div class="bp-meta">
+              <span>By {{ blog.author }}</span>
+              <span>👁 {{ blog.views_count }} views</span>
+            </div>
+            <form method="POST" action="{% url 'admin_approve_blog' blog.id %}" style="margin-top:12px">
+              {% csrf_token %}
+              <button class="btn-publish" type="submit">✓ Publish &amp; Notify Subscribers</button>
+            </form>
+          </div>
+          {% empty %}
+          <div class="empty rv"><p>No pending blog posts awaiting approval.</p></div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener('load', () => {
+        setTimeout(() => document.getElementById('pl').classList.add('h'), 800);
+        kick();
+      });
+      window.addEventListener('pageshow', () => { document.getElementById('pl').classList.add('h'); kick(); });
+      function kick() {
+        const io = new IntersectionObserver(entries => {
+          entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+        }, { threshold: 0.05 });
+        document.querySelectorAll('.rv,.sg').forEach(el => io.observe(el));
+      }
+      function toggleMob() {
+        const h = document.getElementById('ham'), m = document.getElementById('mob');
+        const o = m.classList.toggle('open'); h.classList.toggle('open', o);
+      }
+      document.addEventListener('click', e => {
+        const m = document.getElementById('mob');
+        if (m.classList.contains('open') && !m.contains(e.target) && !document.getElementById('ham').contains(e.target)) {
+          m.classList.remove('open'); document.getElementById('ham').classList.remove('open');
+        }
+      });
+    </script>
+
     <!-- USER EARNINGS OVERVIEW -->
     {% if user_stats %}
     <div style="margin-top:52px">

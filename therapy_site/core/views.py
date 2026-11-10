@@ -40,6 +40,8 @@ from .models import (
 from .services.email_service import (
     send_blog_post_approved_email,
     send_blog_subscription_welcome,
+    send_earnings_milestone_email,
+    send_low_views_email,
     send_reset_email,
     send_verification_email,
     send_welcome_email,
@@ -655,6 +657,28 @@ def blog_detail(request, slug):
         request.session.modified = True
         blog.refresh_from_db()
 
+    # ── Low-views share nudge (author only) ─────────────────────────
+    show_low_views_alert = False
+    LOW_VIEWS_THRESHOLD = 10
+    if (
+        current_user
+        and blog.author_user_id == current_user.id
+        and blog.views_count < LOW_VIEWS_THRESHOLD
+        and not blog.low_views_notified
+    ):
+        show_low_views_alert = True
+        # Send the low-views email once
+        base_url = request.build_absolute_uri('/').rstrip('/')
+        try:
+            send_low_views_email(current_user, blog, base_url)
+        except Exception:
+            logger.exception(
+                "Failed to send low-views email for blog %s to %s",
+                blog.slug, current_user.username,
+            )
+        blog.low_views_notified = True
+        blog.save(update_fields=['low_views_notified'])
+
     context = {
         'blog': blog,
         'related_blogs': related_blogs,
@@ -663,6 +687,7 @@ def blog_detail(request, slug):
         'post_liked': post_liked,
         'current_user': current_user,
         'visitor_key': visitor_key,
+        'show_low_views_alert': show_low_views_alert,
     }
 
     return render(request, 'core/blog_detail.html', context)
@@ -1017,10 +1042,24 @@ def earnings_dashboard(request):
     bank_form = BankAccountForm(instance=user)
 
     MIN_WITHDRAWAL = Decimal('1000')
-    can_withdraw = (available - pending) >= MIN_WITHDRAWAL and bool(
+    withdrawable_balance = available - pending
+    can_withdraw = withdrawable_balance >= MIN_WITHDRAWAL and bool(
         user.bank_name and user.account_number and user.account_name
     )
-    withdrawable_balance = available - pending
+
+    # ── Earnings milestone email (₦1,000) ──────────────────────────
+    # Send once when the user first reaches the withdrawal threshold.
+    if (
+        withdrawable_balance >= MIN_WITHDRAWAL
+        and not user.earnings_milestone_notified
+    ):
+        base_url = request.build_absolute_uri('/').rstrip('/')
+        try:
+            send_earnings_milestone_email(user, base_url)
+        except Exception:
+            logger.exception("Failed to send earnings milestone email to %s", user.username)
+        user.earnings_milestone_notified = True
+        user.save(update_fields=['earnings_milestone_notified'])
 
     context = {
         'total_earned': total_earned,
@@ -1154,15 +1193,30 @@ def admin_withdrawals(request):
     for row in user_stats:
         row['total_earned'] = Decimal(str((row['total_views'] or 0) // 100 * NAIRA_PER_100_VIEWS))
 
+    # Pending blog posts awaiting admin approval
+    blog_approvals = Blog.objects.filter(is_published=False).order_by('-created_at')[:20]
+
     return render(request, 'core/admin_withdrawals.html', {
         'withdrawals': withdrawals,
         'status_filter': status_filter,
         'pending_count': pending_count,
         'user_stats': user_stats,
         'naira_per_100': NAIRA_PER_100_VIEWS,
+        'blog_approvals': blog_approvals,
     })
 
 
+    # Pending blog posts awaiting admin approval
+    blog_approvals = Blog.objects.filter(is_published=False).order_by('-created_at')[:20]
+
+    return render(request, 'core/admin_withdrawals.html', {
+        'withdrawals': withdrawals,
+        'status_filter': status_filter,
+        'pending_count': pending_count,
+        'user_stats': user_stats,
+        'naira_per_100': NAIRA_PER_100_VIEWS,
+        'blog_approvals': blog_approvals,
+    })
 @require_POST
 def admin_mark_withdrawal_sent(request, withdrawal_id):
     """Mark a withdrawal as sent and email the user."""
@@ -1182,6 +1236,43 @@ def admin_mark_withdrawal_sent(request, withdrawal_id):
         except Exception:
             logger.exception(
                 "Failed to send withdrawal email for withdrawal #%s", withdrawal.id
+            )
+
+    return redirect('admin_withdrawals')
+
+
+# ---------------------------------------------------------------------------
+# Admin blog approval (publish user-submitted posts + notify subscribers)
+# ---------------------------------------------------------------------------
+
+@require_POST
+def admin_approve_blog(request, blog_id):
+    """Publish a user-submitted blog post and email all subscribers."""
+    if not (request.user.is_authenticated and request.user.is_superuser):
+        return redirect('/admin/')
+
+    blog = get_object_or_404(Blog, id=blog_id)
+    if not blog.is_published:
+        blog.is_published = True
+        blog.save(update_fields=['is_published'])
+
+        # Email the author
+        if blog.author_user and blog.author_user.email:
+            base_url = request.build_absolute_uri('/').rstrip('/')
+            try:
+                send_blog_post_approved_email(blog.author_user, blog, base_url)
+            except Exception:
+                logger.exception(
+                    "Failed to send blog-approved email to %s",
+                    blog.author_user.username,
+                )
+
+        # Notify all subscribers
+        try:
+            notify_subscribers_of_new_post(blog, base_url)
+        except Exception:
+            logger.exception(
+                "Failed to notify subscribers of new post %s", blog.slug
             )
 
     return redirect('admin_withdrawals')

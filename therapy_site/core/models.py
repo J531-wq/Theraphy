@@ -16,6 +16,12 @@ class User(models.Model):
     account_number = models.CharField(max_length=20, blank=True, default='')
     account_name = models.CharField(max_length=100, blank=True, default='')
 
+    # Earnings notification tracking
+    earnings_milestone_notified = models.BooleanField(
+        default=False,
+        help_text='Has the user been emailed about reaching the ₦1000 withdrawal threshold?',
+    )
+
     def __str__(self):
         return self.username
 
@@ -93,6 +99,10 @@ class Blog(models.Model):
     )
     likes_count = models.PositiveIntegerField(default=0)
     views_count = models.PositiveIntegerField(default=0)
+    low_views_notified = models.BooleanField(
+        default=False,
+        help_text='Has the author been emailed about low views on this post?',
+    )
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

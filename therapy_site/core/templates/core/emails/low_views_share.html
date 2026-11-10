@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Boost your post — MyTherapyDoctor</title>
+  <style>
+    body { margin: 0; padding: 0; background: #f4f7f6; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #2e7d6e 0%, #4CAF93 100%); padding: 38px 40px 30px; text-align: center; }
+    .header .kicker { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.7); margin-bottom: 8px; }
+    .header h1 { margin: 0; color: #fff; font-size: 24px; font-weight: 800; line-height: 1.3; }
+    .body { padding: 36px 40px; }
+    .body p { color: #444; font-size: 15px; line-height: 1.75; margin: 0 0 16px; }
+    .post-box { background: #f0faf7; border-left: 4px solid #2e7d6e; border-radius: 4px 10px 10px 4px; padding: 16px 20px; margin: 22px 0; color: #444; font-size: 14.5px; line-height: 1.7; font-style: italic; }
+    .cta-wrap { text-align: center; margin: 30px 0 22px; }
+    .cta-btn { display: inline-block; background: linear-gradient(135deg, #2e7d6e, #4CAF93); color: #fff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 14px 36px; border-radius: 30px; letter-spacing: 0.5px; }
+    .tips { margin-top: 24px; }
+    .tips h3 { color: #2e7d6e; font-size: 16px; margin: 0 0 10px; }
+    .tips ul { color: #444; font-size: 14px; line-height: 1.8; margin: 0; padding-left: 20px; }
+    .tips li { margin-bottom: 6px; }
+    .divider { border: none; border-top: 1px solid #ececec; margin: 28px 0; }
+    .footer { background: #f9f9f9; border-top: 1px solid #ececec; padding: 22px 40px; text-align: center; }
+    .footer p { margin: 0; font-size: 12px; color: #aaa; line-height: 1.6; }
+    .footer a { color: #2e7d6e; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="kicker">Creator tip · MyTherapyDoctor Blog</div>
+      <h1>Give "{{ post_title }}" a boost 📢</h1>
+    </div>
+    <div class="body">
+      <p>Hi {{ full_name }},</p>
+      <p>
+        Your post <em>"{{ post_title }}"</em> has received {{ views_count }} view(s) so far.
+        It's off to a start, but with a little sharing it could reach many more people
+        who need this content — and earn you more too.
+      </p>
+      <div class="post-box">{{ post_title }}</div>
+      <p>
+        Here are a few easy ways to get more eyes on your post:
+      </p>
+      <div class="tips">
+        <h3>Quick ways to share:</h3>
+        <ul>
+          <li>Post the link on your WhatsApp status or groups</li>
+          <li>Share on Facebook, Twitter/X, Instagram, or LinkedIn</li>
+          <li>Send it to friends who might find it helpful</li>
+          <li>Mention it in relevant online communities or forums</li>
+        </ul>
+      </div>
+      <p>
+        Every view counts — ₦10 per 100 views — and more views means more earnings.
+        Keep writing, keep sharing!
+      </p>
+      <div class="cta-wrap">
+        <a href="{{ post_url }}" class="cta-btn">View Your Post →</a>
+      </div>
+      <hr class="divider"/>
+      <p style="font-size:13px; color:#888;">
+        You're receiving this because you're a blog author on MyTherapyDoctor.<br/>
+        Want to write more? <a href="{{ post_url }}" style="color:#2e7d6e;">Create another post</a>.
+      </p>
+    </div>
+    <div class="footer">
+      <p>&copy; 2026 MyTherapyDoctor &bull; <a href="https://mytherapydoctor.com">mytherapydoctor.com</a></p>
+    </div>
+  </div>
+</body>
+</html>

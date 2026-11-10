@@ -188,6 +188,43 @@ def send_withdrawal_sent_email(user, withdrawal) -> bool:
     )
 
 
+def send_earnings_milestone_email(user, base_url: str) -> bool:
+    """
+    Notify a creator that their blog earnings have reached ₦1,000 — the
+    minimum withdrawal threshold.  They can withdraw now or keep letting
+    it grow.
+    """
+    dashboard_url = f"{base_url}/dashboard/earnings/"
+    return _send(
+        subject="💰 You've reached ₦1,000 — you can now withdraw",
+        to_email=user.email,
+        template="core/emails/earnings_milestone.html",
+        context={
+            "full_name": user.full_name,
+            "dashboard_url": dashboard_url,
+        },
+    )
+
+
+def send_low_views_email(user, blog, base_url: str) -> bool:
+    """
+    Nudge a post author to share their article on social media when it
+    hasn't been getting many views.
+    """
+    post_url = f"{base_url}{blog.get_absolute_url()}"
+    return _send(
+        subject=f"Give '{blog.title}' a boost — share it with friends",
+        to_email=user.email,
+        template="core/emails/low_views_share.html",
+        context={
+            "full_name": user.full_name,
+            "post_title": blog.title,
+            "post_url": post_url,
+            "views_count": blog.views_count,
+        },
+    )
+
+
 def send_blog_post_approved_email(user, blog, base_url: str) -> bool:
     """
     Notify a user-created blog post author that their post has been

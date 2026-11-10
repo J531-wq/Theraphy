@@ -1001,7 +1001,140 @@
       </p>
     </div>
   </footer>
+  <style>
+    .earn-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      background: rgba(11,18,15,0.70);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .earn-modal {
+      background: #131d18;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+      padding: 40px 32px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.60);
+      position: relative;
+      animation: earnFadeIn 0.45s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes earnFadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .earn-modal-close {
+      position: absolute;
+      top: 14px; right: 16px;
+      background: transparent;
+      border: none;
+      color: rgba(232,238,236,0.5);
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 6px;
+    }
+    .earn-modal-close:hover { color: #fff; }
+    .earn-icon { font-size: 44px; margin-bottom: 14px; display: block; }
+    .earn-modal h2 {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: 24px;
+      color: #e8eeec;
+      margin: 0 0 12px;
+      line-height: 1.3;
+    }
+    .earn-modal p {
+      color: rgba(232,238,236,0.7);
+      font-size: 14.5px;
+      line-height: 1.7;
+      margin: 0 0 24px;
+    }
+    .earn-actions { display: flex; flex-direction: column; gap: 10px; }
+    .earn-btn-primary {
+      display: block;
+      padding: 13px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2e7d6e, #3d9e8c);
+      color: #fff;
+      font-size: 14.5px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 10px 24px rgba(46,125,110,0.35);
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .earn-btn-primary:hover { filter: brightness(1.1); }
+    .earn-btn-secondary {
+      display: block;
+      padding: 11px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      color: rgba(232,238,236,0.6);
+      font-size: 13.5px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .earn-btn-secondary:hover { color: #fff; background: rgba(255,255,255,0.04); }
+    @media (max-width: 480px) {
+      .earn-modal { padding: 32px 24px; margin: 0 12px; }
+    }
+  </style>
+  <!-- ════════════════════════════════════════════
+       EARN-BY-POSTING POPUP MODAL
+  ════════════════════════════════════════════════ -->
+  <div class="earn-modal-overlay" id="earn-modal-overlay">
+    <div class="earn-modal">
+      <button class="earn-modal-close" aria-label="Close" onclick="closeEarnModal()">&times;</button>
+      <div class="earn-icon">🌿</div>
+      <h2>Earn by sharing your story</h2>
+      <p>
+        Write blog posts for the MyTherapyDoctor Journal and get paid for every view.
+        Every 100 views earns you ₦10 — withdraw straight to your bank once you hit ₦1,000.
+      </p>
+      <div class="earn-actions">
+        {% if request.session.user_id %}
+          <a class="earn-btn-primary" href="{% url 'blog_create' %}">Write a Post →</a>
+        {% else %}
+          <a class="earn-btn-primary" href="{% url 'register' %}">Create Account & Start →</a>
+        {% endif %}
+        <button class="earn-btn-secondary" onclick="closeEarnModal()">Maybe Later</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Show the earn-by-posting modal once per session (unless already dismissed)
+    (function() {
+      const overlay = document.getElementById('earn-modal-overlay');
+      if (!overlay) return;
+      const dismissed = sessionStorage.getItem('earn_modal_dismissed');
+      if (dismissed === '1') {
+        overlay.style.display = 'none';
+        return;
+      }
+      // Small delay so the page renders first
+      setTimeout(() => {
+        overlay.style.display = 'flex';
+      }, 800);
+    })();
+
+    function closeEarnModal() {
+      const overlay = document.getElementById('earn-modal-overlay');
+      if (overlay) {
+        overlay.style.display = 'none';
+        sessionStorage.setItem('earn_modal_dismissed', '1');
+      }
+    }
+
     window.addEventListener('load', () => setTimeout(() => document.getElementById('page-loader').classList.add('h'), 900));
     window.addEventListener('pageshow', () => document.getElementById('page-loader').classList.add('h'));
   </script>

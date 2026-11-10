@@ -511,6 +511,22 @@
         </button>
       </header>
 
+      {% if show_low_views_alert and current_user and blog.author_user_id == current_user.id %}
+      <div class="low-views-alert">
+        <span class="lv-icon">💡</span>
+        <div class="lv-content">
+          <strong>Your post could reach more people.</strong>
+          <p>It currently has {{ blog.views_count }} view{{ blog.views_count|pluralize }}. Sharing it with friends and on social media can help more readers discover it — and increase your earnings (₦10 per 100 views).</p>
+        </div>
+        <div class="lv-actions">
+          <a id="share-fb" class="share-btn fb" href="#" target="_blank" rel="noopener" title="Share on Facebook">f</a>
+          <a id="share-tw" class="share-btn tw" href="#" target="_blank" rel="noopener" title="Share on X">𝕏</a>
+          <a id="share-li" class="share-btn li" href="#" target="_blank" rel="noopener" title="Share on LinkedIn">in</a>
+          <button id="share-copy" class="share-btn copy" type="button" title="Copy link" onclick="copyLink(this)">🔗</button>
+        </div>
+      </div>
+      {% endif %}
+
       {% if blog.featured_image %}
         <div class="post-image">
           <img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}">
@@ -841,6 +857,44 @@
     editModal.querySelector('.modal-close').addEventListener('click', () => editModal.classList.remove('open'));
     editModal.querySelector('.modal-cancel').addEventListener('click', () => editModal.classList.remove('open'));
     editModal.addEventListener('click', (event) => { if (event.target === editModal) editModal.classList.remove('open'); });
+  <style>
+    .low-views-alert {
+      background: rgba(46,125,110,0.10);
+      border: 1px solid rgba(46,125,110,0.25);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin: 24px 0;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .lv-icon { font-size: 24px; flex-shrink: 0; }
+    .lv-content strong { display: block; color: #e8eeec; font-size: 15px; margin-bottom: 6px; }
+    .lv-content p { color: rgba(232,238,236,0.65); font-size: 13.5px; line-height: 1.6; margin: 0; }
+    .lv-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .share-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color: #e8eeec;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .share-btn:hover { background: rgba(46,125,110,0.20); border-color: var(--teal, #2e7d6e); color: #fff; }
+    .share-btn.copy { font-size: 18px; }
+  </style>
   </script>
 </body>
 </html>

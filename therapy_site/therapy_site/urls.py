@@ -92,6 +92,13 @@ urlpatterns = [
         views.admin_mark_withdrawal_sent,
         name='admin_mark_withdrawal_sent'
     ),
+
+    # Admin blog approval
+    path(
+        'admin-panel/blog/<int:blog_id>/approve/',
+        views.admin_approve_blog,
+        name='admin_approve_blog'
+    ),
 ]
 
 # Serve media files during development

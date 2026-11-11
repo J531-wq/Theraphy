@@ -74,6 +74,7 @@
     .nav-inner { width: 100%; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-size: 14px; font-weight: 600; }
     .nav-brand img { width: 28px; height: 28px; padding: 4px; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; background: rgba(255,255,255,.08); }
+    .admin-menu-toggle { display: none; width: 40px; height: 40px; place-items: center; border: 1px solid rgba(255,255,255,.12); border-radius: 12px; color: var(--text); background: rgba(255,255,255,.06); cursor: pointer; }
     .brand-label { color: #9af4d1; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
     .nav-right { display: flex; align-items: center; gap: 8px; }
     .nav-pill {
@@ -88,6 +89,24 @@
 
     /* ── PAGE ── */
     .page { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+    .admin-main { position: relative; z-index: 1; margin-left: 250px; }
+    .admin-sidebar {
+      position: fixed; z-index: 180; top: 64px; bottom: 0; left: 0;
+      display: flex; flex-direction: column; gap: 8px;
+      width: 250px; padding: 28px 16px;
+      border-right: 1px solid rgba(255,255,255,.09);
+      background: rgba(5,15,12,.94); backdrop-filter: blur(20px);
+    }
+    .sidebar-label { padding: 0 12px 10px; color: rgba(240,244,243,.38); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 12px; min-height: 46px; padding: 0 13px;
+      border: 1px solid transparent; border-radius: 13px; color: rgba(240,244,243,.68);
+      font-size: 13px; font-weight: 600; text-decoration: none; transition: .2s ease;
+    }
+    .sidebar-link:hover, .sidebar-link.active { border-color: rgba(111,217,174,.18); color: #d7ffe9; background: rgba(46,125,110,.18); }
+    .sidebar-icon { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 8px; background: rgba(255,255,255,.06); }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-overlay { display: none; }
 
     /* ── HEADER ── */
     .page-head { margin-bottom: 40px; }
@@ -230,12 +249,48 @@
     .rb-approve:hover { opacity: .85; }
     .rb-empty { padding: 32px 24px; text-align: center; color: var(--muted); font-size: 14px; }
 
+    .impressions-panel {
+      position: relative; z-index: 1; margin-bottom: 42px; padding: 24px;
+      border: 1px solid rgba(255,255,255,.11); border-radius: 22px;
+      background: rgba(6,14,12,.82); backdrop-filter: blur(16px);
+      box-shadow: 8px 10px 0 rgba(46,125,110,.2), 0 20px 50px rgba(0,0,0,.24);
+    }
+    .impressions-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 22px; }
+    .impressions-head h2 { font-size: 16px; font-weight: 700; }
+    .impressions-head p { margin-top: 5px; color: var(--muted); font-size: 12px; }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: 11px; }
+    .chart-legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; background: #64d9a3; box-shadow: 0 0 12px rgba(100,217,163,.45); }
+    .legend-dot.chat { background: #78b9ed; box-shadow: 0 0 12px rgba(120,185,237,.45); }
+    .impressions-chart {
+      display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: clamp(5px, 1.4vw, 14px);
+      height: 190px; padding: 12px 4px 0; border-bottom: 1px solid rgba(255,255,255,.1);
+      background: repeating-linear-gradient(to bottom, transparent 0, transparent 46px, rgba(255,255,255,.055) 47px, transparent 48px);
+    }
+    .chart-day { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 0; }
+    .chart-bars { display: flex; align-items: flex-end; justify-content: center; gap: 3px; width: 100%; height: 100%; }
+    .chart-bar { width: min(13px, 42%); min-height: 0; border-radius: 5px 5px 2px 2px; transition: height .35s ease, filter .2s ease; }
+    .chart-bar:hover { filter: brightness(1.3); }
+    .chart-bar.site { background: linear-gradient(180deg, #93f2c2, #32a979); box-shadow: 0 0 14px rgba(71,208,145,.16); }
+    .chart-bar.chat { background: linear-gradient(180deg, #a4d8ff, #4a87c2); box-shadow: 0 0 14px rgba(93,169,231,.14); }
+    .chart-day-label { padding: 9px 0 10px; color: rgba(240,244,243,.48); font-size: 10px; }
+    @media (max-width: 1024px) {
+      .admin-menu-toggle { display: grid; }
+      .admin-sidebar { transform: translateX(-105%); transition: transform .25s ease; box-shadow: 20px 0 50px rgba(0,0,0,.35); }
+      .admin-sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; position: fixed; z-index: 170; inset: 64px 0 0; background: rgba(0,0,0,.58); backdrop-filter: blur(3px); }
+      .admin-main { margin-left: 0; }
+    }
     @media (max-width: 640px) {
       nav { padding: 0 16px; }
       body { padding: 84px 16px 50px; }
       .stat-card { box-shadow: 4px 6px 0 rgba(46,125,110,.35), 0 10px 30px rgba(0,0,0,.3); }
       .action-card { box-shadow: 4px 6px 0 rgba(46,125,110,.3), 0 10px 30px rgba(0,0,0,.3); }
       .nav-right .nav-pill:not(.danger) { display: none; }
+      .impressions-panel { padding: 18px 14px 12px; }
+      .impressions-head { flex-direction: column; }
+      .impressions-chart { height: 150px; gap: 3px; }
+      .chart-day-label { font-size: 9px; }
     }
     @media (prefers-reduced-motion: reduce) {
       body, body::before, body::after { animation: none; transition: none; }
@@ -251,6 +306,9 @@
         <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor">
         <span class="brand-label">Admin Panel</span>
       </a>
+      <button class="admin-menu-toggle" id="admin-menu-toggle" type="button" aria-label="Open dashboard menu" aria-controls="admin-sidebar" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
       <div class="nav-right">
         <a class="nav-pill" href="{% url 'welcome' %}">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -262,6 +320,21 @@
     </div>
   </nav>
 
+  <aside class="admin-sidebar" id="admin-sidebar" aria-label="Admin dashboard navigation">
+    <div class="sidebar-label">Workspace</div>
+    <a class="sidebar-link active" href="{% url 'admin_dashboard' %}"><span class="sidebar-icon">⌂</span>Overview</a>
+    <a class="sidebar-link" href="{% url 'admin_create_post' %}"><span class="sidebar-icon">✎</span>Create post</a>
+    <a class="sidebar-link" href="{% url 'admin_withdrawals' %}"><span class="sidebar-icon">₦</span>Withdrawals</a>
+    <a class="sidebar-link" href="{% url 'admin_withdrawals' %}#blog-approvals"><span class="sidebar-icon">✓</span>Blog approvals</a>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-label">Quick links</div>
+    <a class="sidebar-link" href="{% url 'welcome' %}"><span class="sidebar-icon">↗</span>View website</a>
+    <a class="sidebar-link" href="{% url 'blog_list' %}"><span class="sidebar-icon">▤</span>Journal</a>
+    <a class="sidebar-link" href="/admin/"><span class="sidebar-icon">⚙</span>Django admin</a>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <main class="admin-main">
   <div class="page">
 
     <!-- PAGE HEADER -->
@@ -293,11 +366,47 @@
       </div>
       <div class="stat-card">
         <div class="stat-icon">👁</div>
-        <div class="stat-label">Total Views</div>
+        <div class="stat-label">Article Views</div>
         <div class="stat-value">{{ total_views|default:"0" }}</div>
-        <div class="stat-sub">Across all blog posts</div>
+        <div class="stat-sub">Across journal posts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div class="stat-label">Site Impressions</div>
+        <div class="stat-value">{{ total_site_views }}</div>
+        <div class="stat-sub">Successful public page views</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💬</div>
+        <div class="stat-label">Therapy Chat Impressions</div>
+        <div class="stat-value">{{ total_chat_impressions }}</div>
+        <div class="stat-sub">Visitor messages across therapy chats</div>
       </div>
     </div>
+
+    <section class="impressions-panel" aria-labelledby="impressions-title">
+      <div class="impressions-head">
+        <div>
+          <h2 id="impressions-title">Site views &amp; therapy chat impressions</h2>
+          <p>Daily activity over the last 14 days. A view is a successful public HTML page load.</p>
+        </div>
+        <div class="chart-legend" aria-label="Chart legend">
+          <span><i class="legend-dot"></i>Site views</span>
+          <span><i class="legend-dot chat"></i>Chat messages</span>
+        </div>
+      </div>
+      <div class="impressions-chart" role="img" aria-label="Daily site views and therapy chat messages for the last 14 days">
+        {% for point in impressions_chart %}
+          <div class="chart-day" title="{{ point.date|date:'F j' }}: {{ point.site_views }} site views, {{ point.chat_impressions }} chat messages">
+            <div class="chart-bars">
+              <span class="chart-bar site" style="height:{{ point.site_height }}%"></span>
+              <span class="chart-bar chat" style="height:{{ point.chat_height }}%"></span>
+            </div>
+            <span class="chart-day-label">{{ point.label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
 
     <!-- QUICK ACTIONS -->
     <div class="section-title">Quick Actions</div>
@@ -378,6 +487,7 @@
     </div>
 
   </div>
+  </main>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -386,6 +496,22 @@
     window.addEventListener('pageshow', () => {
       document.body.classList.remove('page-exit');
       document.body.classList.add('page-loaded');
+    });
+    const menuToggle = document.getElementById('admin-menu-toggle');
+    const sidebar = document.getElementById('admin-sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    function setAdminMenuOpen(open) {
+      sidebar.classList.toggle('open', open);
+      sidebarOverlay.classList.toggle('open', open);
+      menuToggle.setAttribute('aria-expanded', String(open));
+      menuToggle.setAttribute('aria-label', open ? 'Close dashboard menu' : 'Open dashboard menu');
+    }
+    menuToggle.addEventListener('click', () => {
+      setAdminMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true');
+    });
+    sidebarOverlay.addEventListener('click', () => setAdminMenuOpen(false));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') setAdminMenuOpen(false);
     });
   </script>
 

@@ -136,6 +136,45 @@
     .form-control::placeholder { color: rgba(240,244,243,.25); }
     textarea.form-control { resize: vertical; }
     select.form-control option { background: #0e1121; color: var(--text); }
+    .editor-shell { overflow: hidden; border: 1px solid rgba(255,255,255,.16); border-radius: 14px; background: rgba(3,10,8,.56); }
+    .editor-toolbar { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.035); }
+    .editor-tool {
+      display: grid; min-width: 36px; height: 34px; padding: 0 9px; place-items: center;
+      border: 1px solid rgba(255,255,255,.1); border-radius: 9px; color: rgba(240,244,243,.78);
+      background: rgba(255,255,255,.045); font: 600 13px 'Inter',sans-serif; cursor: pointer;
+      transition: background .18s ease, border-color .18s ease, color .18s ease;
+    }
+    .editor-tool:hover, .editor-tool:focus-visible { color: #d7ffe9; border-color: rgba(111,217,174,.38); background: rgba(46,125,110,.2); outline: none; }
+    .editor-divider { align-self: center; width: 1px; height: 22px; margin: 0 3px; background: rgba(255,255,255,.12); }
+    .editor-surface {
+      min-height: 360px; max-height: 700px; overflow-y: auto; padding: 18px 20px;
+      color: var(--text); font: 15px/1.75 'Inter',sans-serif; outline: none;
+    }
+    .editor-surface:focus { box-shadow: inset 0 0 0 1px rgba(111,217,174,.35); }
+    .editor-surface:empty::before { content: attr(data-placeholder); color: rgba(240,244,243,.3); pointer-events: none; }
+    .editor-surface h2, .editor-surface h3, .editor-surface h4 { margin: 1em 0 .45em; line-height: 1.3; }
+    .editor-surface blockquote { margin: 1em 0; padding-left: 14px; border-left: 3px solid #3d9e8c; color: rgba(240,244,243,.72); }
+    .editor-surface ul, .editor-surface ol { padding-left: 1.5em; }
+    .editor-help { display: flex; justify-content: space-between; gap: 12px; margin-top: 7px; color: var(--muted); font-size: 11.5px; }
+    .content-source { display: none; }
+    .image-picker { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(180px,.9fr); gap: 14px; }
+    .image-dropzone {
+      position: relative; display: flex; min-height: 175px; flex-direction: column; align-items: center; justify-content: center;
+      gap: 9px; padding: 22px; border: 1px dashed rgba(154,244,209,.38); border-radius: 16px;
+      color: rgba(240,244,243,.74); background: linear-gradient(145deg,rgba(46,125,110,.11),rgba(255,255,255,.025));
+      text-align: center; cursor: pointer; transition: background .2s ease,border-color .2s ease,transform .2s ease;
+    }
+    .image-dropzone:hover, .image-dropzone.is-dragging { border-color: #9af4d1; background: rgba(46,125,110,.19); transform: translateY(-1px); }
+    .image-dropzone svg { color: #9af4d1; }
+    .image-drop-title { color: var(--text); font-size: 13px; font-weight: 700; }
+    .image-drop-help { color: var(--muted); font-size: 11px; }
+    .image-dropzone input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .image-preview {
+      display: grid; min-height: 175px; place-items: center; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1); border-radius: 16px;
+      color: rgba(240,244,243,.4); background: rgba(0,0,0,.2); font-size: 11px;
+    }
+    .image-preview img { width: 100%; height: 100%; min-height: 175px; max-height: 220px; object-fit: cover; }
 
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
@@ -205,6 +244,8 @@
       body { padding: 84px 16px 50px; }
       .form-card { padding: 28px 22px 26px; }
       .row-2 { grid-template-columns: 1fr; }
+      .image-picker { grid-template-columns: 1fr; }
+      .editor-surface { min-height: 280px; padding: 14px; }
       .form-actions { flex-direction: column-reverse; align-items: stretch; text-align: center; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -290,10 +331,27 @@
 
         <div class="form-group">
           <label for="id_content">Full Article <span class="req">*</span></label>
-          <textarea class="form-control" id="id_content" name="content"
-                    rows="22" placeholder="Write the full article here…"
-                    required>{{ form.content.value|default:'' }}</textarea>
-          <p class="hint">Plain text or basic HTML. Minimum 50 characters.</p>
+          <div class="editor-shell">
+            <div class="editor-toolbar" role="toolbar" aria-label="Article formatting">
+              <button class="editor-tool" type="button" data-command="bold" aria-label="Bold" title="Bold"><strong>B</strong></button>
+              <button class="editor-tool" type="button" data-command="italic" aria-label="Italic" title="Italic"><em>I</em></button>
+              <button class="editor-tool" type="button" data-command="underline" aria-label="Underline" title="Underline"><u>U</u></button>
+              <span class="editor-divider" aria-hidden="true"></span>
+              <button class="editor-tool" type="button" data-command="formatBlock" data-value="h2" aria-label="Heading" title="Heading">H2</button>
+              <button class="editor-tool" type="button" data-command="formatBlock" data-value="h3" aria-label="Subheading" title="Subheading">H3</button>
+              <button class="editor-tool" type="button" data-command="formatBlock" data-value="blockquote" aria-label="Quote" title="Quote">❝</button>
+              <span class="editor-divider" aria-hidden="true"></span>
+              <button class="editor-tool" type="button" data-command="insertUnorderedList" aria-label="Bulleted list" title="Bulleted list">• List</button>
+              <button class="editor-tool" type="button" data-command="insertOrderedList" aria-label="Numbered list" title="Numbered list">1. List</button>
+              <button class="editor-tool" type="button" data-command="createLink" aria-label="Add link" title="Add link">↗ Link</button>
+              <button class="editor-tool" type="button" data-command="removeFormat" aria-label="Clear formatting" title="Clear formatting">Tx</button>
+            </div>
+            <div class="editor-surface" id="content-editor" contenteditable="true" role="textbox"
+                 aria-multiline="true" aria-labelledby="id_content"
+                 data-placeholder="Write your article here. Use the toolbar to format headings, lists, and quotes."></div>
+            <textarea class="content-source" id="id_content" name="content" tabindex="-1" aria-hidden="true">{{ form.content.value|default:'' }}</textarea>
+          </div>
+          <div class="editor-help"><span>Use the toolbar to format your article.</span><span>Minimum 50 characters.</span></div>
           {% if form.content.errors %}<ul class="error-list">{% for e in form.content.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
         </div>
 
@@ -307,10 +365,15 @@
             {% if form.cover_image_url.errors %}<ul class="error-list">{% for e in form.cover_image_url.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
           </div>
           <div class="form-group">
-            <label for="id_featured_image">Or Upload Image</label>
-            <input class="form-control" type="file" id="id_featured_image"
-                   name="featured_image" accept="image/*">
-            <p class="hint">JPG, PNG, WEBP — max 5 MB</p>
+            <div class="image-picker">
+              <label class="image-dropzone" id="image-dropzone" for="id_featured_image">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                <span class="image-drop-title">Add a cover image</span>
+                <span class="image-drop-help">Choose a file or drag it here · JPG, PNG, WEBP</span>
+                <input type="file" id="id_featured_image" name="featured_image" accept="image/*">
+              </label>
+              <div class="image-preview" id="image-preview" aria-live="polite">Image preview</div>
+            </div>
             {% if form.featured_image.errors %}<ul class="error-list">{% for e in form.featured_image.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
           </div>
         </div>
@@ -342,10 +405,60 @@
       // Update button text based on publish toggle
       const toggle = document.getElementById('publish_now');
       const btn = document.querySelector('.btn-submit');
+      const editor = document.getElementById('content-editor');
+      const contentSource = document.getElementById('id_content');
+      const form = editor.closest('form');
+      editor.textContent = contentSource.value;
+      document.querySelectorAll('[data-command]').forEach(tool => {
+        tool.addEventListener('mousedown', event => event.preventDefault());
+        tool.addEventListener('click', () => {
+          editor.focus();
+          const command = tool.dataset.command;
+          if (command === 'createLink') {
+            const url = window.prompt('Enter a link URL (https:// or mailto:)');
+            if (url) document.execCommand(command, false, url);
+          } else {
+            document.execCommand(command, false, tool.dataset.value || null);
+          }
+        });
+      });
+      form.addEventListener('submit', () => {
+        contentSource.value = editor.innerHTML;
+      });
       function updateBtn() {
         btn.textContent = toggle.checked ? 'Publish Post →' : 'Save as Draft →';
       }
       toggle.addEventListener('change', updateBtn);
+
+      const imageInput = document.getElementById('id_featured_image');
+      const imagePreview = document.getElementById('image-preview');
+      const dropzone = document.getElementById('image-dropzone');
+      let previewUrl = '';
+      function showImagePreview(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        if (previewUrl) URL.revokeObjectURL(previewUrl);
+        previewUrl = URL.createObjectURL(file);
+        const image = document.createElement('img');
+        image.src = previewUrl;
+        image.alt = 'Selected cover image preview';
+        imagePreview.replaceChildren(image);
+      }
+      imageInput.addEventListener('change', () => showImagePreview(imageInput.files[0]));
+      ['dragenter', 'dragover'].forEach(eventName => dropzone.addEventListener(eventName, event => {
+        event.preventDefault();
+        dropzone.classList.add('is-dragging');
+      }));
+      ['dragleave', 'drop'].forEach(eventName => dropzone.addEventListener(eventName, event => {
+        event.preventDefault();
+        dropzone.classList.remove('is-dragging');
+      }));
+      dropzone.addEventListener('drop', event => {
+        const [file] = event.dataTransfer.files;
+        if (file) {
+          imageInput.files = event.dataTransfer.files;
+          showImagePreview(file);
+        }
+      });
     });
     window.addEventListener('pageshow', () => {
       document.body.classList.add('page-loaded');

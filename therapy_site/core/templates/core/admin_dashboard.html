@@ -118,6 +118,24 @@
     .kicker::before { content: ''; width: 20px; height: 1px; background: #9af4d1; }
     .page-head h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -.04em; line-height: 1.1; }
     .page-head p { margin-top: 10px; color: var(--muted); font-size: 15px; line-height: 1.65; }
+    .dashboard-hero {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: end;
+      margin-bottom: 28px; padding: 30px 32px; overflow: hidden; position: relative;
+      border: 1px solid rgba(131,239,188,.2); border-radius: 24px;
+      background: linear-gradient(120deg, rgba(18,61,50,.9), rgba(8,20,18,.78) 58%, rgba(20,72,67,.68));
+      box-shadow: 0 22px 60px rgba(0,0,0,.2);
+    }
+    .dashboard-hero::after { content:""; position:absolute; width:260px; height:260px; right:-92px; top:-126px; border:1px solid rgba(164,226,196,.22); border-radius:50%; box-shadow:0 0 0 28px rgba(164,226,196,.035),0 0 0 58px rgba(164,226,196,.025); }
+    .dashboard-hero .page-head { margin: 0; position: relative; z-index: 1; }
+    .dashboard-hero .page-head h1 { font-size: clamp(2rem, 4.3vw, 3.35rem); }
+    .dashboard-hero .page-head p { max-width: 620px; }
+    .hero-pulse { position:relative; z-index:1; display:grid; grid-template-columns:repeat(2,minmax(112px,1fr)); gap:10px; min-width:250px; }
+    .hero-pulse-item { padding:13px 14px; border:1px solid rgba(255,255,255,.1); border-radius:14px; background:rgba(3,12,10,.28); }
+    .hero-pulse-item strong { display:block; color:#b9f5d5; font-size:20px; line-height:1.15; }
+    .hero-pulse-item span { display:block; margin-top:4px; color:var(--muted); font-size:10px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; }
+    .dashboard-jump { display:flex; flex-wrap:wrap; gap:9px; margin-bottom:32px; }
+    .dashboard-jump a { display:inline-flex; align-items:center; gap:7px; min-height:38px; padding:0 14px; border:1px solid rgba(255,255,255,.11); border-radius:999px; color:rgba(240,244,243,.76); background:rgba(6,14,12,.55); font-size:12px; font-weight:650; text-decoration:none; transition:.18s ease; }
+    .dashboard-jump a:hover { transform:translateY(-2px); border-color:rgba(154,244,209,.4); color:#d7ffe9; background:rgba(46,125,110,.18); }
 
     /* ── STAT CARDS ── */
     .stats-grid {
@@ -291,6 +309,8 @@
       .impressions-head { flex-direction: column; }
       .impressions-chart { height: 150px; gap: 3px; }
       .chart-day-label { font-size: 9px; }
+      .dashboard-hero { grid-template-columns:1fr; gap:22px; padding:24px 20px; }
+      .hero-pulse { min-width:0; }
     }
     @media (prefers-reduced-motion: reduce) {
       body, body::before, body::after { animation: none; transition: none; }
@@ -306,10 +326,25 @@
   <div class="page">
 
     <!-- PAGE HEADER -->
-    <div class="page-head">
-      <div class="kicker">MyTherapyDoctor</div>
-      <h1>Admin Dashboard</h1>
-      <p>Manage content, withdrawals, and monitor your platform from one place.</p>
+    <section class="dashboard-hero" aria-labelledby="admin-dashboard-title">
+      <div class="page-head">
+        <div class="kicker">Command center</div>
+        <h1 id="admin-dashboard-title">Admin Dashboard</h1>
+        <p>A clear view of your platform, with the next important actions always within reach.</p>
+      </div>
+      <div class="hero-pulse" aria-label="Priority summary">
+        <div class="hero-pulse-item"><strong>{{ pending_posts }}</strong><span>Posts to review</span></div>
+        <div class="hero-pulse-item"><strong>{{ pending_withdrawals }}</strong><span>Payouts pending</span></div>
+      </div>
+    </section>
+    <nav class="dashboard-jump" aria-label="Dashboard sections">
+      <a href="#overview">◌ Platform overview</a>
+      <a href="#activity">⌁ Activity</a>
+      <a href="#actions">✦ Quick actions</a>
+      <a href="#recent-posts">▤ Recent posts</a>
+    </nav>
+
+    <div id="overview" class="section-title">Platform Overview</div>
     </div>
 
     <!-- STAT CARDS -->
@@ -352,7 +387,7 @@
       </div>
     </div>
 
-    <section class="impressions-panel" aria-labelledby="impressions-title">
+    <section id="activity" class="impressions-panel" aria-labelledby="impressions-title">
       <div class="impressions-head">
         <div>
           <h2 id="impressions-title">Site views &amp; therapy chat impressions</h2>
@@ -377,7 +412,7 @@
     </section>
 
     <!-- QUICK ACTIONS -->
-    <div class="section-title">Quick Actions</div>
+    <div id="actions" class="section-title">Quick Actions</div>
     <div class="actions-grid">
 
       <a class="action-card" href="{% url 'admin_create_post' %}" data-badge="✍">
@@ -425,7 +460,7 @@
     </div>
 
     <!-- RECENT BLOG POSTS -->
-    <div class="section-title">Recent Blog Posts</div>
+    <div id="recent-posts" class="section-title">Recent Blog Posts</div>
     <div class="recent-box">
       <div class="rb-head">
         <h3>Latest Posts</h3>

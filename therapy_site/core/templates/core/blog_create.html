@@ -200,11 +200,14 @@
           </div>
           <div class="form-group">
             <label for="id_category">Category <span class="req">*</span></label>
-            <select class="form-control" id="id_category" name="category">
+            <select class="form-control" id="id_category" name="category" required>
               {% for val, label in form.fields.category.choices %}
                 <option value="{{ val }}" {% if form.category.value == val %}selected{% endif %}>{{ label }}</option>
               {% endfor %}
             </select>
+            {% if form.category.errors %}
+              <ul class="error-list">{% for e in form.category.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            {% endif %}
           </div>
         </div>
 
@@ -236,12 +239,18 @@
                    value="{{ form.cover_image_url.value|default:'' }}"
                    placeholder="https://example.com/image.jpg">
             <p class="hint">Optional external image link for the cover photo.</p>
+            {% if form.cover_image_url.errors %}
+              <ul class="error-list">{% for e in form.cover_image_url.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            {% endif %}
           </div>
           <div class="form-group">
             <label for="id_featured_image">Or upload an image</label>
             <input class="form-control" type="file" id="id_featured_image"
                    name="featured_image" accept="image/*">
             <p class="file-hint">JPG, PNG, WEBP — max 5 MB</p>
+            {% if form.featured_image.errors %}
+              <ul class="error-list">{% for e in form.featured_image.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+            {% endif %}
           </div>
         </div>
 

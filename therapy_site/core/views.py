@@ -5,7 +5,11 @@ import re
 
 from decimal import Decimal
 
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
+from django.contrib.auth import (
+    authenticate,
+    login as auth_login,
+    logout as auth_logout,
+)
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.paginator import Paginator
 from django.db import IntegrityError
@@ -326,26 +330,6 @@ def login_view(request):
         if form.is_valid():
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
-            auth_user = authenticate(
-                request,
-                username=username,
-                password=password,
-            )
-            if (
-                auth_user
-                and auth_user.is_active
-                and auth_user.is_superuser
-            ):
-                request.session.pop("user_id", None)
-                auth_login(request, auth_user)
-                if next_url and url_has_allowed_host_and_scheme(
-                    next_url,
-                    allowed_hosts={request.get_host()},
-                    require_https=request.is_secure(),
-                ):
-                    return redirect(next_url)
-                return redirect("admin_dashboard")
-
             try:
                 user = User.objects.get(username=username)
                 if not user.is_active:
@@ -393,6 +377,25 @@ def login_view(request):
                     "next": next_url,
                 })
             except User.DoesNotExist:
+                auth_user = authenticate(
+                    request,
+                    username=username,
+                    password=password,
+                )
+                if (
+                    auth_user
+                    and auth_user.is_active
+                    and auth_user.is_superuser
+                ):
+                    request.session.pop("user_id", None)
+                    auth_login(request, auth_user)
+                    if next_url and url_has_allowed_host_and_scheme(
+                        next_url,
+                        allowed_hosts={request.get_host()},
+                        require_https=request.is_secure(),
+                    ):
+                        return redirect(next_url)
+                    return redirect("admin_dashboard")
                 return render(request, "core/login.html", {
                     "form": form,
                     "error": "Invalid credentials. Kindly register an account.",

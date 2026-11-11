@@ -6,9 +6,9 @@
   <title>Creator Dashboard — MyTherapyDoctor</title>
   {% load static %}
   <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--teal:#2e7d6e;--teal-mid:#3d9e8c;--teal-glow:rgba(46,125,110,0.4);--gb:rgba(6,14,12,0.65);--brd:rgba(255,255,255,0.09);--text:#f0f4f3;--muted:rgba(240,244,243,0.55);--bg:#0a0f0d;--serif:'DM Serif Display',Georgia,serif}
+    :root{--teal:#2e7d6e;--teal-mid:#3d9e8c;--teal-glow:rgba(46,125,110,0.4);--gb:rgba(6,14,12,0.65);--brd:rgba(255,255,255,0.09);--text:#f0f4f3;--muted:rgba(240,244,243,0.55);--bg:#0a0f0d;--heading:'Inter',system-ui,sans-serif}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Inter',sans-serif;min-height:100vh;background:linear-gradient(160deg,rgba(0,0,0,.78) 0%,rgba(0,18,14,.62) 100%),url("{% static 'core/section.jpg.jpeg' %}") center/cover fixed;color:var(--text)}
     a{color:inherit;text-decoration:none}
@@ -68,8 +68,8 @@
     .ph{margin-bottom:32px}
     .kicker{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal-mid);margin-bottom:8px;display:flex;align-items:center;gap:10px}
     .kicker::before{content:'';width:24px;height:1px;background:var(--teal-mid)}
-    .ph h1{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;line-height:1.1}
-    .ph h1 em{font-style:italic;color:var(--teal-mid)}
+    .ph h1{font-family:var(--heading);font-size:clamp(1.7rem,3vw,2.55rem);font-weight:800;letter-spacing:-.045em;line-height:1.08}
+    .ph h1 em{font-style:normal;color:#9ad5b6}
     .ph p{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.65}
     .studio-rail{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;align-items:center;margin-bottom:26px;padding:18px 20px;border:1px solid rgba(126,221,178,.24);border-radius:16px;background:linear-gradient(105deg,rgba(46,125,110,.19),rgba(5,17,13,.68));box-shadow:0 16px 38px rgba(0,0,0,.16)}
     .studio-rail-copy{display:flex;align-items:center;gap:12px;color:rgba(240,244,243,.77);font-size:13px;line-height:1.45}
@@ -84,7 +84,7 @@
     .sc:hover{border-color:rgba(255,255,255,.18)}
     .sc.hi{border-color:rgba(46,125,110,.5);background:rgba(46,125,110,.12)}
     .sl{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-    .sv{font-family:var(--serif);font-size:1.8rem;font-weight:400;color:var(--text);line-height:1}
+    .sv{font-family:var(--heading);font-size:1.8rem;font-weight:800;letter-spacing:-.04em;color:var(--text);line-height:1}
     .sv.g{color:#9ad5b6}.sv.o{color:#e8b87d}
     .ss{font-size:11.5px;color:var(--muted);margin-top:5px}
 

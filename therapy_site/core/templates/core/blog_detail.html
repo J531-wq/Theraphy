@@ -56,11 +56,6 @@
   </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    @font-face {
-      font-family: 'Playfair Display';
-      src: url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype');
-      font-weight: 600; font-style: italic; font-display: swap;
-    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -278,7 +273,7 @@
     .related .blog-card:hover { border-color: var(--teal-light); box-shadow: 0 14px 28px rgba(0,0,0,.3); }
     .related .blog-image, .related .blog-image-placeholder { height: 145px; background: #071b16; }
     .related .blog-body { padding: 17px; }
-    .related .blog-body h3 { color: #f0f4f3; font: 600 1.18rem/1.2 'Playfair Display', Georgia, serif; }
+    .related .blog-body h3 { color: #f0f4f3; font: 800 1.18rem/1.2 'Inter', system-ui, sans-serif; letter-spacing:-.02em; }
     .related .blog-excerpt { color: rgba(240,244,243,.62); }
     .related .read-more { color: #9ad5b6; }
 

@@ -103,7 +103,10 @@ class AdminDashboardTests(TestCase):
         response = self.client.get(reverse("admin_dashboard"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Admin Dashboard")
-        self.assertEqual(self.client.get(reverse("admin_create_post")).status_code, 200)
+        create_response = self.client.get(reverse("admin_create_post"))
+        self.assertEqual(create_response.status_code, 200)
+        self.assertContains(create_response, 'contenteditable="true"')
+        self.assertContains(create_response, 'id="image-dropzone"')
 
     def test_django_superuser_can_login_to_custom_dashboard(self):
         get_user_model().objects.create_superuser(
@@ -158,7 +161,11 @@ class AdminDashboardTests(TestCase):
             "category": "wellness",
             "author": "Site Admin",
             "excerpt": "A useful summary for this article.",
-            "content": "This article contains enough text to pass the minimum content length requirement.",
+            "content": (
+                "<h2>Editor-formatted post</h2>"
+                "<p>This article contains enough text to pass the minimum "
+                "content length requirement.</p>"
+            ),
             "publish_now": "on",
         }
         response = self.client.post(reverse("admin_create_post"), post_data)
@@ -167,6 +174,7 @@ class AdminDashboardTests(TestCase):
         post = Blog.objects.get(title="Admin-created wellness post")
         self.assertTrue(post.is_published)
         self.assertEqual(post.author_user, self.admin)
+        self.assertIn("<h2>", post.content)
 
         post_data.pop("publish_now")
         self.client.post(reverse("admin_create_post"), post_data)
@@ -259,6 +267,7 @@ class TherapyThemeTests(TestCase):
            "family",
            "relationship",
            "stress",
+           "general",
        )
        for section in sections:
            with self.subTest(section=section):

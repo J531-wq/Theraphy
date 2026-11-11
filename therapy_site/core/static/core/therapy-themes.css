@@ -1,0 +1,122 @@
+body[data-therapy-section] {
+  --accent: #70c8aa;
+  --accent-dark: #287b63;
+  --accent-glow: rgba(112, 200, 170, .27);
+  --user-color: #83d9b8;
+  --ai-color: #9de5cb;
+  --therapy-wash: rgba(55, 142, 113, .09);
+}
+
+body[data-therapy-section="child"] {
+  --accent: #f0bf68;
+  --accent-dark: #a96a2e;
+  --accent-glow: rgba(240, 191, 104, .28);
+  --user-color: #f3cb83;
+  --ai-color: #f5dca9;
+  --therapy-wash: rgba(207, 142, 55, .1);
+}
+
+body[data-therapy-section="teen"] {
+  --accent: #ad9aff;
+  --accent-dark: #6651bf;
+  --accent-glow: rgba(173, 154, 255, .28);
+  --user-color: #b6a8ff;
+  --ai-color: #d0c8ff;
+  --therapy-wash: rgba(113, 90, 201, .11);
+}
+
+body[data-therapy-section="trauma"] {
+  --accent: #82bde8;
+  --accent-dark: #397fae;
+  --accent-glow: rgba(130, 189, 232, .27);
+  --user-color: #8bc7ef;
+  --ai-color: #b5dcf5;
+  --therapy-wash: rgba(59, 129, 184, .11);
+}
+
+body[data-therapy-section="addiction"] {
+  --accent: #85d2a3;
+  --accent-dark: #3d895e;
+  --accent-glow: rgba(133, 210, 163, .27);
+  --user-color: #96dfb1;
+  --ai-color: #c0ebce;
+  --therapy-wash: rgba(61, 143, 88, .11);
+}
+
+body[data-therapy-section="family"] {
+  --accent: #f0a879;
+  --accent-dark: #ac5e43;
+  --accent-glow: rgba(240, 168, 121, .27);
+  --user-color: #f2b58b;
+  --ai-color: #f7d1b4;
+  --therapy-wash: rgba(194, 103, 70, .1);
+}
+
+body[data-therapy-section="relationship"] {
+  --accent: #e695bd;
+  --accent-dark: #a44f7e;
+  --accent-glow: rgba(230, 149, 189, .27);
+  --user-color: #efa8cc;
+  --ai-color: #f4c8dd;
+  --therapy-wash: rgba(176, 77, 132, .1);
+}
+
+body[data-therapy-section="stress"],
+body[data-therapy-section="general"] {
+  --accent: #78c5d6;
+  --accent-dark: #357f95;
+  --accent-glow: rgba(120, 197, 214, .27);
+  --user-color: #87d3e2;
+  --ai-color: #b4e8ef;
+  --therapy-wash: rgba(52, 141, 164, .11);
+}
+
+body[data-therapy-section] .sidebar {
+  background-color: color-mix(in srgb, var(--accent-dark) 11%, rgba(0, 0, 0, .5));
+  border-right-color: color-mix(in srgb, var(--accent) 20%, var(--border));
+}
+
+body[data-therapy-section] .main {
+  background: linear-gradient(145deg, var(--therapy-wash), transparent 58%);
+}
+
+body[data-therapy-section] .topbar {
+  border-bottom-color: color-mix(in srgb, var(--accent) 24%, var(--border));
+}
+
+body[data-therapy-section] .session-item.active {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+body[data-therapy-section] .msg.user .bubble {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 25%, transparent),
+    color-mix(in srgb, var(--accent-dark) 17%, transparent)
+  );
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+body[data-therapy-section] .msg.ai .bubble {
+  border-color: color-mix(in srgb, var(--accent) 20%, var(--border));
+}
+
+body[data-therapy-section] .input-bar textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+body[data-therapy-section] .mic-btn.listening {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-therapy-section] *,
+  body[data-therapy-section] *::before,
+  body[data-therapy-section] *::after {
+    transition-duration: .01ms !important;
+  }
+}

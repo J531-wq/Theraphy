@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from unittest.mock import patch
 
-from .models import Blog, User
+from .models import Blog, ChatMessage, PageView, User
 
 
 class BlogCreateTests(TestCase):
@@ -59,6 +59,27 @@ class BlogCreateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="site-chrome-header"', count=1)
         self.assertContains(response, 'class="site-chrome-footer"', count=1)
+
+    def test_blog_detail_renders_safe_rich_content(self):
+        blog = Blog.objects.create(
+            title="Formatted Article",
+            slug="formatted-article",
+            author="Blog Writer",
+            category="wellness",
+            excerpt="A short summary for this formatted article.",
+            content=(
+                "<p>A <strong>formatted</strong> paragraph.</p>"
+                "<script>alert('unsafe')</script>"
+                "<img src=x onerror=alert(1)>"
+            ),
+            is_published=True,
+        )
+
+        response = self.client.get(reverse("blog_detail", args=[blog.slug]))
+
+        self.assertContains(response, "<strong>formatted</strong>")
+        self.assertNotContains(response, "<script>")
+        self.assertNotContains(response, "onerror=")
 
 
 class AdminDashboardTests(TestCase):
@@ -155,6 +176,31 @@ class AdminDashboardTests(TestCase):
         self.assertEqual(duplicate_title_posts.count(), 2)
         self.assertTrue(duplicate_title_posts.filter(slug__endswith="-1").exists())
 
+    def test_dashboard_chart_shows_daily_site_and_chat_impressions(self):
+        ChatMessage.objects.create(
+            user=self.admin,
+            section="stress",
+            role="user",
+            content="I have been feeling stressed lately.",
+        )
+        PageView.objects.create()
+        self.client.post(reverse("login"), {
+            "username": "siteadmin",
+            "password": "admin-password",
+        })
+
+        response = self.client.get(reverse("admin_dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["total_site_views"], 1)
+        self.assertEqual(response.context["total_chat_impressions"], 1)
+        today = response.context["impressions_chart"][-1]
+        self.assertEqual(today["site_views"], 1)
+        self.assertEqual(today["chat_impressions"], 1)
+        self.assertContains(response, "Site views &amp; therapy chat impressions")
+        self.assertContains(response, 'id="admin-sidebar"')
+        self.assertContains(response, 'id="admin-menu-toggle"')
+
     def test_non_admin_login_keeps_regular_destination(self):
         User.objects.create(
             username="member",
@@ -185,6 +231,47 @@ class AdminDashboardTests(TestCase):
         response = self.client.get(reverse("admin_dashboard"))
 
         self.assertRedirects(response, reverse("sections"))
+
+
+@override_settings(STORAGES={
+   **settings.STORAGES,
+   "staticfiles": {
+       "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+   },
+})
+class TherapyThemeTests(TestCase):
+   def setUp(self):
+       user = User.objects.create(
+           username="therapyuser",
+           full_name="Therapy User",
+           is_active=True,
+       )
+       session = self.client.session
+       session["user_id"] = user.id
+       session.save()
+
+   def test_each_therapy_page_receives_its_own_section_theme(self):
+       sections = (
+           "child",
+           "teen",
+           "trauma",
+           "addiction",
+           "family",
+           "relationship",
+           "stress",
+       )
+       for section in sections:
+           with self.subTest(section=section):
+               response = self.client.get(
+                   reverse("therapy_section", args=[section])
+               )
+
+               self.assertEqual(response.status_code, 200)
+               self.assertContains(
+                   response,
+                   f'data-therapy-section="{section}"',
+               )
+               self.assertContains(response, "core/therapy-themes.css")
 
 
 @override_settings(STORAGES={
@@ -230,3 +317,14 @@ class AccountRecoveryTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "could not find an account")
         send_email.assert_not_called()
+
+
+class PageViewMiddlewareTests(TestCase):
+    def test_public_html_is_counted_but_admin_and_static_pages_are_not(self):
+        response = self.client.get(reverse("welcome"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PageView.objects.count(), 1)
+
+        self.client.get("/admin-panel/")
+        self.client.get("/static/core/logo.png")
+        self.assertEqual(PageView.objects.count(), 1)

@@ -85,8 +85,9 @@
     @keyframes micPulse{0%,100%{box-shadow:0 0 0 3px var(--accent-glow)}50%{box-shadow:0 0 0 7px rgba(46,125,110,0.08)}}
     @media(max-width:700px){.sidebar{position:fixed;top:0;left:0;height:100%;z-index:200;transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.menu-btn{display:flex}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199}.sidebar-overlay.open{display:block}.chat-wrap{padding:12px 12px 0}.input-bar{padding-bottom:calc(12px + env(safe-area-inset-bottom))}.topbar{padding:12px 14px}.bubble{font-size:13px}.msg{max-width:90%}}
   </style>
+  <link rel="stylesheet" href="{% static 'core/therapy-themes.css' %}">
 </head>
-<body>
+<body data-therapy-section="{{ section }}">
   <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">

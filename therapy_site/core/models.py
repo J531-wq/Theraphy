@@ -81,6 +81,14 @@ class ChatMessage(models.Model):
         return f"{self.user.username} - {self.section} - {self.role}"
 
 
+class PageView(models.Model):
+    """Privacy-light count of successful public HTML page impressions."""
+    viewed_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-viewed_at"]
+
+
 class Blog(models.Model):
     """
     Blog post model with rich content and metadata.

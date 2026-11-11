@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ blog.title }} — MyTherapyDoctor Blog</title>
-  {% load static %}
+  {% load static blog_content %}
   <meta name="description" content="{{ blog.excerpt|truncatechars:160 }}">
   <meta name="keywords" content="{{ blog.get_category_display }}, mental health, therapy, wellness, MyTherapyDoctor">
   <meta name="robots" content="index, follow">
@@ -535,7 +535,7 @@
       {% endif %}
 
       <div class="post-body">
-        {{ blog.content|linebreaks }}
+        {{ blog.content|safe_blog_content }}
       </div>
 
       <footer class="post-footer">

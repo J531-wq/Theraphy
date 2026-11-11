@@ -2,6 +2,7 @@ import hashlib
 import logging
 import random
 import re
+from datetime import timedelta
 
 from decimal import Decimal
 
@@ -13,7 +14,8 @@ from django.contrib.auth import (
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.db.models import F, Sum
+from django.db.models import Count, F, Sum
+from django.db.models.functions import TruncDate
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -40,6 +42,7 @@ from .models import (
     ChatMessage,
     ChatSession,
     NAIRA_PER_100_VIEWS,
+    PageView,
     User,
     WithdrawalRequest,
 )
@@ -1224,6 +1227,56 @@ def admin_dashboard(request):
         return redirect("sections")
 
     posts = Blog.objects.all()
+    today = timezone.localdate()
+    first_day = today - timedelta(days=13)
+    site_views_by_day = dict(
+        PageView.objects.filter(
+            viewed_at__date__gte=first_day,
+            viewed_at__date__lte=today,
+        )
+        .annotate(day=TruncDate("viewed_at"))
+        .values("day")
+        .annotate(total=Count("id"))
+        .values_list("day", "total")
+    )
+    chat_impressions_by_day = dict(
+        ChatMessage.objects.filter(
+            role="user",
+            created_at__date__gte=first_day,
+            created_at__date__lte=today,
+        )
+        .annotate(day=TruncDate("created_at"))
+        .values("day")
+        .annotate(total=Count("id"))
+        .values_list("day", "total")
+    )
+    maximum_daily_impressions = max(
+        [
+            *site_views_by_day.values(),
+            *chat_impressions_by_day.values(),
+        ],
+        default=0,
+    )
+    impressions_chart = []
+    for day_offset in range(14):
+        day = first_day + timedelta(days=day_offset)
+        site_views = site_views_by_day.get(day, 0)
+        chat_impressions = chat_impressions_by_day.get(day, 0)
+        impressions_chart.append({
+            "date": day,
+            "label": day.strftime("%a"),
+            "site_views": site_views,
+            "chat_impressions": chat_impressions,
+            "site_height": (
+                max(4, round(site_views / maximum_daily_impressions * 100))
+                if site_views else 0
+            ),
+            "chat_height": (
+                max(4, round(chat_impressions / maximum_daily_impressions * 100))
+                if chat_impressions else 0
+            ),
+        })
+
     return render(request, "core/admin_dashboard.html", {
         "total_users": User.objects.count(),
         "total_posts": posts.count(),
@@ -1233,6 +1286,9 @@ def admin_dashboard(request):
             status=WithdrawalRequest.STATUS_PENDING
         ).count(),
         "total_views": posts.aggregate(total=Sum("views_count"))["total"] or 0,
+        "total_site_views": PageView.objects.count(),
+        "total_chat_impressions": ChatMessage.objects.filter(role="user").count(),
+        "impressions_chart": impressions_chart,
         "recent_posts": posts.order_by("-created_at")[:8],
     })
 

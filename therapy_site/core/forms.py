@@ -91,10 +91,11 @@ class LoginForm(forms.Form):
 
 
 class ForgotPasswordForm(forms.Form):
-    username = forms.CharField(
-        max_length=50,
+    username_or_email = forms.CharField(
+        max_length=254,
         widget=forms.TextInput(attrs={
-            'placeholder': 'Enter your username'
+            'placeholder': 'Enter your username or email',
+            'autocomplete': 'username',
         })
     )
 

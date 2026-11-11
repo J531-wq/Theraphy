@@ -325,6 +325,29 @@ def login_view(request):
         if form.is_valid():
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
+            from django.contrib.auth import authenticate
+
+            auth_user = authenticate(
+                request,
+                username=username,
+                password=password,
+            )
+            if (
+                auth_user
+                and auth_user.is_active
+                and auth_user.is_superuser
+            ):
+                from django.contrib.auth import login as auth_login
+
+                auth_login(request, auth_user)
+                if next_url and url_has_allowed_host_and_scheme(
+                    next_url,
+                    allowed_hosts={request.get_host()},
+                    require_https=request.is_secure(),
+                ):
+                    return redirect(next_url)
+                return redirect("admin_dashboard")
+
             try:
                 user = User.objects.get(username=username)
                 if not user.is_active:
@@ -387,8 +410,14 @@ def forgot_password(request):
     if request.method == "POST":
         form = ForgotPasswordForm(request.POST)
         if form.is_valid():
-            try:
-                user = User.objects.get(username=form.cleaned_data["username"])
+            identifier = form.cleaned_data["username_or_email"].strip()
+            user_lookup = (
+                {"email__iexact": identifier}
+                if "@" in identifier
+                else {"username": identifier}
+            )
+            user = User.objects.filter(**user_lookup).first()
+            if user:
                 verification_code = str(random.randint(100000, 999999))
                 if not send_reset_email(user, verification_code):
                     return render(request, "core/forgot_password.html", {
@@ -398,10 +427,9 @@ def forgot_password(request):
                 request.session["reset_username"] = user.username
                 request.session["reset_code"] = verification_code
                 return redirect("verify_reset_code")
-            except User.DoesNotExist:
-                return render(request, "core/forgot_password.html", {
-                    "form": form, "error": "User not found.",
-                })
+            return render(request, "core/forgot_password.html", {
+                "form": form, "error": "We could not find an account with that username or email.",
+            })
     else:
         form = ForgotPasswordForm()
     return render(request, "core/forgot_password.html", {"form": form})

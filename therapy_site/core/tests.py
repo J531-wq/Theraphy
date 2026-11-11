@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth import get_user_model
+from unittest.mock import patch
 
 from .models import Blog, User
 
@@ -80,6 +82,24 @@ class AdminDashboardTests(TestCase):
         self.assertContains(response, "Admin Dashboard")
         self.assertEqual(self.client.get(reverse("admin_create_post")).status_code, 200)
 
+    def test_django_superuser_can_login_to_custom_dashboard(self):
+        get_user_model().objects.create_superuser(
+            username="django-admin",
+            email="django-admin@example.com",
+            password="admin-password",
+        )
+
+        response = self.client.post(reverse("login"), {
+            "username": "django-admin",
+            "password": "admin-password",
+        })
+
+        self.assertRedirects(response, reverse("admin_dashboard"))
+        self.assertEqual(
+            self.client.get(reverse("admin_dashboard")).status_code,
+            200,
+        )
+
     def test_admin_can_create_published_post_from_custom_panel(self):
         self.client.post(reverse("login"), {
             "username": "siteadmin",
@@ -139,3 +159,42 @@ class AdminDashboardTests(TestCase):
         response = self.client.get(reverse("admin_dashboard"))
 
         self.assertRedirects(response, reverse("sections"))
+
+
+class AccountRecoveryTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(
+            username="recoverme",
+            full_name="Recovery User",
+            email="recoverme@example.com",
+            password=make_password("old-password"),
+            is_active=True,
+        )
+
+    @patch("core.views.send_reset_email", return_value=True)
+    def test_recovery_accepts_username_or_case_insensitive_email(self, send_email):
+        for identifier in ("recoverme", "RECOVERME@example.com"):
+            with self.subTest(identifier=identifier):
+                response = self.client.post(
+                    reverse("forgot_password"),
+                    {"username_or_email": identifier},
+                )
+
+                self.assertRedirects(response, reverse("verify_reset_code"))
+                self.assertEqual(
+                    self.client.session["reset_username"],
+                    self.user.username,
+                )
+
+        self.assertEqual(send_email.call_count, 2)
+
+    @patch("core.views.send_reset_email", return_value=True)
+    def test_recovery_reports_unknown_username_or_email(self, send_email):
+        response = self.client.post(
+            reverse("forgot_password"),
+            {"username_or_email": "unknown@example.com"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "could not find an account")
+        send_email.assert_not_called()

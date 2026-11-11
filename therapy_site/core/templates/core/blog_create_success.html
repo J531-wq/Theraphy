@@ -38,6 +38,7 @@
   </style>
 </head>
 <body>
+  {% include "core/includes/site_header.html" with active_page="journal" %}
   <div class="card">
     <div class="icon">🎉</div>
     <h1>Post submitted!</h1>
@@ -49,6 +50,7 @@
       <a class="btn btn-ghost" href="{% url 'blog_list' %}">Browse the blog</a>
     </div>
   </div>
+  {% include "core/includes/site_footer.html" %}
 {% include "core/includes/adsterra_banner.html" %}
 </body>
 </html>

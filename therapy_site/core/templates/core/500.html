@@ -177,21 +177,7 @@
 </head>
 
 <body>
-  <nav>
-    <div class="brand-label">
-      <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor Logo">
-      MyTherapyDoctor
-    </div>
-    <div class="error-nav-links" id="error-navigation">
-      <a href="{% url 'welcome' %}">Home</a>
-      <a href="{% url 'blog_list' %}">Journal</a>
-      <a href="{% url 'sections' %}">Therapy</a>
-      <a href="{% url 'login' %}">Sign in</a>
-    </div>
-    <button class="error-menu-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="error-navigation">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
+  {% include "core/includes/site_header.html" %}
 
   <section class="error-section">
     <div class="error-code">500</div>
@@ -205,9 +191,7 @@
     </div>
   </section>
 
-  <footer>
-    &copy; 2025 MyTherapyDoctor &bull; <a href="mailto:info@mytherapydoctor.com" style="color:var(--teal-light);">info@mytherapydoctor.com</a>
-  </footer>
+  {% include "core/includes/site_footer.html" %}
 
   <script>
     window.addEventListener("load", () => document.body.classList.add("page-loaded"));
@@ -227,21 +211,6 @@
       document.body.classList.add("page-exit");
       setTimeout(() => window.location.href = "{% url 'welcome' %}", 450);
     }
-    const errorMenuToggle = document.querySelector(".error-menu-toggle");
-    const errorMenu = document.getElementById("error-navigation");
-    errorMenuToggle.addEventListener("click", () => {
-      const isOpen = errorMenuToggle.getAttribute("aria-expanded") === "true";
-      errorMenuToggle.setAttribute("aria-expanded", String(!isOpen));
-      errorMenuToggle.setAttribute("aria-label", isOpen ? "Open navigation menu" : "Close navigation menu");
-      errorMenu.classList.toggle("open", !isOpen);
-    });
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape") {
-        errorMenuToggle.setAttribute("aria-expanded", "false");
-        errorMenuToggle.setAttribute("aria-label", "Open navigation menu");
-        errorMenu.classList.remove("open");
-      }
-    });
   </script>
 {% include "core/includes/adsterra_banner.html" %}
 </body>

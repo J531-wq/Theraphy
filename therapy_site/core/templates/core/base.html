@@ -347,78 +347,13 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="/" class="logo" onclick="navTo(event, this.href)">
-                <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor">
-                <span class="logo-text">MyTherapyDoctor</span>
-            </a>
-            <ul class="nav-links" id="primary-nav">
-                <li><a href="{% url 'welcome' %}" onclick="navTo(event, this.href)">Home</a></li>
-                <li><a href="{% url 'blog_list' %}" onclick="navTo(event, this.href)">Blog</a></li>
-                <li><a href="{% url 'sections' %}" onclick="navTo(event, this.href)">Therapy</a></li>
-            </ul>
-            <div class="nav-actions">
-                {% if request.session.user_id %}
-                    <a href="{% url 'logout' %}" class="btn-outline" onclick="navTo(event, this.href)">Logout</a>
-                {% else %}
-                    <a href="{% url 'login' %}" class="btn-outline" onclick="navTo(event, this.href)">Sign in</a>
-                    <a href="{% url 'register' %}" class="btn-primary" onclick="navTo(event, this.href)">Get Started</a>
-                {% endif %}
-            </div>
-            <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primary-nav">
-                <span></span><span></span><span></span>
-            </button>
-        </nav>
-    </header>
+    {% include "core/includes/site_header.html" %}
 
     <main>
         {% block content %}{% endblock %}
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-brand">
-                <a href="/" class="footer-logo" onclick="navTo(event, this.href)">
-                    <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor">
-                    <span>MyTherapyDoctor</span>
-                </a>
-                <p class="footer-tagline">AI-powered therapy and mental wellness support, available whenever you need a place to talk.</p>
-            </div>
-            <div class="footer-columns">
-                <div class="footer-col">
-                    <h4>Platform</h4>
-                    <ul>
-                        <li><a href="{% url 'welcome' %}" onclick="navTo(event, this.href)">Home</a></li>
-                        <li><a href="{% url 'blog_list' %}" onclick="navTo(event, this.href)">Blog</a></li>
-                        <li><a href="{% url 'sections' %}" onclick="navTo(event, this.href)">Therapy</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>Account</h4>
-                    <ul>
-                        {% if request.session.user_id %}
-                            <li><a href="{% url 'logout' %}" onclick="navTo(event, this.href)">Logout</a></li>
-                        {% else %}
-                            <li><a href="{% url 'login' %}" onclick="navTo(event, this.href)">Sign in</a></li>
-                            <li><a href="{% url 'register' %}" onclick="navTo(event, this.href)">Create account</a></li>
-                        {% endif %}
-                    </ul>
-                </div>
-                <div class="footer-col">
-                    <h4>More</h4>
-                    <ul>
-                        <li><a href="/admin/" onclick="navTo(event, this.href)">Admin</a></li>
-                        <li><a href="mailto:info@mytherapydoctor.com">Contact</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p class="footer-copy">&copy; 2026 MyTherapyDoctor. All rights reserved.</p>
-            <p class="footer-disclaimer">This platform provides AI-assisted wellness support and is not a substitute for professional medical or psychiatric care.</p>
-        </div>
-    </footer>
+    {% include "core/includes/site_footer.html" %}
 
     {% block extra_js %}{% endblock %}
     {% include "core/includes/adsterra_banner.html" %}

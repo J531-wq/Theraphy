@@ -694,28 +694,7 @@
   <!-- ══════════════════════════════════════
        NAV
   ══════════════════════════════════════ -->
-  <nav class="site-nav" aria-label="Main navigation">
-    <div class="nav-inner">
-      <a class="nav-brand" href="{% url 'welcome' %}" aria-label="MyTherapyDoctor home">
-        <img src="{% static 'core/logo.png' %}" alt="">
-        MyTherapyDoctor
-      </a>
-      <div class="nav-links" id="welcome-navigation">
-        <a class="nav-link" href="{% url 'blog_list' %}">Journal</a>
-        <a class="nav-link" href="{% url 'sections' %}">Therapy</a>
-        {% if request.session.user_id %}
-          <a class="nav-link" href="{% url 'earnings_dashboard' %}">Earnings</a>
-          <a class="nav-cta" href="{% url 'sections' %}">Dashboard</a>
-        {% else %}
-          <a class="nav-link" href="{% url 'login' %}">Sign in</a>
-          <a class="nav-cta" href="{% url 'register' %}">Get started</a>
-        {% endif %}
-      </div>
-      <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="welcome-navigation">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
+  {% include "core/includes/site_header.html" with active_page="home" %}
 
   <main id="main-content">
 
@@ -1006,48 +985,7 @@
        FOOTER
   ══════════════════════════════════════ -->
   {% include "core/includes/monetag_ad.html" %}
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div>
-        <div class="footer-brand-name">
-          <img src="{% static 'core/logo.png' %}" alt="">
-          MyTherapyDoctor
-        </div>
-        <p class="footer-tagline">A private space for conversations<br>that matter — available any time.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Platform</h4>
-        <ul>
-          <li><a href="{% url 'sections' %}">Areas of support</a></li>
-          <li><a href="{% url 'blog_list' %}">Journal</a></li>
-          <li><a href="{% url 'blog_create' %}">Write a post</a></li>
-          <li><a href="{% url 'earnings_dashboard' %}">Creator earnings</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Account</h4>
-        <ul>
-          {% if request.session.user_id %}
-            <li><a href="{% url 'sections' %}">Dashboard</a></li>
-            <li><a href="{% url 'logout' %}">Sign out</a></li>
-          {% else %}
-            <li><a href="{% url 'register' %}">Create account</a></li>
-            <li><a href="{% url 'login' %}">Sign in</a></li>
-          {% endif %}
-          <li><a href="/admin/">Admin</a></li>
-          <li><a href="mailto:info@mytherapydoctor.com">Contact us</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p class="footer-copy">&copy; 2026 MyTherapyDoctor</p>
-      <p class="footer-disclaimer">
-        This platform provides AI-assisted wellness support and is not a substitute
-        for professional medical or psychiatric care. If you are in immediate danger,
-        contact your local emergency services.
-      </p>
-    </div>
-  </footer>
+  {% include "core/includes/site_footer.html" %}
   <style>
     .earn-modal-overlay {
       display: none;
@@ -1181,26 +1119,6 @@
         sessionStorage.setItem('earn_modal_dismissed', '1');
       }
     }
-
-    const navToggle = document.querySelector('.nav-toggle');
-    const navLinks = document.querySelector('.nav-links');
-    const closeNavigation = () => {
-      navToggle.setAttribute('aria-expanded', 'false');
-      navToggle.setAttribute('aria-label', 'Open navigation menu');
-      navLinks.classList.remove('open');
-    };
-    navToggle.addEventListener('click', () => {
-      const isOpen = navToggle.getAttribute('aria-expanded') === 'true';
-      navToggle.setAttribute('aria-expanded', String(!isOpen));
-      navToggle.setAttribute('aria-label', isOpen ? 'Open navigation menu' : 'Close navigation menu');
-      navLinks.classList.toggle('open', !isOpen);
-    });
-    navLinks.addEventListener('click', event => {
-      if (event.target.closest('a')) closeNavigation();
-    });
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') closeNavigation();
-    });
 
     window.addEventListener('load', () => setTimeout(() => document.getElementById('page-loader').classList.add('h'), 900));
     window.addEventListener('pageshow', () => document.getElementById('page-loader').classList.add('h'));

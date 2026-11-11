@@ -162,33 +162,7 @@
     <div class="ld"><span></span><span></span><span></span></div>
   </div>
 
-  <!-- NAV -->
-  <nav aria-label="Main navigation">
-    <div class="nav-inner">
-      <a class="nb" href="{% url 'welcome' %}"><img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor</a>
-      <div class="nr">
-        <a class="np" href="{% url 'sections' %}">Dashboard</a>
-        <a class="np active" href="{% url 'earnings_dashboard' %}">Earnings</a>
-        <a class="np" href="{% url 'blog_list' %}">Journal</a>
-        <a class="np w" href="{% url 'blog_create' %}">✍ Write</a>
-        <form method="post" action="{% url 'logout' %}" style="margin:0">{% csrf_token %}<button class="np" type="submit">Sign out</button></form>
-      </div>
-      <button class="nh" id="ham" onclick="toggleMob()" aria-label="Menu"><span></span><span></span><span></span></button>
-    </div>
-  </nav>
-
-  <!-- MOBILE MENU -->
-  <div class="mm" id="mob">
-    <a class="ml" href="{% url 'sections' %}">⚡ Dashboard</a>
-    <a class="ml active" href="{% url 'earnings_dashboard' %}">💰 Earnings</a>
-    <a class="ml" href="{% url 'blog_list' %}">📖 Journal</a>
-    <div class="ms"></div>
-    <a class="ml w" href="{% url 'blog_create' %}">✍ Write a Post</a>
-    <div class="ms"></div>
-    <form method="post" action="{% url 'logout' %}" style="display:contents">{% csrf_token %}
-      <button class="ml" type="submit" style="color:#f87171">↩ Sign out</button>
-    </form>
-  </div>
+  {% include "core/includes/site_header.html" with active_page="earnings" %}
 
   <div class="wrap">
 
@@ -347,6 +321,8 @@
       </div>
     </div>
   </div>
+
+  {% include "core/includes/site_footer.html" %}
 
   <script>
     window.addEventListener('load', () => {

@@ -111,40 +111,7 @@
     <div class="loader-dots"><span class="loader-dot"></span><span class="loader-dot"></span><span class="loader-dot"></span></div>
   </div>
 
-  <nav class="site-nav" aria-label="Main navigation">
-    <div class="nav-inner">
-      <a class="nav-brand" href="{% url 'welcome' %}"><img src="{% static 'core/logo.png' %}" alt=""> MyTherapyDoctor</a>
-      <div class="nav-center">
-        <a class="nav-link" href="{% url 'welcome' %}">Home</a>
-        <a class="nav-link active" href="{% url 'blog_list' %}">Journal</a>
-        <a class="nav-link" href="{% url 'sections' %}">Therapy</a>
-      </div>
-      <div class="nav-right">
-        {% if request.session.user_id %}
-          <a class="nav-pill" href="{% url 'earnings_dashboard' %}">Earnings</a>
-          <a class="nav-pill write" href="{% url 'blog_create' %}">✍ Write</a>
-        {% else %}
-          <a class="nav-pill" href="{% url 'login' %}">Sign in</a>
-          <a class="nav-pill write" href="{% url 'register' %}">Get started</a>
-        {% endif %}
-      </div>
-      <button class="nav-hamburger" id="ham" onclick="toggleMob()" aria-label="Menu"><span></span><span></span><span></span></button>
-    </div>
-  </nav>
-  <div class="mobile-menu" id="mob">
-    <a class="mm-link" href="{% url 'welcome' %}">🏠 Home</a>
-    <a class="mm-link active" href="{% url 'blog_list' %}">📖 Journal</a>
-    <a class="mm-link" href="{% url 'sections' %}">⚡ Therapy</a>
-    {% if request.session.user_id %}
-      <div class="mm-sep"></div>
-      <a class="mm-link" href="{% url 'earnings_dashboard' %}">💰 Earnings</a>
-      <a class="mm-link write" href="{% url 'blog_create' %}">✍ Write a Post</a>
-    {% else %}
-      <div class="mm-sep"></div>
-      <a class="mm-link" href="{% url 'login' %}">Sign in</a>
-      <a class="mm-link write" href="{% url 'register' %}">Get started free</a>
-    {% endif %}
-  </div>
+  {% include "core/includes/site_header.html" with active_page="journal" %}
   <main class="page-shell">
     <section class="intro"><div><div class="kicker">The MyTherapyDoctor journal</div><h1>Small steps toward a steadier mind.</h1></div><p class="intro-copy">Thoughtful notes on mental health, therapy, and the everyday practices that make support feel more accessible.</p></section>
     <div class="filter-bar"><div class="filter-label">Explore {{ total_blogs }} stories</div><div class="filters"><a class="filter {% if not selected_category %}active{% endif %}" href="{% url 'blog_list' %}">All</a>{% for value, label in categories %}<a class="filter {% if selected_category == value %}active{% endif %}" href="?category={{ value }}">{{ label }}</a>{% endfor %}</div></div>
@@ -170,7 +137,7 @@
     {% if page_obj.has_other_pages %}<nav class="pagination" aria-label="Blog pages">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&larr;</a>{% endif %}{% for number in page_obj.paginator.page_range %}{% if page_obj.number == number %}<span class="selected">{{ number }}</span>{% else %}<a href="?page={{ number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ number }}</a>{% endif %}{% endfor %}{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&rarr;</a>{% endif %}</nav>{% endif %}
   </main>
   {% include "core/includes/monetag_ad.html" %}
-  <footer>MyTherapyDoctor &copy; 2026 &middot; Support between sessions, one story at a time.</footer>
+  {% include "core/includes/site_footer.html" %}
   <script>
     window.addEventListener('load', () => {
       setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 800);

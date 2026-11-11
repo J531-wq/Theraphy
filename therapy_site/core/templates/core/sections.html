@@ -204,57 +204,7 @@
     </div>
   </div>
 
-  <!-- ══ NAV ══ -->
-  <nav class="site-nav" aria-label="Main navigation">
-    <div class="nav-inner">
-      <a class="nav-brand" href="{% url 'welcome' %}" onclick="go(event,this.href)">
-        <img src="{% static 'core/logo.png' %}" alt="">MyTherapyDoctor
-      </a>
-      <div class="nav-center">
-        <a class="nav-link" href="{% url 'welcome' %}" onclick="go(event,this.href)">Home</a>
-        <a class="nav-link active" href="{% url 'sections' %}">Dashboard</a>
-        <a class="nav-link" href="{% url 'blog_list' %}" onclick="go(event,this.href)">Journal</a>
-      </div>
-      <div class="nav-right">
-        {% if current_user %}
-          <a class="nav-pill earn" href="{% url 'earnings_dashboard' %}" onclick="go(event,this.href)">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Earnings
-          </a>
-          <a class="nav-pill write" href="{% url 'blog_create' %}" onclick="go(event,this.href)">✍ Write</a>
-        {% else %}
-          <a class="nav-pill" href="{% url 'login' %}" onclick="go(event,this.href)">Sign in</a>
-          <a class="nav-pill write" href="{% url 'register' %}" onclick="go(event,this.href)">Get started</a>
-        {% endif %}
-      </div>
-      <button class="nav-hamburger" id="ham" aria-label="Toggle menu" onclick="toggleMobile()">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
-
-  <!-- ══ MOBILE MENU ══ -->
-  <div class="mobile-menu" id="mob">
-    <a class="mm-link" href="{% url 'welcome' %}" onclick="go(event,this.href)">🏠 Home</a>
-    <a class="mm-link active" href="{% url 'sections' %}">⚡ Dashboard</a>
-    <a class="mm-link" href="{% url 'blog_list' %}" onclick="go(event,this.href)">📖 Journal</a>
-    {% if current_user %}
-      <div class="mm-sep"></div>
-      <a class="mm-link" href="{% url 'earnings_dashboard' %}" onclick="go(event,this.href)">💰 My Earnings</a>
-      <a class="mm-link" href="{% url 'blog_create' %}" onclick="go(event,this.href)">✍ Write a Post</a>
-      <div class="mm-sep"></div>
-      <form method="post" action="{% url 'logout' %}" id="lf-mob">
-        {% csrf_token %}
-        <button class="mm-link" type="submit" style="width:100%;background:none;border:none;cursor:pointer;font-family:inherit;text-align:left;color:#f87171">
-          ↩ Sign out
-        </button>
-      </form>
-    {% else %}
-      <div class="mm-sep"></div>
-      <a class="mm-link" href="{% url 'login' %}" onclick="go(event,this.href)">Sign in</a>
-      <a class="mm-link write" href="{% url 'register' %}" onclick="go(event,this.href)">Get started free</a>
-    {% endif %}
-  </div>
+  {% include "core/includes/site_header.html" with active_page="therapy" %}
 
   <div class="page">
 
@@ -421,6 +371,8 @@
     {% endif %}
 
   </div>
+
+  {% include "core/includes/site_footer.html" %}
 
   <script>
     // ── Loader ──

@@ -11,6 +11,16 @@ from .models import Blog, ChatMessage, PageView, User
 
 
 class BlogCreateTests(TestCase):
+    def test_contact_and_legal_pages_are_available(self):
+        for name, expected_text in (
+            ("contact", "Contact MyTherapyDoctor"),
+            ("terms", "Terms of use"),
+            ("privacy", "Privacy policy"),
+        ):
+            response = self.client.get(reverse(name), secure=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, expected_text)
+
     def test_article_content_drops_empty_rich_text_spacers(self):
         form = BlogCreateForm({
             "title": "A Helpful Blog Post",

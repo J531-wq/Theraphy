@@ -7,6 +7,7 @@ attaches a plain-text fallback, and calls send_mail / EmailMultiAlternatives.
 """
 
 import logging
+import re
 from smtplib import SMTPException
 
 from django.conf import settings
@@ -17,6 +18,27 @@ from django.utils.html import strip_tags
 logger = logging.getLogger(__name__)
 
 
+def _add_branding(html_body: str) -> str:
+    """Apply a consistent, logo-led shell to every transactional email."""
+    logo_url = f"{settings.SITE_URL}/static/core/logo.png"
+    header = (
+        '<div style="padding:24px 32px 18px;background:#08130f;text-align:center;">'
+        f'<img src="{logo_url}" alt="MyTherapyDoctor" width="38" height="38" '
+        'style="display:inline-block;vertical-align:middle;margin-right:10px;">'
+        '<span style="color:#d9f5e7;font:700 18px Arial,sans-serif;vertical-align:middle;">'
+        'MyTherapyDoctor</span></div>'
+    )
+    footer = (
+        '<div style="padding:18px 32px;background:#08130f;color:#9eb5aa;'
+        'font:12px/1.6 Arial,sans-serif;text-align:center;">'
+        'MyTherapyDoctor · Thoughtful support for your next step</div>'
+    )
+    html_body = re.sub(r"<body([^>]*)>", lambda match: match.group(0) + header,
+                       html_body, count=1, flags=re.IGNORECASE)
+    return re.sub(r"</body>", footer + "</body>", html_body, count=1,
+                  flags=re.IGNORECASE)
+
+
 def _send(subject: str, to_email: str, template: str, context: dict) -> bool:
     """
     Render *template* with *context*, then send a multipart email
@@ -25,7 +47,7 @@ def _send(subject: str, to_email: str, template: str, context: dict) -> bool:
     Returns True on success, False on failure (errors are logged).
     """
     try:
-        html_body = render_to_string(template, context)
+        html_body = _add_branding(render_to_string(template, context))
         text_body = strip_tags(html_body)
 
         msg = EmailMultiAlternatives(
@@ -56,6 +78,16 @@ def _send(subject: str, to_email: str, template: str, context: dict) -> bool:
             subject, to_email, exc, exc_info=True,
         )
         return False
+
+
+def send_contact_message(name: str, email: str, subject: str, message: str) -> bool:
+    """Send a public contact-form message to the site owner through ZeptoMail."""
+    return _send(
+        subject=f"[MyTherapyDoctor contact] {subject}",
+        to_email=settings.CONTACT_RECIPIENT_EMAIL,
+        template="core/emails/contact_message.html",
+        context={"name": name, "email": email, "subject": subject, "message": message},
+    )
 
 
 # ---------------------------------------------------------------------------

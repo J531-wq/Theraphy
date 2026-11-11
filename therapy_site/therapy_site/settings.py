@@ -207,6 +207,8 @@ DEFAULT_FROM_EMAIL = os.getenv(
 )
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'info@mytherapydoctor.com')
+CONTACT_RECIPIENT_EMAIL = os.getenv('CONTACT_RECIPIENT_EMAIL', 'coderjoe16@gmail.com')
+SITE_URL = os.getenv('SITE_URL', 'https://mytherapydoctor.com').rstrip('/')
 EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '30'))
 
 # Fall back to console backend only in DEBUG when no password is set

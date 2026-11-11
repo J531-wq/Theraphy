@@ -25,8 +25,8 @@
   .site-footer-inner {
     display: grid;
     width: min(1200px, 100%);
-    grid-template-columns: 1.35fr 1fr 1fr 1fr;
-    gap: 44px;
+    grid-template-columns: 1.45fr repeat(3, 1fr);
+    gap: 38px;
     margin: 0 auto;
     padding: 54px 32px 42px;
   }
@@ -61,6 +61,7 @@
     text-decoration: none;
   }
   .site-footer-contact:hover { color: #d3f4e2; }
+  .site-footer-note { margin:0; color:rgba(225,237,231,.4); font-size:11px; line-height:1.65; }
   .site-footer-column h2 {
     margin: 4px 0 16px;
     color: rgba(164, 226, 196, 0.7);
@@ -127,6 +128,7 @@
       </a>
       <p class="site-footer-tagline">A private, thoughtful space to find support, share what you've learned, and take your next step.</p>
       <a class="site-footer-contact" href="mailto:info@mytherapydoctor.com">Talk to our team <span aria-hidden="true">↗</span></a>
+      <p class="site-footer-note">For general support, we typically reply by email.</p>
     </div>
     <div class="site-footer-column">
       <h2>Explore</h2>
@@ -151,7 +153,13 @@
       </ul>
     </div>
     <div class="site-footer-column">
-      <h2>Account</h2>
+      <h2>Support &amp; legal</h2>
+      <ul>
+        <li><a href="{% url 'contact' %}">Contact us</a></li>
+        <li><a href="{% url 'privacy' %}">Privacy policy</a></li>
+        <li><a href="{% url 'terms' %}">Terms of use</a></li>
+      </ul>
+      <h2 style="margin-top:24px">Account</h2>
       <ul>
         {% if request.user.is_authenticated and request.user.is_superuser %}
           <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
@@ -162,7 +170,6 @@
           <li><a href="{% url 'login' %}">Sign in</a></li>
           <li><a href="{% url 'register' %}">Get started</a></li>
         {% endif %}
-        <li><a href="mailto:info@mytherapydoctor.com">Contact us</a></li>
       </ul>
     </div>
   </div>

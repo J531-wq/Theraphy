@@ -29,6 +29,7 @@ from .forms import (
     BankAccountForm,
     BlogCreateForm,
     BlogRemovalForm,
+    ContactForm,
     ForgotPasswordForm,
     LoginForm,
     RegisterForm,
@@ -52,6 +53,7 @@ from .services.email_service import (
     send_blog_post_approved_email,
     send_blog_post_removed_email,
     send_blog_subscription_welcome,
+    send_contact_message,
     send_earnings_milestone_email,
     send_low_views_email,
     send_reset_email,
@@ -270,6 +272,26 @@ def welcome(request):
         "total_users":  User.objects.count(),
         "active_users": User.objects.filter(is_active=True).count(),
     })
+
+
+def contact(request):
+    form = ContactForm(request.POST or None)
+    sent = False
+    if request.method == "POST" and form.is_valid():
+        sent = send_contact_message(**form.cleaned_data)
+        if sent:
+            form = ContactForm()
+        else:
+            form.add_error(None, "We could not send your message. Please try again or email us directly.")
+    return render(request, "core/contact.html", {"form": form, "sent": sent})
+
+
+def terms(request):
+    return render(request, "core/legal.html", {"page_type": "terms"})
+
+
+def privacy(request):
+    return render(request, "core/legal.html", {"page_type": "privacy"})
 
 
 def register_view(request):

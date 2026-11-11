@@ -17,6 +17,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('', views.welcome, name='welcome'),
+    path('contact/', views.contact, name='contact'),
+    path('terms/', views.terms, name='terms'),
+    path('privacy/', views.privacy, name='privacy'),
 
     # SEO
     path('robots.txt', views.robots_txt, name='robots_txt'),

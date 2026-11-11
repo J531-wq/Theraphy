@@ -19,18 +19,18 @@
     .notice.error{border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.1);color:#fecaca}
     .tabs{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 20px;padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.14)}.tab{border:1px solid var(--line);border-radius:999px;padding:9px 15px;color:#becbc5;font-size:13px}
     .tab.active{border-color:rgba(154,244,209,.5);background:rgba(46,125,110,.2);color:var(--teal)}.count{margin-left:6px;opacity:.7}
-    .post-list{display:grid;gap:16px}.post{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 238px;gap:28px;padding:24px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(130deg,rgba(16,34,28,.94),rgba(7,17,14,.9));box-shadow:0 10px 26px rgba(0,0,0,.12);transition:transform .18s,border-color .18s,box-shadow .18s}.post:hover{transform:translateY(-2px);border-color:rgba(154,244,209,.26);box-shadow:0 16px 34px rgba(0,0,0,.2)}
-    .post-main{min-width:0}.post-topline{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:11px}.post h2{font-size:19px;letter-spacing:-.025em;margin:0}.post h2 a:hover{color:var(--teal)}.post-category{color:#a8beb4;font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;white-space:nowrap}.excerpt{max-width:740px;color:#c6d1cc;font-size:13px;line-height:1.62}.meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:var(--muted);font-size:11.5px;margin-top:15px;padding-top:14px;border-top:1px solid rgba(255,255,255,.065)}
+    .post-list{display:grid;gap:18px}.post{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:0;overflow:hidden;border:1px solid var(--line);border-radius:20px;background:linear-gradient(130deg,rgba(13,33,26,.96),rgba(6,17,13,.94));box-shadow:0 12px 28px rgba(0,0,0,.14);transition:transform .18s,border-color .18s,box-shadow .18s}.post:hover{transform:translateY(-3px);border-color:rgba(154,244,209,.3);box-shadow:0 20px 42px rgba(0,0,0,.24)}
+    .post-main{min-width:0;padding:25px 26px}.post-topline{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:13px}.post h2{max-width:690px;font-size:20px;line-height:1.17;letter-spacing:-.035em;margin:0}.post h2 a:hover{color:var(--teal)}.post-category{display:inline-flex;align-items:center;min-height:25px;padding:0 9px;border:1px solid rgba(154,244,209,.18);border-radius:999px;color:#b7d8c8;background:rgba(154,244,209,.06);font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;white-space:nowrap}.excerpt{max-width:700px;color:#bdccc5;font-size:13px;line-height:1.65}.meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:var(--muted);font-size:11.5px;margin-top:17px;padding-top:15px;border-top:1px solid rgba(255,255,255,.07)}
     .badge{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-weight:800;font-size:10px;letter-spacing:.02em}
     .approved{color:#9af4d1;border-color:rgba(154,244,209,.3)}.pending{color:#f3c98d;border-color:rgba(243,201,141,.3)}.removed{color:#fca5a5;border-color:rgba(252,165,165,.3)}
     .reason{margin-top:12px;border-left:3px solid #f87171;padding:9px 12px;background:rgba(248,113,113,.08);color:#fecaca;font-size:13px;line-height:1.5}
-    .actions{display:grid;align-content:start;gap:9px;padding:14px;border:1px solid rgba(255,255,255,.07);border-radius:13px;background:rgba(0,0,0,.14)}.actions a,.actions button{display:inline-flex;justify-content:center;align-items:center;min-height:39px;border:1px solid var(--line);border-radius:9px;background:rgba(255,255,255,.045);color:#edf4f1;font:700 12px Inter,system-ui,sans-serif;padding:8px 12px;cursor:pointer;transition:.18s}.actions a:hover,.actions button:hover{border-color:rgba(154,244,209,.38);background:rgba(46,125,110,.18)}
-    .actions .approve{background:#2e7d6e;border-color:#2e7d6e;color:white}.actions .remove{color:#fecaca;border-color:rgba(248,113,113,.35)}
-    .actions textarea{width:100%;resize:vertical;min-height:68px;border:1px solid var(--line);border-radius:8px;background:#111e19;color:#edf4f1;padding:10px;font:12px/1.5 Inter,system-ui,sans-serif}
+    .actions{display:grid;align-content:start;gap:10px;padding:22px 18px;border-left:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.2)}.actions::before{content:'Review actions';color:rgba(192,221,207,.52);font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.actions a,.actions button{display:inline-flex;justify-content:center;align-items:center;min-height:42px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.05);color:#edf4f1;font:800 12px Inter,system-ui,sans-serif;padding:8px 12px;cursor:pointer;transition:.18s}.actions a:hover,.actions button:hover{border-color:rgba(154,244,209,.38);background:rgba(46,125,110,.18)}
+    .actions .approve{background:linear-gradient(135deg,#2e7d6e,#3d9e8c);border-color:transparent;color:white}.actions .remove{color:#fecaca;border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.055)}
+    .actions textarea{width:100%;resize:vertical;min-height:76px;border:1px solid var(--line);border-radius:10px;background:#0a1612;color:#edf4f1;padding:11px;font:12px/1.5 Inter,system-ui,sans-serif}
     .empty{padding:42px;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
     .pages{display:flex;justify-content:space-between;margin-top:20px;color:var(--muted);font-size:13px}
     .admin-main .page{padding:0 0 56px}
-    @media(max-width:720px){.admin-main .page{padding:0 0 56px}.page-hero{grid-template-columns:1fr;padding:22px 19px}.hero-action{width:100%}.post{grid-template-columns:1fr;gap:16px;padding:19px}.post-topline{align-items:flex-start;flex-direction:column}.actions{grid-template-columns:1fr 1fr}.actions form{grid-column:1/-1}}
+    @media(max-width:720px){.admin-main .page{padding:0 0 56px}.page-hero{grid-template-columns:1fr;padding:22px 19px}.hero-action{width:100%}.post{grid-template-columns:1fr}.post-main{padding:21px 19px}.post-topline{align-items:flex-start;flex-direction:column}.actions{grid-template-columns:1fr 1fr;padding:16px;border-top:1px solid rgba(255,255,255,.08);border-left:0}.actions::before{grid-column:1/-1}.actions form{grid-column:1/-1}}
   </style>
   <link rel="stylesheet" href="{% static 'core/admin-shell.css' %}">
 </head>
@@ -73,13 +73,13 @@
               <span>Created {{ post.created_at|date:"M d, Y" }}</span>
               <span>Updated {{ post.updated_at|date:"M d, Y" }}</span>
               <span>👁 {{ post.views_count }} views</span>
-              {% if post.is_published %}<span class="badge approved">Approved · public</span>
-              {% elif post.moderation_reason %}<span class="badge removed">Removed</span>
-              {% else %}<span class="badge pending">Awaiting approval</span>{% endif %}
             </div>
             {% if post.moderation_reason %}<div class="reason"><strong>Removal reason:</strong><br>{{ post.moderation_reason|linebreaksbr }}</div>{% endif %}
           </div>
           <div class="actions">
+            {% if post.is_published %}<span class="badge approved">● Live in journal</span>
+            {% elif post.moderation_reason %}<span class="badge removed">● Removed</span>
+            {% else %}<span class="badge pending">● Awaiting approval</span>{% endif %}
             <a href="{% url 'admin_edit_blog' post.id %}">Edit post</a>
             {% if not post.is_published %}
             <form method="post" action="{% url 'admin_approve_blog' post.id %}">

@@ -19,7 +19,7 @@ class BlogCreateTests(TestCase):
             "content": (
                 "<p>First useful paragraph with sufficient content.</p>"
                 "<p><br></p><p>  </p>"
-                "<h2><br>Useful heading<br></h2>"
+                "<br><br><h2><br>Useful heading<br></h2><br><br>"
                 "<p>Second useful paragraph with sufficient content.</p>"
             ),
         })
@@ -27,6 +27,7 @@ class BlogCreateTests(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
         self.assertNotIn("<p><br></p>", form.cleaned_data["content"])
         self.assertIn("<h2>Useful heading</h2>", form.cleaned_data["content"])
+        self.assertNotIn("<br><br>", form.cleaned_data["content"])
 
     def setUp(self):
         self.user = User.objects.create(

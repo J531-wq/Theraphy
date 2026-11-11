@@ -86,4 +86,7 @@ def sanitize_blog_content(value):
     content = re.sub(r"<p>(?:\s|<br>)*</p>", "", content, flags=re.IGNORECASE)
     content = re.sub(r"<(h[2-4])>(?:\s|<br>)+", r"<\1>", content, flags=re.IGNORECASE)
     content = re.sub(r"(?:\s|<br>)+</(h[2-4])>", r"</\1>", content, flags=re.IGNORECASE)
+    content = re.sub(r"(?:\s|<br>)+(</?h[2-4]>)", r"\1", content, flags=re.IGNORECASE)
+    content = re.sub(r"(</h[2-4]>)(?:\s|<br>)+", r"\1", content, flags=re.IGNORECASE)
+    content = re.sub(r"(?:<br>\s*){2,}", "<br>", content, flags=re.IGNORECASE)
     return content

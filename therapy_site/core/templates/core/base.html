@@ -84,6 +84,41 @@
             color: #667eea;
         }
 
+        .nav-toggle {
+            display: none;
+            width: 42px;
+            height: 42px;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 5px;
+            border: 1px solid rgba(102, 126, 234, 0.25);
+            border-radius: 12px;
+            color: #333;
+            background: #f7f8ff;
+            cursor: pointer;
+        }
+
+        .nav-toggle span {
+            width: 18px;
+            height: 2px;
+            border-radius: 2px;
+            background: currentColor;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .nav-toggle[aria-expanded="true"] span:first-child {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .nav-toggle[aria-expanded="true"] span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .nav-toggle[aria-expanded="true"] span:last-child {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
         footer {
             background: #333;
             color: white;
@@ -126,14 +161,44 @@
 
         @media (max-width: 768px) {
             nav {
-                flex-direction: column;
+                position: relative;
+                flex-direction: row;
                 gap: 1rem;
+                padding: 0.75rem 1rem;
             }
 
             .nav-links {
-                flex-wrap: wrap;
-                gap: 1rem;
-                justify-content: center;
+                display: none;
+                position: absolute;
+                top: calc(100% + 8px);
+                left: 1rem;
+                right: 1rem;
+                z-index: 110;
+                flex-direction: column;
+                gap: 0;
+                padding: 8px;
+                border: 1px solid rgba(102, 126, 234, 0.14);
+                border-radius: 16px;
+                background: rgba(255, 255, 255, 0.98);
+                box-shadow: 0 18px 40px rgba(27, 38, 74, 0.18);
+            }
+
+            .nav-links.is-open {
+                display: flex;
+            }
+
+            .nav-links a {
+                display: block;
+                padding: 12px 14px;
+                border-radius: 10px;
+            }
+
+            .nav-links a:hover {
+                background: #f2f4ff;
+            }
+
+            .nav-toggle {
+                display: inline-flex;
             }
 
             .logo {
@@ -148,7 +213,10 @@
     <header>
         <nav>
             <a href="/" class="logo">MyTherapyDoctor</a>
-            <ul class="nav-links">
+            <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="primary-nav">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="primary-nav">
                 <li><a href="{% url 'welcome' %}">Home</a></li>
                 <li><a href="{% url 'blog_list' %}">Blog</a></li>
                 <li><a href="{% url 'sections' %}">Therapy</a></li>
@@ -182,5 +250,34 @@
 
     {% block extra_js %}{% endblock %}
     {% include "core/includes/adsterra_banner.html" %}
+    <script>
+        (() => {
+            const toggle = document.querySelector(".nav-toggle");
+            const menu = document.getElementById("primary-nav");
+            if (!toggle || !menu) return;
+
+            const closeMenu = () => {
+                toggle.setAttribute("aria-expanded", "false");
+                toggle.setAttribute("aria-label", "Open navigation menu");
+                menu.classList.remove("is-open");
+            };
+
+            toggle.addEventListener("click", () => {
+                const isOpen = toggle.getAttribute("aria-expanded") === "true";
+                toggle.setAttribute("aria-expanded", String(!isOpen));
+                toggle.setAttribute("aria-label", isOpen ? "Open navigation menu" : "Close navigation menu");
+                menu.classList.toggle("is-open", !isOpen);
+            });
+            menu.addEventListener("click", event => {
+                if (event.target.closest("a")) closeMenu();
+            });
+            document.addEventListener("keydown", event => {
+                if (event.key === "Escape") closeMenu();
+            });
+            window.addEventListener("resize", () => {
+                if (window.innerWidth > 768) closeMenu();
+            });
+        })();
+    </script>
 </body>
 </html>

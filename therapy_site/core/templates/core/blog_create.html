@@ -135,6 +135,12 @@
     .mm-link:hover{background:rgba(255,255,255,.07);color:var(--text)}
     .mm-link.earn{color:#9ad5b6;border-color:rgba(46,125,110,.3)}
     .mm-sep{height:1px;background:var(--glass-border);margin:5px 0}
+    @media (min-width: 601px) and (max-width: 768px) {
+      nav { padding: 0 16px; }
+      .nav-right { display: none; }
+      .nav-hamburger { display: flex; }
+      .mobile-menu { display: flex; }
+    }
   </style>
 </head>
 <body>

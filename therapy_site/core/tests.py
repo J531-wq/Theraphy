@@ -478,6 +478,54 @@ class AdminPostManagementTests(TestCase):
         self.assertNotContains(response, "Awaiting Review")
         self.assertContains(response, "315 views")
 
+    @patch("core.views.notify_subscribers_of_new_post", return_value=1)
+    @patch("core.views.send_blog_post_approved_email", return_value=True)
+    def test_approved_post_stays_in_approved_section(
+        self, send_approved_email, notify_subscribers
+    ):
+        pending_post = Blog.objects.create(
+            title="Newly Approved Article",
+            slug="newly-approved-article",
+            author=self.creator.full_name,
+            excerpt="A pending article summary.",
+            content="This pending article is long enough to approve and publish.",
+            author_user=self.creator,
+            moderation_reason="Previous review reason.",
+        )
+
+        response = self.client.post(
+            reverse("admin_approve_blog", args=[pending_post.id])
+        )
+
+        self.assertRedirects(
+            response, f"{reverse('admin_posts')}?status=approved"
+        )
+        pending_post.refresh_from_db()
+        self.assertTrue(pending_post.is_published)
+        self.assertEqual(pending_post.moderation_reason, "")
+        approved_response = self.client.get(
+            reverse("admin_posts"), {"status": "approved"}
+        )
+        self.assertContains(approved_response, "Newly Approved Article")
+        send_approved_email.assert_called_once()
+        notify_subscribers.assert_called_once()
+
+    def test_admin_can_edit_post_without_changing_approval_status(self):
+        response = self.client.post(
+            reverse("admin_edit_blog", args=[self.post.id]),
+            {
+                "title": "Admin Updated Article",
+                "category": "wellness",
+                "excerpt": "Updated article summary.",
+                "content": "An administrator has updated this article with enough useful content.",
+            },
+        )
+
+        self.assertRedirects(response, reverse("admin_posts"))
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.title, "Admin Updated Article")
+        self.assertTrue(self.post.is_published)
+
     @patch("core.views.send_blog_post_removed_email", return_value=True)
     def test_admin_removal_requires_reason_and_emails_creator(self, send_email):
         response = self.client.post(

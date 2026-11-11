@@ -1457,10 +1457,11 @@ def admin_remove_blog(request, blog_id):
         blog.is_published = False
         blog.moderation_reason = reason
         blog.save(update_fields=['is_published', 'moderation_reason', 'updated_at'])
+        email_sent = None
         if blog.author_user and blog.author_user.email:
             base_url = request.build_absolute_uri('/').rstrip('/')
             try:
-                send_blog_post_removed_email(
+                email_sent = send_blog_post_removed_email(
                     blog.author_user, blog, reason, base_url
                 )
             except Exception:
@@ -1468,10 +1469,25 @@ def admin_remove_blog(request, blog_id):
                     "Failed to send post-removal email for blog %s to %s",
                     blog.slug, blog.author_user.username,
                 )
-        messages.success(
-            request,
-            f'"{blog.title}" was removed and its author was notified.',
-        )
+                email_sent = False
+        elif blog.author_user:
+            logger.warning(
+                "Could not email removal notice for blog %s: author %s has no email",
+                blog.slug, blog.author_user.username,
+            )
+            email_sent = False
+
+        messages.success(request, f'"{blog.title}" was removed.')
+        if email_sent is False:
+            messages.warning(
+                request,
+                "The removal reason is saved in the creator dashboard, but the email could not be sent.",
+            )
+        elif blog.author_user:
+            messages.info(
+                request,
+                "The creator can see the removal reason in their dashboard.",
+            )
     return redirect(f"{reverse('admin_posts')}?status=removed")
 
 

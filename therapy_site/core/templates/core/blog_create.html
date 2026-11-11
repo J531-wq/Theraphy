@@ -162,12 +162,18 @@
       {% elif admin_mode %}
         <p>Admin edit · Update the post without changing its current approval status.</p>
       {% endif %}
-      <p>Share your insights, experiences, and advice with our community. Every 100 views earns you ₦10. Posts are reviewed before going live.</p>
+      {% if admin_mode %}
+        <p>Update this post. Its existing approval status will not change.</p>
+      {% elif edit_mode %}
+        <p>Update your post. Saving changes sends it back for approval before it appears in the journal again.</p>
+      {% else %}
+        <p>Share your insights, experiences, and advice with our community. Every 100 views earns you ₦10. Posts are reviewed before going live.</p>
+      {% endif %}
     </div>
 
     <div class="info-box">
       <span class="info-icon">💡</span>
-      <span>Your post will be reviewed by our team before it's published. Once approved, you start earning from every view — ₦10 per 100 views. Withdraw once your balance reaches ₦1,000.</span>
+      <span>{% if admin_mode %}Changes made here preserve the current approval status.{% elif edit_mode %}Your updated post will be reviewed again before it is published. Previous post views remain in your creator history.{% else %}Your post will be reviewed by our team before it's published. Once approved, you start earning from every view — ₦10 per 100 views. Withdraw once your balance reaches ₦1,000.{% endif %}</span>
     </div>
 
     <div class="form-card">

@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.hashers import make_password
+from django.utils.html import strip_tags
 from .blog_content import sanitize_blog_content
 from .models import Blog, User, WithdrawalRequest
 
@@ -193,7 +194,7 @@ class BlogCreateForm(forms.ModelForm):
     def clean_content(self):
         content = self.cleaned_data.get('content', '').strip()
         sanitized_content = sanitize_blog_content(content)
-        if len(sanitized_content) < 50:
+        if len(strip_tags(sanitized_content)) < 50:
             raise forms.ValidationError('Content must be at least 50 characters.')
         return sanitized_content
 

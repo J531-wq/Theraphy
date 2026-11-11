@@ -19,7 +19,7 @@ class PageViewMiddleware:
         response = self.get_response(request)
         if (
             request.method == "GET"
-            and response.status_code < 400
+            and 200 <= response.status_code < 300
             and response.get("Content-Type", "").startswith("text/html")
             and not request.path.startswith(self.excluded_prefixes)
         ):

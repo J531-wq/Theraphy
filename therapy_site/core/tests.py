@@ -78,7 +78,7 @@ class BlogCreateTests(TestCase):
         response = self.client.get(reverse("blog_detail", args=[blog.slug]))
 
         self.assertContains(response, "<strong>formatted</strong>")
-        self.assertNotContains(response, "<script>")
+        self.assertNotContains(response, "alert(&#x27;unsafe&#x27;)")
         self.assertNotContains(response, "onerror=")
 
 

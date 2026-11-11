@@ -325,7 +325,7 @@
     <a class="sidebar-link active" href="{% url 'admin_dashboard' %}"><span class="sidebar-icon">⌂</span>Overview</a>
     <a class="sidebar-link" href="{% url 'admin_create_post' %}"><span class="sidebar-icon">✎</span>Create post</a>
     <a class="sidebar-link" href="{% url 'admin_withdrawals' %}"><span class="sidebar-icon">₦</span>Withdrawals</a>
-    <a class="sidebar-link" href="{% url 'admin_withdrawals' %}#blog-approvals"><span class="sidebar-icon">✓</span>Blog approvals</a>
+    <a class="sidebar-link" href="{% url 'admin_posts' %}"><span class="sidebar-icon">✓</span>Post management</a>
     <div class="sidebar-spacer"></div>
     <div class="sidebar-label">Quick links</div>
     <a class="sidebar-link" href="{% url 'welcome' %}"><span class="sidebar-icon">↗</span>View website</a>
@@ -433,7 +433,7 @@
         </div>
       </a>
 
-      <a class="action-card" href="{% url 'admin_withdrawals' %}#blog-approvals" data-badge="📋">
+      <a class="action-card" href="{% url 'admin_posts' %}" data-badge="📋">
         <div class="ac-title">
           Blog Approvals
           {% if pending_posts %}<span class="badge">{{ pending_posts }}</span>{% endif %}

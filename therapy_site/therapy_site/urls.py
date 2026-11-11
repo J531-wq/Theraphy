@@ -71,6 +71,8 @@ urlpatterns = [
     # Blog creation (user-generated posts) — before <slug:slug>
     path('blog/create/', views.blog_create, name='blog_create'),
     path('blog/create/success/', views.blog_create_success, name='blog_create_success'),
+    path('blog/<int:blog_id>/edit/', views.blog_edit, name='blog_edit'),
+    path('blog/<int:blog_id>/delete/', views.blog_delete, name='blog_delete'),
 
     path('blog/comment/<int:comment_id>/vote/', views.blog_comment_vote, name='blog_comment_vote'),
     path('blog/comment/<int:comment_id>/edit/', views.blog_comment_edit, name='blog_comment_edit'),
@@ -81,6 +83,7 @@ urlpatterns = [
     path('blog/<slug:slug>/', views.blog_detail, name='blog_detail'),
 
     # Earnings dashboard
+    path('creator/', views.earnings_dashboard, name='creator_dashboard'),
     path('dashboard/earnings/', views.earnings_dashboard, name='earnings_dashboard'),
     path('dashboard/bank-account/', views.update_bank_account, name='update_bank_account'),
     path('dashboard/withdraw/', views.request_withdrawal, name='request_withdrawal'),
@@ -91,6 +94,17 @@ urlpatterns = [
         'admin-panel/blog/create/',
         views.admin_create_post,
         name='admin_create_post',
+    ),
+    path('admin-panel/blog/posts/', views.admin_posts, name='admin_posts'),
+    path(
+        'admin-panel/blog/<int:blog_id>/edit/',
+        views.admin_edit_blog,
+        name='admin_edit_blog',
+    ),
+    path(
+        'admin-panel/blog/<int:blog_id>/remove/',
+        views.admin_remove_blog,
+        name='admin_remove_blog',
     ),
     path('admin-panel/withdrawals/', views.admin_withdrawals, name='admin_withdrawals'),
     path(

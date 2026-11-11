@@ -257,6 +257,7 @@
       </a>
       <div class="nav-right">
         <a class="nav-pill" href="{% url 'admin_dashboard' %}">← Dashboard</a>
+        <a class="nav-pill" href="{% url 'admin_posts' %}">Post Management</a>
         <a class="nav-pill" href="{% url 'admin_create_post' %}">✍ Create Post</a>
         <a class="nav-pill" href="{% url 'welcome' %}">Site</a>
         <a class="nav-pill danger" href="{% url 'logout' %}">Sign out</a>
@@ -332,34 +333,11 @@
     </div>
     {% endif %}
 
-    <!-- ── BLOG APPROVALS ── -->
-    <div class="section-title" id="blog-approvals">Pending Blog Posts</div>
-
-    {% if blog_approvals %}
-    <div class="bp-list">
-      {% for blog in blog_approvals %}
-      <div class="bp-card">
-        <div class="bp-title">{{ blog.title }}</div>
-        <div class="bp-excerpt">{{ blog.excerpt|truncatechars:160 }}</div>
-        <div class="bp-meta">
-          <span>By {{ blog.author }}</span>
-          <span>{{ blog.created_at|date:"M d, Y" }}</span>
-          <span>{{ blog.get_category_display }}</span>
-          <span>👁 {{ blog.views_count }} views</span>
-        </div>
-        <form method="POST" action="{% url 'admin_approve_blog' blog.id %}">
-          {% csrf_token %}
-          <button class="btn-approve" type="submit">✓ Publish &amp; Notify Subscribers</button>
-        </form>
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty">
-      <div class="empty-icon">📋</div>
-      <p>No pending blog posts awaiting approval.</p>
-    </div>
-    {% endif %}
+    <div class="section-title">Journal posts</div>
+    <p style="color:var(--muted);font-size:14px;line-height:1.6">
+      Review and manage all journal posts, including approvals, removal reasons, and post views.
+      <a href="{% url 'admin_posts' %}" style="color:#9af4d1;font-weight:700">Open post management →</a>
+    </p>
 
     <!-- ── CREATOR EARNINGS TABLE ── -->
     {% if user_stats %}

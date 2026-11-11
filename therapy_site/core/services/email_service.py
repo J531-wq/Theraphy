@@ -241,3 +241,18 @@ def send_blog_post_approved_email(user, blog, base_url: str) -> bool:
             "post_url": post_url,
         },
     )
+
+
+def send_blog_post_removed_email(user, blog, reason: str, base_url: str) -> bool:
+    """Tell a creator when an admin removes their post and explain why."""
+    return _send(
+        subject=f'An update about your post "{blog.title}" – MyTherapyDoctor',
+        to_email=user.email,
+        template="core/emails/blog_post_removed.html",
+        context={
+            "full_name": user.full_name,
+            "post_title": blog.title,
+            "reason": reason,
+            "dashboard_url": f"{base_url}/creator/",
+        },
+    )

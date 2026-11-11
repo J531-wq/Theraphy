@@ -223,3 +223,21 @@ class BankAccountForm(forms.ModelForm):
 class WithdrawalRequestForm(forms.Form):
     """Confirm a withdrawal request — amount is derived from their balance."""
     confirm = forms.BooleanField(required=True)
+
+
+class BlogRemovalForm(forms.Form):
+    """Require a clear reason whenever an admin removes a post."""
+
+    reason = forms.CharField(
+        max_length=2000,
+        widget=forms.Textarea(attrs={
+            'rows': 3,
+            'placeholder': 'Explain why this post is being removed.',
+        }),
+    )
+
+    def clean_reason(self):
+        reason = self.cleaned_data['reason'].strip()
+        if not reason:
+            raise forms.ValidationError('A removal reason is required.')
+        return reason

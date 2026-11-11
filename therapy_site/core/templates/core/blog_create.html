@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Write a Post — MyTherapyDoctor</title>
+  <title>{% if edit_mode %}Edit Post{% else %}Write a Post{% endif %} — MyTherapyDoctor</title>
   {% load static %}
   <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -156,7 +156,12 @@
   <div class="page-wrap">
     <div class="page-title">
       <div class="kicker">Contribute</div>
-      <h1>Write a blog post</h1>
+      <h1>{% if edit_mode %}Edit your post{% else %}Write a blog post{% endif %}</h1>
+      {% if edit_mode and not admin_mode %}
+        <p>Saving changes sends this post back for approval before it appears in the journal again.</p>
+      {% elif admin_mode %}
+        <p>Admin edit · Update the post without changing its current approval status.</p>
+      {% endif %}
       <p>Share your insights, experiences, and advice with our community. Every 100 views earns you ₦10. Posts are reviewed before going live.</p>
     </div>
 
@@ -243,7 +248,7 @@
 
         <div class="form-actions">
           <a class="btn-cancel" href="{% url 'blog_list' %}">Cancel</a>
-          <button class="btn-submit" type="submit">Submit for review →</button>
+          <button class="btn-submit" type="submit">{% if admin_mode %}Save changes{% elif edit_mode %}Save and resubmit for review{% else %}Submit for review →{% endif %}</button>
         </div>
       </form>
     </div>

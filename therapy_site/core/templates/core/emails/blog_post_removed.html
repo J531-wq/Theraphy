@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<body style="margin:0;padding:32px;background:#f3f7f5;font-family:Arial,sans-serif;color:#20312b">
+  <div style="max-width:600px;margin:0 auto;padding:32px;background:#fff;border-radius:12px">
+    <h1 style="color:#2e7d6e;font-size:24px">An update about your post</h1>
+    <p>Hello {{ full_name|default:"there" }},</p>
+    <p>Your post <strong>{{ post_title }}</strong> has been removed from the public journal by our moderation team.</p>
+    <p><strong>Reason</strong></p>
+    <blockquote style="margin:0;padding:14px 18px;border-left:3px solid #2e7d6e;background:#f3f7f5">{{ reason|linebreaksbr }}</blockquote>
+    <p>You can review the notice and manage your other posts in your <a href="{{ dashboard_url }}" style="color:#2e7d6e">Creator Dashboard</a>.</p>
+    <p>— MyTherapyDoctor</p>
+  </div>
+</body>
+</html>

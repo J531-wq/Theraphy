@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Earnings — MyTherapyDoctor</title>
+  <title>Creator Dashboard — MyTherapyDoctor</title>
   {% load static %}
   <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -162,16 +162,22 @@
     <div class="ld"><span></span><span></span><span></span></div>
   </div>
 
-  {% include "core/includes/site_header.html" with active_page="earnings" %}
+  {% include "core/includes/site_header.html" with active_page="creator" %}
 
   <div class="wrap">
 
     <!-- HEAD -->
     <div class="ph rv">
-      <div class="kicker">Creator Dashboard</div>
-      <h1>Your <em>earnings</em></h1>
-      <p>Every 100 views on your published posts earns you ₦{{ naira_per_100_views }}. Withdraw when your balance reaches ₦1,000.</p>
+      <div class="kicker">Creator Studio</div>
+      <h1>Your <em>Creator Dashboard</em></h1>
+      <p>Manage your posts, track readership and earnings, and request a withdrawal. Every 100 published views earns ₦{{ naira_per_100_views }}.</p>
     </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div role="status" style="margin:0 0 16px;padding:12px 16px;border:1px solid rgba(61,158,140,.35);border-radius:10px;background:rgba(46,125,110,.14);color:#c6ead9">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
 
     <!-- STATS -->
     <div class="sg4 sg">
@@ -215,6 +221,7 @@
                 <th>Status</th>
                 <th>Views</th>
                 <th>Earned</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -230,17 +237,26 @@
                 </td>
                 <td>
                   {% if post.is_published %}<span class="badge bg">Live</span>
-                  {% else %}<span class="badge bo">Reviewing</span>{% endif %}
+                  {% elif post.moderation_reason %}<span class="badge" style="background:rgba(248,113,113,.12);color:#fca5a5;border:1px solid rgba(248,113,113,.25)">Removed</span>
+                  {% else %}<span class="badge bo">In review</span>{% endif %}
+                  {% if post.moderation_reason %}<div class="sub" style="max-width:220px;color:#fca5a5;margin-top:6px">Reason: {{ post.moderation_reason|linebreaksbr }}</div>{% endif %}
                 </td>
                 <td class="vc">
-                  {% if post.is_published %}
-                    <span title="{{ post.views_count }} total views">👁 {{ post.views_count }}</span>
-                  {% else %}—{% endif %}
+                  <span title="{{ post.views_count }} total views">👁 {{ post.views_count }}</span>
                 </td>
                 <td class="ec">
                   {% if post.is_published %}
-                    ₦{% widthratio post.views_count 100 naira_per_100_views %}
+                    ₦{{ post.earned_amount|floatformat:2 }}
                   {% else %}—{% endif %}
+                </td>
+                <td>
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <a class="btn bs" href="{% url 'blog_edit' post.id %}" style="padding:6px 10px;font-size:12px">Edit</a>
+                    <form method="post" action="{% url 'blog_delete' post.id %}" onsubmit="return confirm('Delete this post permanently?')">
+                      {% csrf_token %}
+                      <button class="btn" type="submit" style="padding:6px 10px;font-size:12px;border-color:rgba(248,113,113,.35);color:#fca5a5">Delete</button>
+                    </form>
+                  </div>
                 </td>
               </tr>
               {% endfor %}

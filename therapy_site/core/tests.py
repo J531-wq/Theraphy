@@ -267,7 +267,6 @@ class TherapyThemeTests(TestCase):
            "family",
            "relationship",
            "stress",
-           "general",
        )
        for section in sections:
            with self.subTest(section=section):
@@ -281,6 +280,10 @@ class TherapyThemeTests(TestCase):
                    f'data-therapy-section="{section}"',
                )
                self.assertContains(response, "core/therapy-themes.css")
+
+       response = self.client.get(reverse("general_ai_search"))
+       self.assertEqual(response.status_code, 200)
+       self.assertContains(response, 'data-therapy-section="stress"')
 
 
 @override_settings(STORAGES={
@@ -337,3 +340,180 @@ class PageViewMiddlewareTests(TestCase):
         self.client.get("/admin-panel/")
         self.client.get("/static/core/logo.png")
         self.assertEqual(PageView.objects.count(), 1)
+
+
+@override_settings(STORAGES={
+   **settings.STORAGES,
+   "staticfiles": {
+       "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+   },
+})
+class CreatorPostManagementTests(TestCase):
+    def setUp(self):
+        self.creator = User.objects.create(
+            username="postcreator",
+            full_name="Post Creator",
+            email="creator@example.com",
+            is_active=True,
+        )
+        self.post = Blog.objects.create(
+            title="A Creator Article",
+            slug="a-creator-article",
+            author=self.creator.full_name,
+            category="wellness",
+            excerpt="A helpful short summary.",
+            content="This article contains enough useful information for readers.",
+            author_user=self.creator,
+            is_published=True,
+            views_count=240,
+        )
+        session = self.client.session
+        session["user_id"] = self.creator.id
+        session.save()
+
+    def test_creator_dashboard_lists_posts_views_and_management_actions(self):
+        response = self.client.get(reverse("creator_dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Creator Dashboard")
+        self.assertContains(response, "240")
+        self.assertContains(response, reverse("blog_edit", args=[self.post.id]))
+        self.assertContains(response, reverse("blog_delete", args=[self.post.id]))
+
+    def test_creator_edit_resubmits_post_for_approval(self):
+        response = self.client.post(
+            reverse("blog_edit", args=[self.post.id]),
+            {
+                "title": "Updated Creator Article",
+                "category": "wellness",
+                "excerpt": "Updated summary for the new version.",
+                "content": "This updated article includes more than fifty useful characters.",
+            },
+        )
+
+        self.assertRedirects(response, reverse("creator_dashboard"))
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.title, "Updated Creator Article")
+        self.assertFalse(self.post.is_published)
+
+    def test_creator_cannot_edit_or_delete_another_users_post(self):
+        another_post = Blog.objects.create(
+            title="Another Creator Article",
+            slug="another-creator-article",
+            author="Someone Else",
+            excerpt="A different summary.",
+            content="This article belongs to someone else and should stay protected.",
+        )
+
+        self.assertEqual(
+            self.client.get(
+                reverse("blog_edit", args=[another_post.id])
+            ).status_code,
+            403,
+        )
+        self.assertEqual(
+            self.client.post(
+                reverse("blog_delete", args=[another_post.id])
+            ).status_code,
+            404,
+        )
+        self.assertTrue(Blog.objects.filter(id=another_post.id).exists())
+
+    def test_creator_can_delete_their_own_post(self):
+        response = self.client.post(reverse("blog_delete", args=[self.post.id]))
+
+        self.assertRedirects(response, reverse("creator_dashboard"))
+        self.assertFalse(Blog.objects.filter(id=self.post.id).exists())
+
+    def test_therapy_dashboard_separates_creator_tools_from_therapy_choices(self):
+        response = self.client.get(reverse("sections"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Creator Studio")
+        self.assertContains(response, reverse("creator_dashboard"))
+        self.assertNotContains(response, "Earnings Dashboard")
+
+
+class AdminPostManagementTests(TestCase):
+    def setUp(self):
+        self.admin = get_user_model().objects.create_superuser(
+            username="post-admin",
+            email="post-admin@example.com",
+            password="admin-password",
+        )
+        self.creator = User.objects.create(
+            username="reviewedcreator",
+            full_name="Reviewed Creator",
+            email="reviewed@example.com",
+            is_active=True,
+        )
+        self.post = Blog.objects.create(
+            title="Approved Article",
+            slug="approved-article",
+            author=self.creator.full_name,
+            category="wellness",
+            excerpt="Approved article summary.",
+            content="This approved article contains enough content for readers.",
+            author_user=self.creator,
+            is_published=True,
+            views_count=315,
+        )
+        self.client.force_login(self.admin)
+
+    def test_admin_approved_filter_keeps_approved_posts_separate(self):
+        Blog.objects.create(
+            title="Awaiting Review",
+            slug="awaiting-review",
+            author="New Creator",
+            excerpt="Pending summary.",
+            content="This pending article contains enough content for review.",
+        )
+
+        response = self.client.get(
+            reverse("admin_posts"), {"status": "approved"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Approved Article")
+        self.assertNotContains(response, "Awaiting Review")
+        self.assertContains(response, "315 views")
+
+    @patch("core.views.send_blog_post_removed_email", return_value=True)
+    def test_admin_removal_requires_reason_and_emails_creator(self, send_email):
+        response = self.client.post(
+            reverse("admin_remove_blog", args=[self.post.id]),
+            {"reason": "  "},
+        )
+        self.assertRedirects(
+            response, f"{reverse('admin_posts')}?status=approved"
+        )
+        self.post.refresh_from_db()
+        self.assertTrue(self.post.is_published)
+        send_email.assert_not_called()
+
+        reason = "This post includes a claim that needs correction."
+        response = self.client.post(
+            reverse("admin_remove_blog", args=[self.post.id]),
+            {"reason": reason},
+        )
+
+        self.assertRedirects(response, f"{reverse('admin_posts')}?status=removed")
+        self.post.refresh_from_db()
+        self.assertFalse(self.post.is_published)
+        self.assertEqual(self.post.moderation_reason, reason)
+        send_email.assert_called_once()
+
+    def test_removed_reason_is_visible_to_its_creator(self):
+        self.post.is_published = False
+        self.post.moderation_reason = "Please update your references."
+        self.post.save()
+        self.client.logout()
+        session = self.client.session
+        session["user_id"] = self.creator.id
+        session.save()
+
+        response = self.client.get(reverse("creator_dashboard"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Please update your references.")
+        self.assertContains(response, "Removed")

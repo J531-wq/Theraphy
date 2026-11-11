@@ -212,7 +212,7 @@
         <a href="{% url 'blog_list' %}" {% if active_page == 'journal' %}aria-current="page"{% endif %}>Journal</a>
         <a href="{% url 'sections' %}" {% if active_page == 'therapy' %}aria-current="page"{% endif %}>Therapy</a>
         {% if request.session.user_id %}
-          <a href="{% url 'earnings_dashboard' %}" {% if active_page == 'earnings' %}aria-current="page"{% endif %}>Earnings</a>
+          <a href="{% url 'creator_dashboard' %}" {% if active_page == 'creator' %}aria-current="page"{% endif %}>Creator Dashboard</a>
         {% endif %}
       {% endif %}
     </div>
@@ -221,8 +221,8 @@
         <a class="site-chrome-action" href="/admin/">Django Admin</a>
         <a class="site-chrome-action primary" href="{% url 'sections' %}">Site</a>
       {% elif request.session.user_id %}
-        <a class="site-chrome-action" href="{% url 'blog_create' %}">Write a post</a>
-        <a class="site-chrome-action primary" href="{% url 'sections' %}">Dashboard</a>
+        <a class="site-chrome-action" href="{% url 'sections' %}">Therapy</a>
+        <a class="site-chrome-action primary" href="{% url 'creator_dashboard' %}">Creator Dashboard</a>
       {% else %}
         <a class="site-chrome-action" href="{% url 'login' %}">Sign in</a>
         <a class="site-chrome-action primary" href="{% url 'register' %}">Get started</a>
@@ -248,7 +248,7 @@
       <a href="{% url 'blog_list' %}" {% if active_page == 'journal' %}aria-current="page"{% endif %}>Journal</a>
       <a href="{% url 'sections' %}" {% if active_page == 'therapy' %}aria-current="page"{% endif %}>Therapy and dashboard</a>
       {% if request.session.user_id %}
-        <a href="{% url 'earnings_dashboard' %}" {% if active_page == 'earnings' %}aria-current="page"{% endif %}>Creator earnings</a>
+        <a href="{% url 'creator_dashboard' %}" {% if active_page == 'creator' %}aria-current="page"{% endif %}>Creator Dashboard</a>
         <a href="{% url 'logout' %}">Sign out</a>
       {% endif %}
     {% endif %}
@@ -258,8 +258,8 @@
       <a class="site-chrome-action" href="/admin/">Django Admin</a>
       <a class="site-chrome-action primary" href="{% url 'sections' %}">Site</a>
     {% elif request.session.user_id %}
-      <a class="site-chrome-action" href="{% url 'blog_create' %}">Write a post</a>
-      <a class="site-chrome-action primary" href="{% url 'sections' %}">Dashboard</a>
+      <a class="site-chrome-action" href="{% url 'sections' %}">Therapy</a>
+      <a class="site-chrome-action primary" href="{% url 'creator_dashboard' %}">Creator Dashboard</a>
     {% else %}
       <a class="site-chrome-action" href="{% url 'login' %}">Sign in</a>
       <a class="site-chrome-action primary" href="{% url 'register' %}">Get started</a>

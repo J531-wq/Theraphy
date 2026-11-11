@@ -12,6 +12,7 @@ from django.contrib.auth import (
     logout as auth_logout,
 )
 from django.contrib.auth.hashers import check_password, make_password
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import Count, F, Sum
@@ -27,6 +28,7 @@ from django.views.decorators.http import require_POST
 from .forms import (
     BankAccountForm,
     BlogCreateForm,
+    BlogRemovalForm,
     ForgotPasswordForm,
     LoginForm,
     RegisterForm,
@@ -48,6 +50,7 @@ from .models import (
 )
 from .services.email_service import (
     send_blog_post_approved_email,
+    send_blog_post_removed_email,
     send_blog_subscription_welcome,
     send_earnings_milestone_email,
     send_low_views_email,
@@ -55,6 +58,7 @@ from .services.email_service import (
     send_verification_email,
     send_welcome_email,
     send_withdrawal_sent_email,
+    notify_subscribers_of_new_post,
 )
 from .services.groq_client import get_ai_response
 
@@ -502,27 +506,7 @@ def reset_password(request):
 
 def sections(request):
     user = get_chat_user(request)
-    context = {}
-    if user:
-        # Compute earnings inline (avoid forward-reference to _user_earnings)
-        posts_qs = Blog.objects.filter(author_user=user, is_published=True)
-        from django.db.models import Sum as _Sum
-        total_views = posts_qs.aggregate(tv=_Sum('views_count'))['tv'] or 0
-        total_earned = Decimal(str(total_views // 100 * NAIRA_PER_100_VIEWS))
-        all_wd = WithdrawalRequest.objects.filter(user=user)
-        total_withdrawn = all_wd.aggregate(t=_Sum('amount'))['t'] or Decimal('0')
-        available = max(total_earned - total_withdrawn, Decimal('0'))
-        pending = all_wd.filter(
-            status=WithdrawalRequest.STATUS_PENDING
-        ).aggregate(t=_Sum('amount'))['t'] or Decimal('0')
-        withdrawable_balance = max(available - pending, Decimal('0'))
-        post_count = posts_qs.count()
-        context = {
-            'current_user': user,
-            'total_earned': total_earned,
-            'withdrawable_balance': withdrawable_balance,
-            'post_count': post_count,
-        }
+    context = {'current_user': user} if user else {}
     return render(request, "core/sections.html", context)
 
 
@@ -1062,6 +1046,49 @@ def blog_create_success(request):
     return render(request, 'core/blog_create_success.html')
 
 
+def blog_edit(request, blog_id):
+    """Let a creator update their own post; edits return it to moderation."""
+    user = get_chat_user(request)
+    blog = get_object_or_404(Blog, id=blog_id)
+    if not user:
+        return redirect(f"{reverse('login')}?next={request.path}")
+    if blog.author_user_id != user.id:
+        return HttpResponse(status=403)
+
+    if request.method == 'POST':
+        form = BlogCreateForm(request.POST, request.FILES, instance=blog)
+        if form.is_valid():
+            blog = form.save(commit=False)
+            blog.is_published = False
+            blog.moderation_reason = ''
+            blog.save()
+            messages.success(
+                request,
+                'Your changes were saved and sent to the moderation team for review.',
+            )
+            return redirect('creator_dashboard')
+    else:
+        form = BlogCreateForm(instance=blog)
+
+    return render(request, 'core/blog_create.html', {
+        'form': form,
+        'edit_mode': True,
+        'blog': blog,
+    })
+
+
+@require_POST
+def blog_delete(request, blog_id):
+    """Delete a creator's own post without affecting other authors' content."""
+    user = get_chat_user(request)
+    if not user:
+        return redirect(f"{reverse('login')}?next={request.path}")
+    blog = get_object_or_404(Blog, id=blog_id, author_user=user)
+    blog.delete()
+    messages.success(request, 'Your post was deleted.')
+    return redirect('creator_dashboard')
+
+
 # ---------------------------------------------------------------------------
 # User earnings dashboard
 # ---------------------------------------------------------------------------
@@ -1101,6 +1128,11 @@ def earnings_dashboard(request):
 
     total_earned, total_withdrawn, available, pending = _user_earnings(user)
     posts = Blog.objects.filter(author_user=user).order_by('-created_at')
+    for post in posts:
+        post.earned_amount = (
+            Decimal(str(post.views_count // 100 * NAIRA_PER_100_VIEWS))
+            if post.is_published else Decimal('0')
+        )
     withdrawals = WithdrawalRequest.objects.filter(user=user)
     bank_form = BankAccountForm(instance=user)
 
@@ -1160,6 +1192,11 @@ def update_bank_account(request):
     # Re-render dashboard with errors
     total_earned, total_withdrawn, available, pending = _user_earnings(user)
     posts = Blog.objects.filter(author_user=user).order_by('-created_at')
+    for post in posts:
+        post.earned_amount = (
+            Decimal(str(post.views_count // 100 * NAIRA_PER_100_VIEWS))
+            if post.is_published else Decimal('0')
+        )
     withdrawals = WithdrawalRequest.objects.filter(user=user)
     MIN_WITHDRAWAL = Decimal('1000')
     withdrawable_balance = available - pending
@@ -1329,6 +1366,115 @@ def admin_create_post(request):
     })
 
 
+def admin_posts(request):
+    """Admin oversight of pending, approved, and removed posts."""
+    if not _require_admin(request):
+        if not request.user.is_authenticated and not get_chat_user(request):
+            return redirect(f"{reverse('login')}?next={request.path}")
+        return redirect("sections")
+
+    status_filter = request.GET.get('status', 'pending')
+    posts = Blog.objects.select_related('author_user')
+    if status_filter == 'approved':
+        posts = posts.filter(is_published=True)
+    elif status_filter == 'removed':
+        posts = posts.filter(is_published=False).exclude(moderation_reason='')
+    elif status_filter == 'pending':
+        posts = posts.filter(is_published=False, moderation_reason='')
+    else:
+        status_filter = 'all'
+
+    post_counts = {
+        'pending': Blog.objects.filter(
+            is_published=False, moderation_reason=''
+        ).count(),
+        'approved': Blog.objects.filter(is_published=True).count(),
+        'removed': Blog.objects.filter(
+            is_published=False
+        ).exclude(moderation_reason='').count(),
+        'all': Blog.objects.count(),
+    }
+    status_tabs = [
+        {'value': 'pending', 'label': 'Pending', 'count': post_counts['pending']},
+        {'value': 'approved', 'label': 'Approved', 'count': post_counts['approved']},
+        {'value': 'removed', 'label': 'Removed', 'count': post_counts['removed']},
+        {'value': 'all', 'label': 'All posts', 'count': post_counts['all']},
+    ]
+    page_obj = Paginator(posts.order_by('-updated_at'), 25).get_page(
+        request.GET.get('page')
+    )
+    return render(request, 'core/admin_posts.html', {
+        'posts': page_obj.object_list,
+        'page_obj': page_obj,
+        'status_filter': status_filter,
+        'post_counts': post_counts,
+        'status_tabs': status_tabs,
+    })
+
+
+def admin_edit_blog(request, blog_id):
+    """Allow an admin to update any post without changing its moderation state."""
+    if not _require_admin(request):
+        if not request.user.is_authenticated and not get_chat_user(request):
+            return redirect(f"{reverse('login')}?next={request.path}")
+        return redirect("sections")
+
+    blog = get_object_or_404(Blog, id=blog_id)
+    if request.method == 'POST':
+        form = BlogCreateForm(request.POST, request.FILES, instance=blog)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Post changes saved.')
+            return redirect('admin_posts')
+    else:
+        form = BlogCreateForm(instance=blog)
+
+    return render(request, 'core/blog_create.html', {
+        'form': form,
+        'edit_mode': True,
+        'admin_mode': True,
+        'blog': blog,
+    })
+
+
+@require_POST
+def admin_remove_blog(request, blog_id):
+    """Remove a post, retain the reason for the creator, and send an email."""
+    if not _require_admin(request):
+        if not request.user.is_authenticated and not get_chat_user(request):
+            return redirect(f"{reverse('login')}?next={request.path}")
+        return redirect("sections")
+
+    blog = get_object_or_404(Blog, id=blog_id)
+    form = BlogRemovalForm(request.POST)
+    if not form.is_valid():
+        messages.error(request, 'Enter a clear reason before removing this post.')
+        status_filter = 'approved' if blog.is_published else 'pending'
+        return redirect(f"{reverse('admin_posts')}?status={status_filter}")
+
+    reason = form.cleaned_data['reason']
+    if blog.is_published or not blog.moderation_reason:
+        blog.is_published = False
+        blog.moderation_reason = reason
+        blog.save(update_fields=['is_published', 'moderation_reason', 'updated_at'])
+        if blog.author_user and blog.author_user.email:
+            base_url = request.build_absolute_uri('/').rstrip('/')
+            try:
+                send_blog_post_removed_email(
+                    blog.author_user, blog, reason, base_url
+                )
+            except Exception:
+                logger.exception(
+                    "Failed to send post-removal email for blog %s to %s",
+                    blog.slug, blog.author_user.username,
+                )
+        messages.success(
+            request,
+            f'"{blog.title}" was removed and its author was notified.',
+        )
+    return redirect(f"{reverse('admin_posts')}?status=removed")
+
+
 def admin_withdrawals(request):
     """Custom admin page — lists all pending withdrawal requests."""
     if not (request.user.is_authenticated and request.user.is_superuser):
@@ -1356,29 +1502,12 @@ def admin_withdrawals(request):
     for row in user_stats:
         row['total_earned'] = Decimal(str((row['total_views'] or 0) // 100 * NAIRA_PER_100_VIEWS))
 
-    # Pending blog posts awaiting admin approval
-    blog_approvals = Blog.objects.filter(is_published=False).order_by('-created_at')[:20]
-
     return render(request, 'core/admin_withdrawals.html', {
         'withdrawals': withdrawals,
         'status_filter': status_filter,
         'pending_count': pending_count,
         'user_stats': user_stats,
         'naira_per_100': NAIRA_PER_100_VIEWS,
-        'blog_approvals': blog_approvals,
-    })
-
-
-    # Pending blog posts awaiting admin approval
-    blog_approvals = Blog.objects.filter(is_published=False).order_by('-created_at')[:20]
-
-    return render(request, 'core/admin_withdrawals.html', {
-        'withdrawals': withdrawals,
-        'status_filter': status_filter,
-        'pending_count': pending_count,
-        'user_stats': user_stats,
-        'naira_per_100': NAIRA_PER_100_VIEWS,
-        'blog_approvals': blog_approvals,
     })
 @require_POST
 def admin_mark_withdrawal_sent(request, withdrawal_id):
@@ -1417,7 +1546,8 @@ def admin_approve_blog(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     if not blog.is_published:
         blog.is_published = True
-        blog.save(update_fields=['is_published'])
+        blog.moderation_reason = ''
+        blog.save(update_fields=['is_published', 'moderation_reason'])
 
         # Email the author
         if blog.author_user and blog.author_user.email:
@@ -1438,4 +1568,4 @@ def admin_approve_blog(request, blog_id):
                 "Failed to notify subscribers of new post %s", blog.slug
             )
 
-    return redirect('admin_withdrawals')
+    return redirect(f"{reverse('admin_posts')}?status=approved")

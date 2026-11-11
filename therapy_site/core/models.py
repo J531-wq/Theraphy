@@ -120,6 +120,11 @@ class Blog(models.Model):
         help_text='Has the author been emailed about low views on this post?',
     )
     is_published = models.BooleanField(default=False)
+    moderation_reason = models.TextField(
+        blank=True,
+        default='',
+        help_text="Reason provided by an admin when a published post is removed.",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Post Management — Admin · MyTherapyDoctor</title>
+  {% load static %}
+  <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color:#edf4f1;background:#0b1411;--muted:#a4b2ac;--line:rgba(255,255,255,.1);--teal:#9af4d1}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 10% 0,rgba(46,125,110,.25),transparent 40%),#0b1411}
+    a{color:inherit;text-decoration:none}.nav{height:68px;border-bottom:1px solid var(--line);background:rgba(5,12,10,.88);display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100vw - 1200px)/2));gap:16px}
+    .brand{font-weight:800;letter-spacing:.02em}.nav-links{display:flex;gap:10px;align-items:center}.nav a.pill{border:1px solid var(--line);border-radius:8px;padding:9px 13px;color:#cbd7d1;font-size:13px}
+    .page{max-width:1200px;margin:0 auto;padding:48px 24px 80px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--teal)}
+    h1{font-size:clamp(28px,4vw,40px);margin:10px 0}.intro{max-width:720px;color:var(--muted);line-height:1.6;margin:0 0 26px}
+    .notice{border:1px solid rgba(61,158,140,.35);background:rgba(46,125,110,.14);color:#c6ead9;padding:12px 16px;border-radius:10px;margin:12px 0}
+    .notice.error{border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.1);color:#fecaca}
+    .tabs{display:flex;flex-wrap:wrap;gap:9px;margin:26px 0}.tab{border:1px solid var(--line);border-radius:999px;padding:9px 15px;color:#becbc5;font-size:13px}
+    .tab.active{border-color:rgba(154,244,209,.5);background:rgba(46,125,110,.2);color:var(--teal)}.count{margin-left:6px;opacity:.7}
+    .post-list{display:grid;gap:14px}.post{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:24px;padding:22px;border:1px solid var(--line);border-radius:15px;background:rgba(10,21,17,.88)}
+    .post h2{font-size:18px;margin:0 0 7px}.excerpt{color:#c6d1cc;font-size:14px;line-height:1.55}.meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:var(--muted);font-size:12px;margin-top:12px}
+    .badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 9px;font-weight:700;font-size:11px}
+    .approved{color:#9af4d1;border-color:rgba(154,244,209,.3)}.pending{color:#f3c98d;border-color:rgba(243,201,141,.3)}.removed{color:#fca5a5;border-color:rgba(252,165,165,.3)}
+    .reason{margin-top:12px;border-left:3px solid #f87171;padding:9px 12px;background:rgba(248,113,113,.08);color:#fecaca;font-size:13px;line-height:1.5}
+    .actions{display:grid;align-content:start;gap:9px}.actions a,.actions button{display:inline-flex;justify-content:center;align-items:center;min-height:38px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.04);color:#edf4f1;font:600 12px Inter,system-ui,sans-serif;padding:8px 12px;cursor:pointer}
+    .actions .approve{background:#2e7d6e;border-color:#2e7d6e;color:white}.actions .remove{color:#fecaca;border-color:rgba(248,113,113,.35)}
+    .actions textarea{width:100%;resize:vertical;min-height:68px;border:1px solid var(--line);border-radius:8px;background:#111e19;color:#edf4f1;padding:10px;font:12px/1.5 Inter,system-ui,sans-serif}
+    .empty{padding:42px;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
+    .pages{display:flex;justify-content:space-between;margin-top:20px;color:var(--muted);font-size:13px}
+    @media(max-width:720px){.nav{padding:0 16px}.page{padding:32px 16px 56px}.post{grid-template-columns:1fr;gap:16px}.actions{grid-template-columns:1fr 1fr}.actions form{grid-column:1/-1}.nav-links .optional{display:none}}
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="{% url 'admin_dashboard' %}">MyTherapyDoctor · Admin</a>
+    <div class="nav-links">
+      <a class="pill optional" href="{% url 'admin_dashboard' %}">Overview</a>
+      <a class="pill optional" href="{% url 'admin_withdrawals' %}">Withdrawals</a>
+      <a class="pill" href="{% url 'admin_create_post' %}">Create post</a>
+      <a class="pill" href="{% url 'logout' %}">Sign out</a>
+    </div>
+  </nav>
+  <main class="page">
+    <div class="eyebrow">Admin workspace · Journal</div>
+    <h1>Post management</h1>
+    <p class="intro">Oversee every submitted post, review views, edit content, approve new submissions, and remove posts with a clear reason for the author.</p>
+    {% if messages %}
+      {% for message in messages %}
+        <div class="notice {% if message.tags == 'error' %}error{% endif %}" role="status">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    <nav class="tabs" aria-label="Filter posts">
+      {% for tab in status_tabs %}
+      <a class="tab {% if status_filter == tab.value %}active{% endif %}" href="?status={{ tab.value }}">
+        {{ tab.label }}<span class="count">{{ tab.count }}</span>
+      </a>
+      {% endfor %}
+    </nav>
+    {% if posts %}
+      <section class="post-list">
+        {% for post in posts %}
+        <article class="post">
+          <div>
+            <h2>{% if post.is_published %}<a href="{% url 'blog_detail' post.slug %}">{{ post.title }}</a>{% else %}{{ post.title }}{% endif %}</h2>
+            <div class="excerpt">{{ post.excerpt|truncatechars:240 }}</div>
+            <div class="meta">
+              <span>By {{ post.author }}{% if post.author_user %} · @{{ post.author_user.username }}{% endif %}</span>
+              <span>{{ post.get_category_display }}</span>
+              <span>Created {{ post.created_at|date:"M d, Y" }}</span>
+              <span>Updated {{ post.updated_at|date:"M d, Y" }}</span>
+              <span>👁 {{ post.views_count }} views</span>
+              {% if post.is_published %}<span class="badge approved">Approved · public</span>
+              {% elif post.moderation_reason %}<span class="badge removed">Removed</span>
+              {% else %}<span class="badge pending">Awaiting approval</span>{% endif %}
+            </div>
+            {% if post.moderation_reason %}<div class="reason"><strong>Removal reason:</strong><br>{{ post.moderation_reason|linebreaksbr }}</div>{% endif %}
+          </div>
+          <div class="actions">
+            <a href="{% url 'admin_edit_blog' post.id %}">Edit post</a>
+            {% if not post.is_published %}
+            <form method="post" action="{% url 'admin_approve_blog' post.id %}">
+              {% csrf_token %}
+              <button class="approve" type="submit">{% if post.moderation_reason %}Approve and restore{% else %}Approve and publish{% endif %}</button>
+            </form>
+            {% endif %}
+            {% if not post.moderation_reason %}
+            <form method="post" action="{% url 'admin_remove_blog' post.id %}" onsubmit="return confirm('Remove this post from the public journal? Its author will be notified with this reason.')">
+              {% csrf_token %}
+              <textarea name="reason" maxlength="2000" required aria-label="Removal reason" placeholder="Required reason for removal"></textarea>
+              <button class="remove" type="submit">Remove with reason</button>
+            </form>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </section>
+      {% if page_obj.has_other_pages %}
+      <div class="pages">
+        <span>{% if page_obj.has_previous %}<a href="?status={{ status_filter }}&page={{ page_obj.previous_page_number }}">← Previous</a>{% endif %}</span>
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        <span>{% if page_obj.has_next %}<a href="?status={{ status_filter }}&page={{ page_obj.next_page_number }}">Next →</a>{% endif %}</span>
+      </div>
+      {% endif %}
+    {% else %}
+      <div class="empty">No {{ status_filter }} posts found.</div>
+    {% endif %}
+  </main>
+</body>
+</html>

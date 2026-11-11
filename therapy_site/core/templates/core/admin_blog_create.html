@@ -159,24 +159,23 @@
     .editor-surface ul, .editor-surface ol { padding-left: 1.5em; }
     .editor-help { display: flex; justify-content: space-between; gap: 12px; margin-top: 7px; color: var(--muted); font-size: 11.5px; }
     .content-source { display: none; }
-    .image-picker { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(180px,.9fr); gap: 14px; }
-    .image-dropzone {
-      position: relative; display: flex; min-height: 175px; flex-direction: column; align-items: center; justify-content: center;
-      gap: 9px; padding: 22px; border: 1px dashed rgba(154,244,209,.38); border-radius: 16px;
-      color: rgba(240,244,243,.74); background: linear-gradient(145deg,rgba(46,125,110,.11),rgba(255,255,255,.025));
-      text-align: center; cursor: pointer; transition: background .2s ease,border-color .2s ease,transform .2s ease;
-    }
-    .image-dropzone:hover, .image-dropzone.is-dragging { border-color: #9af4d1; background: rgba(46,125,110,.19); transform: translateY(-1px); }
-    .image-dropzone svg { color: #9af4d1; }
-    .image-drop-title { color: var(--text); font-size: 13px; font-weight: 700; }
-    .image-drop-help { color: var(--muted); font-size: 11px; }
-    .image-dropzone input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-    .image-preview {
-      display: grid; min-height: 175px; place-items: center; overflow: hidden;
-      border: 1px solid rgba(255,255,255,.1); border-radius: 16px;
-      color: rgba(240,244,243,.4); background: rgba(0,0,0,.2); font-size: 11px;
-    }
-    .image-preview img { width: 100%; height: 100%; min-height: 175px; max-height: 220px; object-fit: cover; }
+    .cover-studio { display:grid; grid-template-columns:minmax(0,1fr) 34px minmax(210px,.86fr) minmax(190px,.74fr); gap:14px; align-items:stretch; padding:14px; border:1px solid rgba(154,244,209,.16); border-radius:18px; background:linear-gradient(145deg,rgba(46,125,110,.1),rgba(255,255,255,.02)); }
+    .cover-source { padding:16px; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:rgba(4,13,10,.34); }
+    .cover-source-head { display:flex; gap:9px; align-items:center; margin-bottom:11px; }
+    .cover-step { display:grid; width:23px; height:23px; place-items:center; border-radius:50%; color:#06100c; background:#9af4d1; font-size:11px; font-weight:800; }
+    .cover-source-title { color:var(--text); font-size:13px; font-weight:750; }
+    .cover-source-copy { margin:3px 0 0; color:var(--muted); font-size:11px; line-height:1.45; }
+    .cover-source .form-control { font-size:13px; }
+    .cover-divider { display:grid; place-items:center; color:rgba(240,244,243,.4); font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    .cover-divider::before,.cover-divider::after { content:""; width:1px; height:34px; background:rgba(255,255,255,.12); }
+    .cover-upload { position:relative; display:flex; min-height:146px; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:16px; border:1px dashed rgba(154,244,209,.48); border-radius:13px; color:rgba(240,244,243,.74); background:rgba(46,125,110,.08); text-align:center; cursor:pointer; transition:.2s ease; }
+    .cover-upload:hover,.cover-upload.is-dragging { border-color:#9af4d1; color:#d7ffe9; background:rgba(46,125,110,.2); transform:translateY(-1px); }
+    .cover-upload svg { color:#9af4d1; }
+    .cover-upload-title { color:var(--text); font-size:13px; font-weight:750; }
+    .cover-upload-help { color:var(--muted); font-size:11px; line-height:1.4; }
+    .cover-upload input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+    .image-preview { display:grid; min-height:146px; place-items:center; overflow:hidden; border:1px solid rgba(255,255,255,.12); border-radius:13px; color:rgba(240,244,243,.42); background:rgba(0,0,0,.25); font-size:11px; }
+    .image-preview img { width:100%; height:100%; min-height:146px; object-fit:cover; }
 
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
@@ -246,7 +245,9 @@
       body { padding: 84px 16px 50px; }
       .form-card { padding: 28px 22px 26px; }
       .row-2 { grid-template-columns: 1fr; }
-      .image-picker { grid-template-columns: 1fr; }
+      .cover-studio { grid-template-columns:1fr; }
+      .cover-divider { grid-template-columns:1fr auto 1fr; gap:10px; }
+      .cover-divider::before,.cover-divider::after { width:auto; height:1px; }
       .editor-surface { min-height: 280px; padding: 14px; }
       .form-actions { flex-direction: column-reverse; align-items: stretch; text-align: center; }
     }
@@ -346,25 +347,25 @@
           {% if form.content.errors %}<ul class="error-list">{% for e in form.content.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
         </div>
 
-        <div class="row-2">
-          <div class="form-group">
-            <label for="id_cover_image_url">Cover Image URL</label>
+        <div class="form-group">
+          <label>Cover image</label>
+          <p class="hint" style="margin:0 0 9px">Choose one source. The uploaded image takes priority over an image URL.</p>
+          <div class="cover-studio">
+            <div class="cover-source">
+              <div class="cover-source-head"><span class="cover-step">1</span><div><div class="cover-source-title">Paste an image URL</div><p class="cover-source-copy">Use an existing image hosted online.</p></div></div>
             <input class="form-control" type="url" id="id_cover_image_url" name="cover_image_url"
                    value="{{ form.cover_image_url.value|default:'' }}"
                    placeholder="https://example.com/image.jpg">
-            <p class="hint">Optional external image for the cover photo.</p>
             {% if form.cover_image_url.errors %}<ul class="error-list">{% for e in form.cover_image_url.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
-          </div>
-          <div class="form-group">
-            <div class="image-picker">
-              <label class="image-dropzone" id="image-dropzone" for="id_featured_image">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-                <span class="image-drop-title">Add a cover image</span>
-                <span class="image-drop-help">Choose a file or drag it here · JPG, PNG, WEBP</span>
-                <input type="file" id="id_featured_image" name="featured_image" accept="image/*">
-              </label>
-              <div class="image-preview" id="image-preview" aria-live="polite">Image preview</div>
             </div>
+            <div class="cover-divider" aria-hidden="true">or</div>
+            <label class="cover-upload" id="image-dropzone" for="id_featured_image">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M5 14.5v3A2.5 2.5 0 0 0 7.5 20h9a2.5 2.5 0 0 0 2.5-2.5v-3"/></svg>
+              <span class="cover-upload-title">Upload from your device</span>
+              <span class="cover-upload-help">Click or drop JPG, PNG or WEBP here</span>
+              <input type="file" id="id_featured_image" name="featured_image" accept="image/*">
+            </label>
+            <div class="image-preview" id="image-preview" aria-live="polite">Your cover preview</div>
             {% if form.featured_image.errors %}<ul class="error-list">{% for e in form.featured_image.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
           </div>
         </div>
@@ -385,11 +386,11 @@
           <a class="btn-cancel" href="{% url 'admin_posts' %}">← Cancel</a>
           <button class="btn-submit" type="submit">{% if edit_mode %}Save Changes →{% else %}Publish Post →{% endif %}</button>
         </div>
-        </main>
       </form>
     </div>
 
   </div>
+  </main>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {

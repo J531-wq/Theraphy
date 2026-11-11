@@ -6,10 +6,28 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from unittest.mock import patch
 
+from .forms import BlogCreateForm
 from .models import Blog, ChatMessage, PageView, User
 
 
 class BlogCreateTests(TestCase):
+    def test_article_content_drops_empty_rich_text_spacers(self):
+        form = BlogCreateForm({
+            "title": "A Helpful Blog Post",
+            "category": "wellness",
+            "excerpt": "A short summary for this helpful article.",
+            "content": (
+                "<p>First useful paragraph with sufficient content.</p>"
+                "<p><br></p><p>  </p>"
+                "<h2><br>Useful heading<br></h2>"
+                "<p>Second useful paragraph with sufficient content.</p>"
+            ),
+        })
+
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertNotIn("<p><br></p>", form.cleaned_data["content"])
+        self.assertIn("<h2>Useful heading</h2>", form.cleaned_data["content"])
+
     def setUp(self):
         self.user = User.objects.create(
             username='blogger',

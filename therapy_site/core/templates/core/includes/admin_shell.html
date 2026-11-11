@@ -2,14 +2,15 @@
 <header class="admin-topbar">
   <a class="admin-topbar-brand" href="{% url 'admin_dashboard' %}">
     <img src="{% static 'core/logo.png' %}" alt="">
-    <span>Admin Workspace</span>
+    <span class="admin-topbar-title">MyTherapyDoctor<small>Admin control centre</small></span>
   </a>
-  <button class="admin-menu-toggle" id="admin-menu-toggle" type="button" aria-label="Open admin navigation" aria-controls="admin-sidebar" aria-expanded="false">
+  <button class="admin-menu-toggle" id="admin-menu-toggle" type="button" aria-label="Open admin navigation" aria-controls="admin-sidebar" aria-expanded="false"><span class="admin-menu-label">Menu</span>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
   </button>
   <div class="admin-topbar-actions">
+    <span class="admin-role">Administrator</span>
     <a class="admin-topbar-action" href="{% url 'blog_list' %}">View journal</a>
-    <a class="admin-topbar-action signout" href="{% url 'logout' %}">Sign out</a>
+    <a class="admin-topbar-action signout" href="{% url 'logout' %}"><span aria-hidden="true">↗</span> Sign out</a>
   </div>
 </header>
 

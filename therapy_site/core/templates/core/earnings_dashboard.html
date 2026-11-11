@@ -228,7 +228,7 @@
         <!-- Posts -->
         <div class="card rv" id="my-posts">
           <div class="ch">
-            <h2>My posts</h2>
+            <div><h2>My posts</h2><span style="display:block;margin-top:4px;color:var(--muted);font-size:11px">Only you can edit or delete these posts.</span></div>
             <a class="btn bs" href="{% url 'blog_create' %}" style="padding:7px 14px;font-size:12.5px">+ Write new</a>
           </div>
           {% if posts %}

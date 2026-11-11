@@ -1,5 +1,6 @@
 from html import escape
 from html.parser import HTMLParser
+import re
 from urllib.parse import urlsplit
 
 
@@ -78,4 +79,11 @@ def _is_safe_link(href):
 
 
 def sanitize_blog_content(value):
-    return _BlogHTMLSanitizer().sanitize(value or "")
+    content = _BlogHTMLSanitizer().sanitize(value or "")
+    # Rich text editors and pasted documents often add blank paragraphs to
+    # create visual spacing. They become exaggerated gaps on mobile, so keep
+    # meaningful text/line breaks but discard empty spacer blocks.
+    content = re.sub(r"<p>(?:\s|<br>)*</p>", "", content, flags=re.IGNORECASE)
+    content = re.sub(r"<(h[2-4])>(?:\s|<br>)+", r"<\1>", content, flags=re.IGNORECASE)
+    content = re.sub(r"(?:\s|<br>)+</(h[2-4])>", r"</\1>", content, flags=re.IGNORECASE)
+    return content

@@ -13,11 +13,11 @@
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 10% 0,rgba(46,125,110,.25),transparent 40%),#0b1411}
     a{color:inherit;text-decoration:none}.nav{height:68px;border-bottom:1px solid var(--line);background:rgba(5,12,10,.88);display:flex;align-items:center;justify-content:space-between;padding:0 max(24px,calc((100vw - 1200px)/2));gap:16px}
     .brand{font-weight:800;letter-spacing:.02em}.nav-links{display:flex;gap:10px;align-items:center}.nav a.pill{border:1px solid var(--line);border-radius:8px;padding:9px 13px;color:#cbd7d1;font-size:13px}
-    .page{max-width:1200px;margin:0 auto;padding:48px 24px 80px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--teal)}
-    h1{font-size:clamp(28px,4vw,40px);margin:10px 0}.intro{max-width:720px;color:var(--muted);line-height:1.6;margin:0 0 26px}
+    .page{max-width:1200px;margin:0 auto;padding:18px 0 80px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--teal)}
+    .page-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;margin-bottom:22px;padding:27px 28px;border:1px solid rgba(154,244,209,.17);border-radius:20px;background:linear-gradient(115deg,rgba(18,62,49,.78),rgba(8,23,18,.8));box-shadow:0 18px 42px rgba(0,0,0,.16)}h1{font-size:clamp(28px,4vw,40px);letter-spacing:-.05em;margin:9px 0}.intro{max-width:720px;color:var(--muted);line-height:1.6;margin:0}.hero-action{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border:1px solid rgba(154,244,209,.35);border-radius:10px;color:#e2fff0;background:rgba(46,125,110,.2);font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;transition:.18s}.hero-action:hover{transform:translateY(-2px);background:rgba(46,125,110,.35)}
     .notice{border:1px solid rgba(61,158,140,.35);background:rgba(46,125,110,.14);color:#c6ead9;padding:12px 16px;border-radius:10px;margin:12px 0}
     .notice.error{border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.1);color:#fecaca}
-    .tabs{display:flex;flex-wrap:wrap;gap:9px;margin:26px 0}.tab{border:1px solid var(--line);border-radius:999px;padding:9px 15px;color:#becbc5;font-size:13px}
+    .tabs{display:flex;flex-wrap:wrap;gap:9px;margin:0 0 20px;padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.14)}.tab{border:1px solid var(--line);border-radius:999px;padding:9px 15px;color:#becbc5;font-size:13px}
     .tab.active{border-color:rgba(154,244,209,.5);background:rgba(46,125,110,.2);color:var(--teal)}.count{margin-left:6px;opacity:.7}
     .post-list{display:grid;gap:16px}.post{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 238px;gap:28px;padding:24px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(130deg,rgba(16,34,28,.94),rgba(7,17,14,.9));box-shadow:0 10px 26px rgba(0,0,0,.12);transition:transform .18s,border-color .18s,box-shadow .18s}.post:hover{transform:translateY(-2px);border-color:rgba(154,244,209,.26);box-shadow:0 16px 34px rgba(0,0,0,.2)}
     .post-main{min-width:0}.post-topline{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:11px}.post h2{font-size:19px;letter-spacing:-.025em;margin:0}.post h2 a:hover{color:var(--teal)}.post-category{color:#a8beb4;font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;white-space:nowrap}.excerpt{max-width:740px;color:#c6d1cc;font-size:13px;line-height:1.62}.meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:var(--muted);font-size:11.5px;margin-top:15px;padding-top:14px;border-top:1px solid rgba(255,255,255,.065)}
@@ -30,7 +30,7 @@
     .empty{padding:42px;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
     .pages{display:flex;justify-content:space-between;margin-top:20px;color:var(--muted);font-size:13px}
     .admin-main .page{padding:0 0 56px}
-    @media(max-width:720px){.admin-main .page{padding:0 0 56px}.post{grid-template-columns:1fr;gap:16px;padding:19px}.post-topline{align-items:flex-start;flex-direction:column}.actions{grid-template-columns:1fr 1fr}.actions form{grid-column:1/-1}}
+    @media(max-width:720px){.admin-main .page{padding:0 0 56px}.page-hero{grid-template-columns:1fr;padding:22px 19px}.hero-action{width:100%}.post{grid-template-columns:1fr;gap:16px;padding:19px}.post-topline{align-items:flex-start;flex-direction:column}.actions{grid-template-columns:1fr 1fr}.actions form{grid-column:1/-1}}
   </style>
   <link rel="stylesheet" href="{% static 'core/admin-shell.css' %}">
 </head>
@@ -38,9 +38,14 @@
   {% include "core/includes/admin_shell.html" with active_admin_page="posts" %}
   <main class="admin-main">
   <div class="page">
-    <div class="eyebrow">Admin workspace · Journal</div>
-    <h1>Post management</h1>
-    <p class="intro">Oversee every submitted post, review views, edit content, approve new submissions, and remove posts with a clear reason for the author.</p>
+    <section class="page-hero">
+      <div>
+        <div class="eyebrow">Content operations</div>
+        <h1>Post management</h1>
+        <p class="intro">Review creator submissions, protect quality, and keep the journal current from one focused workspace.</p>
+      </div>
+      <a class="hero-action" href="{% url 'admin_create_post' %}">+ Create admin post</a>
+    </section>
     {% if messages %}
       {% for message in messages %}
         <div class="notice {% if message.tags == 'error' %}error{% endif %}" role="status">{{ message }}</div>

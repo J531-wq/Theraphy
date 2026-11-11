@@ -2,14 +2,15 @@
   position: fixed;
   inset: 0 0 auto;
   z-index: 300;
-  height: 64px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 0 32px;
-  border-bottom: 1px solid rgba(255,255,255,.1);
-  background: rgba(6,14,12,.94);
+  padding: 0 34px;
+  border-bottom: 1px solid rgba(154,244,209,.16);
+  background: linear-gradient(90deg,rgba(4,16,12,.98),rgba(7,28,22,.96));
+  box-shadow: 0 8px 26px rgba(0,0,0,.18);
   backdrop-filter: blur(20px);
 }
 .admin-topbar-brand,
@@ -19,35 +20,39 @@
   align-items: center;
 }
 .admin-topbar-brand {
-  gap: 10px;
+  gap: 11px;
   color: #f0f4f3;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
   text-decoration: none;
 }
 .admin-topbar-brand img {
-  width: 30px;
-  height: 30px;
-  padding: 3px;
-  border: 1px solid rgba(255,255,255,.16);
-  border-radius: 9px;
-  background: rgba(255,255,255,.06);
+  width: 38px;
+  height: 38px;
+  padding: 4px;
+  border: 1px solid rgba(154,244,209,.28);
+  border-radius: 12px;
+  background: linear-gradient(145deg,rgba(46,125,110,.34),rgba(255,255,255,.05));
   object-fit: contain;
 }
-.admin-topbar-brand span {
+.admin-topbar-title {
+  display:flex;
+  flex-direction:column;
   color: #9af4d1;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.4px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.1px;
   text-transform: uppercase;
 }
+.admin-topbar-title small { margin-top:2px; color:rgba(240,244,243,.48); font-size:8px; font-weight:700; letter-spacing:.16em; }
 .admin-topbar-actions { gap: 8px; }
+.admin-role { padding-right:10px; color:rgba(202,236,219,.55); font-size:10px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
 .admin-topbar-action {
-  min-height: 36px;
+  min-height: 39px;
   justify-content: center;
   padding: 0 13px;
   border: 1px solid rgba(255,255,255,.12);
-  border-radius: 999px;
+  border-radius: 11px;
   color: rgba(240,244,243,.68);
   background: rgba(255,255,255,.04);
   font: 500 12px Inter,system-ui,sans-serif;
@@ -60,11 +65,11 @@
   color: #d7ffe9;
   background: rgba(46,125,110,.18);
 }
-.admin-topbar-action.signout { color: #fca5a5; }
+.admin-topbar-action.signout { color:#fecaca; border-color:rgba(248,113,113,.22); background:rgba(248,113,113,.07); }
 .admin-sidebar {
   position: fixed;
   z-index: 280;
-  inset: 64px auto 0 0;
+  inset: 72px auto 0 0;
   display: flex;
   width: 250px;
   flex-direction: column;
@@ -124,6 +129,7 @@
   background: rgba(255,255,255,.06);
   cursor: pointer;
 }
+.admin-menu-label { display:none; margin-right:5px; font:700 10px Inter,system-ui,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
 .admin-sidebar-overlay { display: none; }
 .admin-main {
   position: relative;
@@ -143,7 +149,7 @@ body.admin-workspace { padding: 0 !important; }
   .admin-sidebar-overlay.open {
     position: fixed;
     z-index: 270;
-    inset: 64px 0 0;
+    inset: 72px 0 0;
     display: block;
     background: rgba(0,0,0,.58);
     backdrop-filter: blur(3px);
@@ -151,9 +157,19 @@ body.admin-workspace { padding: 0 !important; }
   .admin-main { margin-left: 0; }
 }
 @media (max-width: 640px) {
-  .admin-topbar { padding: 0 15px; }
+  .admin-topbar { height:68px; padding:0 14px; gap:10px; }
+  .admin-topbar-brand img { width:35px; height:35px; }
+  .admin-topbar-title { font-size:10px; letter-spacing:.9px; }
+  .admin-topbar-title small { display:none; }
+  .admin-menu-toggle { order:2; width:42px; height:42px; border-radius:12px; }
+  .admin-menu-label { display:inline; }
+  .admin-role { display:none; }
+  .admin-topbar-actions { order:3; }
+  .admin-topbar-action.signout { min-height:38px; padding:0 12px; }
   .admin-topbar-actions .admin-topbar-action:not(.signout) { display: none; }
-  .admin-main { padding: 88px 16px 48px; }
+  .admin-sidebar { inset-block-start:68px; }
+  .admin-sidebar-overlay.open { inset-block-start:68px; }
+  .admin-main { padding: 92px 16px 48px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .admin-sidebar,

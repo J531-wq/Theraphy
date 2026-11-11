@@ -27,7 +27,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     @font-face{font-family:'Playfair Display';src:url("{% static 'PlayfairDisplay-SemiBoldItalic.ttf' %}") format('truetype');font-weight:600;font-style:italic;font-display:swap}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--accent:#e07b5a;--accent-dark:#b85a38;--accent-glow:rgba(224,123,90,0.25);--bg:rgba(18,8,4,0.70);--border:rgba(255,255,255,0.08);--text:#faf0ec;--muted:rgba(250,240,236,0.5);--user-color:#60c4ff;--ai-color:#e07b5a;--sidebar-w:260px}
+    :root{--accent:#2e7d6e;--accent-dark:#1b5e52;--accent-glow:rgba(46,125,110,0.25);--bg:rgba(4,14,12,0.70);--border:rgba(255,255,255,0.08);--text:#f0f4f3;--muted:rgba(240,244,243,0.5);--user-color:#3d9e8c;--ai-color:#3d9e8c;--sidebar-w:260px}
     html,body{width:100%;height:100%;overflow:hidden;font-family:'Inter',sans-serif}
     body{display:flex;height:100vh;height:100dvh;background:linear-gradient(160deg,rgba(0,0,0,0.74) 0%,rgba(0,0,0,0.50) 100%),url("{% static 'core/trauma.jpg.jpeg' %}") no-repeat center center/cover fixed;opacity:0;transition:opacity 0.45s ease}
     body.page-loaded{opacity:1}body.page-exit{opacity:0}
@@ -67,7 +67,7 @@
     .msg-meta{font-size:10px;font-weight:600;letter-spacing:0.7px;text-transform:uppercase;margin-bottom:4px;color:var(--muted)}
     .msg.user .msg-meta{color:var(--user-color)}.msg.ai .msg-meta{color:var(--ai-color)}
     .bubble{padding:11px 15px;border-radius:16px;font-size:14px;line-height:1.65;word-wrap:break-word;overflow-wrap:anywhere}
-    .msg.user .bubble{background:linear-gradient(135deg,rgba(96,196,255,0.18),rgba(96,196,255,0.10));border:1px solid rgba(96,196,255,0.2);border-bottom-right-radius:4px;color:var(--text)}
+    .msg.user .bubble{background:linear-gradient(135deg,rgba(61,158,140,0.2),rgba(46,125,110,0.12));border:1px solid rgba(61,158,140,0.3);border-bottom-right-radius:4px;color:var(--text)}
     .msg.ai .bubble{background:var(--bg);border:1px solid var(--border);border-bottom-left-radius:4px;color:var(--text);backdrop-filter:blur(10px)}
     .typing .bubble{display:flex;align-items:center;gap:5px;padding:13px 16px}
     .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:blink 1.4s ease-in-out infinite}
@@ -81,8 +81,8 @@
     .send-btn:hover{opacity:0.85;transform:scale(1.05)}
     .mic-btn{flex-shrink:0;width:46px;height:46px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:11px;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s,transform 0.15s,box-shadow 0.2s;backdrop-filter:blur(8px)}
     .mic-btn:hover{background:rgba(255,255,255,0.13)}
-    .mic-btn.listening{background:rgba(224,123,90,0.18);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);animation:micPulse 1.2s ease-in-out infinite}
-    @keyframes micPulse{0%,100%{box-shadow:0 0 0 3px var(--accent-glow)}50%{box-shadow:0 0 0 7px rgba(224,123,90,0.08)}}
+    .mic-btn.listening{background:rgba(46,125,110,0.18);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);animation:micPulse 1.2s ease-in-out infinite}
+    @keyframes micPulse{0%,100%{box-shadow:0 0 0 3px var(--accent-glow)}50%{box-shadow:0 0 0 7px rgba(46,125,110,0.08)}}
     @media(max-width:700px){.sidebar{position:fixed;top:0;left:0;height:100%;z-index:200;transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.menu-btn{display:flex}.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:199}.sidebar-overlay.open{display:block}.chat-wrap{padding:12px 12px 0}.input-bar{padding-bottom:calc(12px + env(safe-area-inset-bottom))}.topbar{padding:12px 14px}.bubble{font-size:13px}.msg{max-width:90%}}
   </style>
 </head>

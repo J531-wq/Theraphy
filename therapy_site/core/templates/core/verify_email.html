@@ -43,7 +43,7 @@
         radial-gradient(ellipse at 12% 18%, rgba(46,125,110,.35), transparent 32%),
         radial-gradient(ellipse at 88% 78%, rgba(61,158,140,.25), transparent 34%),
         radial-gradient(ellipse at 76% 10%, rgba(46,125,110,.20), transparent 26%),
-        linear-gradient(135deg, #17132c 0%, #171a36 52%, #092e32 100%);
+        linear-gradient(135deg, #0b1714 0%, #10211d 52%, #092e32 100%);
       opacity: 0;
       transition: opacity 0.5s ease;
     }
@@ -90,7 +90,7 @@
       padding: 38px 36px 32px;
       border: 1px solid rgba(255,255,255,.2);
       border-radius: 28px 10px 28px 10px;
-      background: rgba(14,17,33,.91);
+      background: rgba(6,14,12,.91);
       box-shadow: 14px 18px 0 rgba(46,125,110,.6), 0 35px 100px rgba(0,0,0,.4);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
@@ -109,13 +109,13 @@
       width: 54px;
       height: 54px;
       place-items: center;
-      border: 2px solid #17132c;
+      border: 2px solid #0b1714;
       border-radius: 16px 50% 50%;
-      color: #17132c;
+      color: #fff;
       background: #2e7d6e;
       font-size: 25px;
       transform: rotate(12deg);
-      box-shadow: 4px 5px 0 #ff7189;
+      box-shadow: 4px 5px 0 rgba(61,158,140,.55);
     }
 
     /* ── Brand ── */
@@ -181,7 +181,7 @@
       display: block;
       font-size: 11px;
       font-weight: 500;
-      color: #b7c5ff;
+      color: rgba(240,244,243,.72);
       letter-spacing: 0.6px;
       text-transform: uppercase;
       margin-bottom: 6px;
@@ -217,7 +217,7 @@
       margin-top: 6px;
       border: none;
       border-radius: 12px 4px 12px 4px;
-      color: #17132c;
+      color: #fff;
       background: linear-gradient(135deg, var(--teal), var(--teal-light));
       font-size: 15px;
       font-weight: 800;
@@ -248,9 +248,10 @@
       body, .card, body::before, body::after { animation: none; transition: none; }
     }
   </style>
+  <link rel="stylesheet" href="{% static 'core/auth-visual.css' %}">
 </head>
 
-<body>
+<body class="auth-page">
 
   <div class="card">
     <div class="brand">

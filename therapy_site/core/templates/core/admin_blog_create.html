@@ -34,7 +34,7 @@
         radial-gradient(ellipse at 12% 18%, rgba(46,125,110,.35), transparent 32%),
         radial-gradient(ellipse at 88% 78%, rgba(61,158,140,.25), transparent 34%),
         radial-gradient(ellipse at 76% 10%, rgba(46,125,110,.20), transparent 26%),
-        linear-gradient(135deg, #17132c 0%, #171a36 52%, #092e32 100%);
+        linear-gradient(135deg, #0b1714 0%, #10211d 52%, #092e32 100%);
       opacity: 0;
       transition: opacity 0.5s ease;
     }
@@ -64,7 +64,7 @@
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       height: 64px; display: flex; align-items: center; padding: 0 40px;
-      background: rgba(14,17,33,.92);
+      background: rgba(6,14,12,.92);
       border-bottom: 1px solid rgba(255,255,255,.1);
       backdrop-filter: blur(20px);
     }
@@ -99,7 +99,7 @@
     .form-card {
       position: relative; overflow: visible;
       padding: 36px 38px 32px;
-      background: rgba(14,17,33,.88);
+      background: rgba(6,14,12,.88);
       border: 1px solid rgba(255,255,255,.14);
       border-radius: 28px 10px 28px 10px;
       backdrop-filter: blur(18px);
@@ -109,10 +109,10 @@
       content: "✍";
       position: absolute; top: -25px; right: 24px;
       display: grid; width: 54px; height: 54px; place-items: center;
-      border: 2px solid #17132c; border-radius: 16px 50% 50%;
-      color: #17132c; background: #2e7d6e;
+      border: 2px solid #0b1714; border-radius: 16px 50% 50%;
+      color: #fff; background: #2e7d6e;
       font-size: 22px; transform: rotate(12deg);
-      box-shadow: 4px 5px 0 #ff7189;
+      box-shadow: 4px 5px 0 rgba(61,158,140,.55);
     }
 
     /* ── FIELDS ── */
@@ -120,7 +120,7 @@
     .form-group label {
       display: block; font-size: 11px; font-weight: 600;
       letter-spacing: .8px; text-transform: uppercase;
-      color: #b7c5ff; margin-bottom: 7px;
+      color: rgba(240,244,243,.72); margin-bottom: 7px;
     }
     .form-group label .req { color: #9af4d1; }
     .form-group .hint { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
@@ -182,7 +182,7 @@
     .btn-submit {
       padding: 13px 32px; border: none;
       border-radius: 12px 4px 12px 4px;
-      color: #17132c;
+      color: #fff;
       background: linear-gradient(135deg, var(--teal), var(--teal-light));
       font: 800 15px 'Inter', sans-serif;
       cursor: pointer;
@@ -276,6 +276,7 @@
           <input class="form-control" type="text" id="id_author" name="author"
                  value="{{ form.author.value|default:'' }}"
                  placeholder="e.g. Dr. Sarah Williams" required>
+          {% if author_error %}<ul class="error-list"><li>{{ author_error }}</li></ul>{% endif %}
           {% if form.author.errors %}<ul class="error-list">{% for e in form.author.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
         </div>
 

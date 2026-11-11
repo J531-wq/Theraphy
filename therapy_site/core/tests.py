@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.hashers import make_password
 
 from .models import Blog, User
 
@@ -54,3 +55,87 @@ class BlogCreateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'class="site-chrome-header"', count=1)
         self.assertContains(response, 'class="site-chrome-footer"', count=1)
+
+
+class AdminDashboardTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create(
+            username="siteadmin",
+            full_name="Site Admin",
+            password=make_password("admin-password"),
+            is_active=True,
+            is_staff=True,
+            is_superuser=True,
+        )
+
+    def test_admin_login_opens_custom_dashboard(self):
+        response = self.client.post(reverse("login"), {
+            "username": "siteadmin",
+            "password": "admin-password",
+        })
+
+        self.assertRedirects(response, reverse("admin_dashboard"))
+        response = self.client.get(reverse("admin_dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Admin Dashboard")
+        self.assertEqual(self.client.get(reverse("admin_create_post")).status_code, 200)
+
+    def test_admin_can_create_published_post_from_custom_panel(self):
+        self.client.post(reverse("login"), {
+            "username": "siteadmin",
+            "password": "admin-password",
+        })
+
+        post_data = {
+            "title": "Admin-created wellness post",
+            "category": "wellness",
+            "author": "Site Admin",
+            "excerpt": "A useful summary for this article.",
+            "content": "This article contains enough text to pass the minimum content length requirement.",
+            "publish_now": "on",
+        }
+        response = self.client.post(reverse("admin_create_post"), post_data)
+
+        self.assertEqual(response.status_code, 200)
+        post = Blog.objects.get(title="Admin-created wellness post")
+        self.assertTrue(post.is_published)
+        self.assertEqual(post.author_user, self.admin)
+
+        post_data.pop("publish_now")
+        self.client.post(reverse("admin_create_post"), post_data)
+        duplicate_title_posts = Blog.objects.filter(
+            title="Admin-created wellness post"
+        )
+        self.assertEqual(duplicate_title_posts.count(), 2)
+        self.assertTrue(duplicate_title_posts.filter(slug__endswith="-1").exists())
+
+    def test_non_admin_login_keeps_regular_destination(self):
+        User.objects.create(
+            username="member",
+            full_name="Regular Member",
+            password=make_password("member-password"),
+            is_active=True,
+        )
+
+        response = self.client.post(reverse("login"), {
+            "username": "member",
+            "password": "member-password",
+        })
+
+        self.assertRedirects(response, reverse("sections"))
+
+    def test_non_admin_is_returned_to_sections_from_custom_dashboard(self):
+        User.objects.create(
+            username="member",
+            full_name="Regular Member",
+            password=make_password("member-password"),
+            is_active=True,
+        )
+        self.client.post(reverse("login"), {
+            "username": "member",
+            "password": "member-password",
+        })
+
+        response = self.client.get(reverse("admin_dashboard"))
+
+        self.assertRedirects(response, reverse("sections"))

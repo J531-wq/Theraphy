@@ -13,6 +13,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.text import slugify
 from django.views.decorators.http import require_POST
 
@@ -318,7 +319,7 @@ def verify_email(request):
 
 
 def login_view(request):
-    next_url = request.GET.get("next") or request.POST.get("next") or "sections"
+    next_url = request.GET.get("next") or request.POST.get("next")
     if request.method == "POST":
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -352,10 +353,21 @@ def login_view(request):
                         )
                         auth_user.is_staff = user.is_staff or user.is_superuser
                         auth_user.is_superuser = user.is_superuser
-                        auth_user.save()
+                        auth_user.is_active = True
+                        auth_user.save(update_fields=[
+                            "is_active", "is_staff", "is_superuser",
+                        ])
                         auth_login(request, auth_user)
 
-                    return redirect(next_url)
+                    if next_url and url_has_allowed_host_and_scheme(
+                        next_url,
+                        allowed_hosts={request.get_host()},
+                        require_https=request.is_secure(),
+                    ):
+                        return redirect(next_url)
+                    return redirect(
+                        "admin_dashboard" if user.is_superuser else "sections"
+                    )
                 return render(request, "core/login.html", {
                     "form": form, "error": "Incorrect password.",
                     "next": next_url,
@@ -1171,19 +1183,66 @@ def request_withdrawal(request):
 # ---------------------------------------------------------------------------
 
 def _require_admin(request):
-    """Return True if the session user is a Django superuser, else redirect."""
-    user_id = request.session.get('user_id')
-    if not user_id:
-        return False
-    # We use Django's native auth check for superuser
-    from django.contrib.auth.models import User as DjangoUser
-    try:
-        DjangoUser.objects.get(id=user_id, is_superuser=True)
-        return True
-    except DjangoUser.DoesNotExist:
-        pass
-    # Fallback: check if logged in via Django admin session
+    """Return whether the request has an authenticated Django superuser."""
     return request.user.is_authenticated and request.user.is_superuser
+
+
+def admin_dashboard(request):
+    if not _require_admin(request):
+        if not request.user.is_authenticated and not get_chat_user(request):
+            return redirect(
+                f"{reverse('login')}?next={reverse('admin_dashboard')}"
+            )
+        return redirect("sections")
+
+    posts = Blog.objects.all()
+    return render(request, "core/admin_dashboard.html", {
+        "total_users": User.objects.count(),
+        "total_posts": posts.count(),
+        "published_posts": posts.filter(is_published=True).count(),
+        "pending_posts": posts.filter(is_published=False).count(),
+        "pending_withdrawals": WithdrawalRequest.objects.filter(
+            status=WithdrawalRequest.STATUS_PENDING
+        ).count(),
+        "total_views": posts.aggregate(total=Sum("views_count"))["total"] or 0,
+        "recent_posts": posts.order_by("-created_at")[:8],
+    })
+
+
+def admin_create_post(request):
+    if not _require_admin(request):
+        if not request.user.is_authenticated and not get_chat_user(request):
+            return redirect(
+                f"{reverse('login')}?next={reverse('admin_create_post')}"
+            )
+        return redirect("sections")
+
+    form = BlogCreateForm(
+        request.POST or None,
+        request.FILES or None,
+    )
+    author_error = ""
+    success = False
+
+    if request.method == "POST":
+        author = request.POST.get("author", "").strip()
+        if not author:
+            author_error = "Enter an author name."
+        elif form.is_valid():
+            post = form.save(commit=False)
+            post.slug = _unique_slug(post.title)
+            post.author = author
+            post.author_user = get_chat_user(request)
+            post.is_published = "publish_now" in request.POST
+            post.save()
+            form = BlogCreateForm()
+            success = True
+
+    return render(request, "core/admin_blog_create.html", {
+        "form": form,
+        "author_error": author_error,
+        "success": success,
+    })
 
 
 def admin_withdrawals(request):

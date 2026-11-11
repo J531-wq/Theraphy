@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="auth-flow-page">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -117,7 +117,7 @@
       font-size: 15px;
       font-family: inherit;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;\n    .field input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-glow); }\n\n    .btn-primary {\n      width: 100%;\n      padding: 14px;\n      background: linear-gradient(135deg, var(--teal), var(--teal-light));\n      border: none;\n      border-radius: 10px;\n      color: #fff;\n      font-size: 15px;\n      font-weight: 600;\n      cursor: pointer;\n      outline: none;\n      transition: all 0.2s ease;\n      box-shadow: 0 4px 12px var(--teal-glow);\n    }\n    .btn-primary:hover {\n      background: linear-gradient(135deg, var(--teal-dark), var(--teal));\n      box-shadow: 0 6px 16px var(--teal-glow);\n      transform: translateY(-1px);\n    }
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
     .field input::placeholder { color: rgba(255,255,255,0.25); }
     .field input:focus {
@@ -242,7 +242,7 @@
         radial-gradient(ellipse at 12% 18%, rgba(46, 125, 110, .35), transparent 32%),
         radial-gradient(ellipse at 88% 78%, rgba(61, 158, 140, .25), transparent 34%),
         radial-gradient(ellipse at 76% 10%, rgba(46, 125, 110, .20), transparent 26%),
-        linear-gradient(135deg, #17132c 0%, #171a36 52%, #092e32 100%);
+        linear-gradient(135deg, #0b1714 0%, #10211d 52%, #092e32 100%);
     }
 
     body::before,
@@ -283,7 +283,7 @@
       border: 1px solid rgba(255,255,255,.2);
       border-radius: 28px 10px 28px 10px;
       background: rgba(14, 17, 33, .91);
-      box-shadow: 18px 22px 0 rgba(255, 221, 88, .9), 0 35px 100px rgba(0,0,0,.4);
+      box-shadow: 18px 22px 0 rgba(46,125,110,.45), 0 35px 100px rgba(0,0,0,.4);
     }
     .card::before {
       content: "✦";
@@ -294,13 +294,13 @@
       width: 54px;
       height: 54px;
       place-items: center;
-      border: 2px solid #17132c;
+      border: 2px solid #0b1714;
       border-radius: 16px 50% 50%;
-      color: #17132c;
+      color: #fff;
       background: #2e7d6e;
       font-size: 25px;
       transform: rotate(12deg);
-      box-shadow: 4px 5px 0 #ff7189;
+      box-shadow: 4px 5px 0 rgba(61,158,140,.55);
     }
     .brand-logo {
       padding: 5px;
@@ -311,7 +311,7 @@
     .brand-name { color: #9af4d1; }
     h1 { font-size: clamp(30px, 7vw, 40px); letter-spacing: -.06em; }
     .subtitle { color: rgba(240,244,243,.72); line-height: 1.6; }
-    .field label { color: #b7c5ff; }
+    .field label { color: rgba(240,244,243,.72); }
     .field input {
       border-radius: 12px;
       background: rgba(255,255,255,.08);
@@ -319,15 +319,15 @@
     }
     .field input:focus {
       border-color: #2e7d6e;
-      box-shadow: 0 0 0 4px rgba(255,219,97,.2);
+      box-shadow: 0 0 0 4px rgba(46,125,110,.3);
     }
     .eye-btn { color: rgba(240,244,243,.75); }
     .eye-btn:hover { color: #2e7d6e; }
     .btn-primary {
       border-radius: 12px 4px 12px 4px;
-      color: #17132c;
+      color: #fff;
       background: linear-gradient(135deg, var(--teal), var(--teal-light));
-      box-shadow: 0 6px 24px rgba(255,112,160,.25);
+      box-shadow: 0 6px 24px rgba(46,125,110,.35);
       font-weight: 800;
     }
     .forgot-link, .register-row a { color: #9af4d1; }
@@ -335,7 +335,7 @@
       border-color: rgba(255,255,255,.24);
       border-radius: 999px;
       color: white;
-      background: rgba(14,17,33,.6);
+      background: rgba(6,14,12,.72);
     }
     .error-box {
       color: #ffe2e7;
@@ -350,13 +350,26 @@
       body, .card, body::before, body::after { animation: none; transition: none; }
     }
   </style>
+  <link rel="stylesheet" href="{% static 'core/auth-visual.css' %}">
 </head>
-<body>
+<body class="auth-page auth-flow-page">
 
   <button class="back-btn" onclick="goBack()">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     Back
   </button>
+
+  <aside class="auth-sidebar" aria-labelledby="auth-sidebar-title">
+    <span class="auth-sidebar-kicker"><span aria-hidden="true"></span>Your wellbeing, at your pace</span>
+    <h2 id="auth-sidebar-title">A calmer space starts with a single step.</h2>
+    <p>Make room for your wellness journey in a space that feels personal, private, and supportive.</p>
+    <ul class="auth-sidebar-benefits">
+      <li><span aria-hidden="true">✓</span>Private and secure by design</li>
+      <li><span aria-hidden="true">✓</span>Support whenever you need it</li>
+      <li><span aria-hidden="true">✓</span>Progress at your own pace</li>
+    </ul>
+    <div class="auth-sidebar-note"><span aria-hidden="true">✦</span> Small steps are still progress.</div>
+  </aside>
 
   <div class="card">
     <div class="brand">

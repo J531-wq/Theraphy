@@ -34,7 +34,7 @@
         radial-gradient(ellipse at 12% 18%, rgba(46,125,110,.35), transparent 32%),
         radial-gradient(ellipse at 88% 78%, rgba(61,158,140,.25), transparent 34%),
         radial-gradient(ellipse at 76% 10%, rgba(46,125,110,.20), transparent 26%),
-        linear-gradient(135deg, #17132c 0%, #171a36 52%, #092e32 100%);
+        linear-gradient(135deg, #0b1714 0%, #10211d 52%, #092e32 100%);
       opacity: 0;
       transition: opacity 0.5s ease;
     }
@@ -67,7 +67,7 @@
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       height: 64px; display: flex; align-items: center; padding: 0 40px;
-      background: rgba(14,17,33,.92);
+      background: rgba(6,14,12,.92);
       border-bottom: 1px solid rgba(255,255,255,.1);
       backdrop-filter: blur(20px);
     }
@@ -110,7 +110,7 @@
     .stat-card {
       position: relative; overflow: hidden;
       padding: 22px 24px;
-      background: rgba(14,17,33,.85);
+      background: rgba(6,14,12,.85);
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 20px 8px 20px 8px;
       backdrop-filter: blur(16px);
@@ -145,7 +145,7 @@
     .action-card {
       display: flex; flex-direction: column;
       padding: 26px 28px;
-      background: rgba(14,17,33,.85);
+      background: rgba(6,14,12,.85);
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 20px 8px 20px 8px;
       backdrop-filter: blur(16px);
@@ -162,10 +162,10 @@
       content: attr(data-badge);
       position: absolute; top: -18px; right: 20px;
       display: grid; width: 44px; height: 44px; place-items: center;
-      border: 2px solid #17132c; border-radius: 14px 50% 50%;
-      color: #17132c; background: #2e7d6e;
+      border: 2px solid #0b1714; border-radius: 14px 50% 50%;
+      color: #fff; background: #2e7d6e;
       font-size: 20px; transform: rotate(12deg);
-      box-shadow: 3px 4px 0 #ff7189;
+      box-shadow: 3px 4px 0 rgba(61,158,140,.55);
     }
     .action-card { position: relative; overflow: visible; margin-top: 20px; }
     .ac-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
@@ -190,7 +190,7 @@
 
     /* ── QUICK BLOG LIST ── */
     .recent-box {
-      background: rgba(14,17,33,.85);
+      background: rgba(6,14,12,.85);
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 20px 8px 20px 8px;
       backdrop-filter: blur(16px);
@@ -224,7 +224,7 @@
     .rb-approve {
       padding: 5px 12px; border: none; border-radius: 6px;
       background: linear-gradient(135deg, var(--teal), var(--teal-light));
-      color: #17132c; font-size: 12px; font-weight: 700; cursor: pointer;
+      color: #fff; font-size: 12px; font-weight: 700; cursor: pointer;
       transition: opacity .2s;
     }
     .rb-approve:hover { opacity: .85; }

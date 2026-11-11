@@ -86,6 +86,12 @@ urlpatterns = [
     path('dashboard/withdraw/', views.request_withdrawal, name='request_withdrawal'),
 
     # Admin withdrawal management (accessible only to Django superusers)
+    path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
+    path(
+        'admin-panel/blog/create/',
+        views.admin_create_post,
+        name='admin_create_post',
+    ),
     path('admin-panel/withdrawals/', views.admin_withdrawals, name='admin_withdrawals'),
     path(
         'admin-panel/withdrawals/<int:withdrawal_id>/mark-sent/',

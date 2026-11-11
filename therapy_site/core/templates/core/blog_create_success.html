@@ -12,8 +12,8 @@
     :root { --teal: #2e7d6e; --teal-light: #3d9e8c; --teal-glow: rgba(46,125,110,0.4); --glass-bg: rgba(6,14,12,0.65); --glass-border: rgba(255,255,255,0.09); --text: #f0f4f3; --muted: rgba(240,244,243,0.55); }
     body {
       font-family: 'Inter', sans-serif; min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px;
+      display: flex; flex-direction: column; align-items: stretch; justify-content: space-between;
+      padding: 96px 24px 24px;
       background: linear-gradient(160deg, rgba(0,0,0,0.74) 0%, rgba(0,18,14,0.58) 100%),
                   url("{% static 'core/section.jpg.jpeg' %}") no-repeat center center / cover fixed;
       color: var(--text);
@@ -26,6 +26,7 @@
       backdrop-filter: blur(16px);
       padding: 50px 40px;
       text-align: center;
+      margin: auto;
     }
     .icon { font-size: 56px; margin-bottom: 20px; }
     h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 14px; }

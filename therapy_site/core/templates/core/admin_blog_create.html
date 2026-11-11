@@ -252,36 +252,25 @@
       body, body::before, body::after { animation: none; transition: none; }
     }
   </style>
+  <link rel="stylesheet" href="{% static 'core/admin-shell.css' %}">
 </head>
-<body>
+<body class="admin-workspace">
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-inner">
-      <a class="nav-brand" href="{% url 'admin_dashboard' %}">
-        <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor">
-        <span class="brand-label">Admin Panel</span>
-      </a>
-      <div class="nav-right">
-        <a class="nav-pill" href="{% url 'admin_dashboard' %}">← Dashboard</a>
-        <a class="nav-pill" href="{% url 'blog_list' %}">View Blog</a>
-        <a class="nav-pill danger" href="{% url 'logout' %}">Sign out</a>
-      </div>
-    </div>
-  </nav>
+  {% include "core/includes/admin_shell.html" with active_admin_page=active_admin_page %}
 
+  <main class="admin-main">
   <div class="page">
 
     <div class="page-head">
       <div class="kicker">Admin · Content</div>
-      <h1>Create Blog Post</h1>
-      <p>Posts you create as admin are published immediately without review.</p>
+      <h1>{% if edit_mode %}Edit Blog Post{% else %}Create Blog Post{% endif %}</h1>
+      <p>{% if edit_mode %}Update the article content and author details. Existing approval status is preserved.{% else %}Posts you create as admin are published immediately without review.{% endif %}</p>
     </div>
 
     {% if success %}
     <div class="success-box">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      Post published successfully! <a href="{% url 'blog_list' %}" style="color:#9af4d1;margin-left:4px;font-weight:600;">View blog →</a>
+      {% if edit_mode %}Post updated successfully.{% else %}Post published successfully!{% endif %} <a href="{% url 'admin_posts' %}" style="color:#9af4d1;margin-left:4px;font-weight:600;">Manage posts →</a>
     </div>
     {% endif %}
 
@@ -315,7 +304,7 @@
         <div class="form-group">
           <label for="id_author">Author Name <span class="req">*</span></label>
           <input class="form-control" type="text" id="id_author" name="author"
-                 value="{{ form.author.value|default:'' }}"
+                 value="{{ author|default:'' }}"
                  placeholder="e.g. Dr. Sarah Williams" required>
           {% if author_error %}<ul class="error-list"><li>{{ author_error }}</li></ul>{% endif %}
           {% if form.author.errors %}<ul class="error-list">{% for e in form.author.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
@@ -379,7 +368,7 @@
         </div>
 
         <!-- Publish immediately toggle -->
-        <div class="toggle-row">
+        {% if not edit_mode %}<div class="toggle-row">
           <div>
             <div class="toggle-label">Publish immediately</div>
             <div class="toggle-sub">Post goes live as soon as you submit</div>
@@ -388,12 +377,13 @@
             <input type="checkbox" name="publish_now" id="publish_now" checked>
             <span class="toggle-slider"></span>
           </label>
-        </div>
+        </div>{% endif %}
 
         <div class="form-actions">
-          <a class="btn-cancel" href="{% url 'admin_dashboard' %}">← Cancel</a>
-          <button class="btn-submit" type="submit">Publish Post →</button>
+          <a class="btn-cancel" href="{% url 'admin_posts' %}">← Cancel</a>
+          <button class="btn-submit" type="submit">{% if edit_mode %}Save Changes →{% else %}Publish Post →{% endif %}</button>
         </div>
+        </main>
       </form>
     </div>
 
@@ -408,7 +398,7 @@
       const editor = document.getElementById('content-editor');
       const contentSource = document.getElementById('id_content');
       const form = editor.closest('form');
-      editor.textContent = contentSource.value;
+      editor.innerHTML = contentSource.value;
       document.querySelectorAll('[data-command]').forEach(tool => {
         tool.addEventListener('mousedown', event => event.preventDefault());
         tool.addEventListener('click', () => {
@@ -426,9 +416,11 @@
         contentSource.value = editor.innerHTML;
       });
       function updateBtn() {
-        btn.textContent = toggle.checked ? 'Publish Post →' : 'Save as Draft →';
+        if (toggle && btn) {
+          btn.textContent = toggle.checked ? 'Publish Post →' : 'Save as Draft →';
+        }
       }
-      toggle.addEventListener('change', updateBtn);
+      if (toggle) toggle.addEventListener('change', updateBtn);
 
       const imageInput = document.getElementById('id_featured_image');
       const imagePreview = document.getElementById('image-preview');

@@ -70,8 +70,37 @@
     .form-control:focus { outline: none; border-color: var(--teal-light); box-shadow: 0 0 0 3px rgba(61,158,140,0.18); }
     .form-control::placeholder { color: rgba(240,244,243,0.3); }
     textarea.form-control { resize: vertical; }
+    input[type="file"].form-control { padding: 9px; cursor: pointer; }
+    input[type="file"].form-control::file-selector-button {
+      margin-right: 12px; padding: 9px 14px; border: 1px solid rgba(154,244,209,.35);
+      border-radius: 8px; color: #d7ffe9; background: rgba(46,125,110,.25);
+      font: 600 12px Inter,system-ui,sans-serif; cursor: pointer;
+      transition: background .18s ease,border-color .18s ease;
+    }
+    input[type="file"].form-control::file-selector-button:hover {
+      border-color: #9af4d1; background: rgba(46,125,110,.42);
+    }
     select.form-control option { background: #071b16; color: var(--text); }
     .file-hint { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .article-editor { overflow: hidden; border: 1px solid rgba(255,255,255,.16); border-radius: 14px; background: rgba(3,10,8,.56); }
+    .article-toolbar { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px; border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.035); }
+    .article-tool {
+      display: grid; min-width: 36px; height: 34px; padding: 0 9px; place-items: center;
+      border: 1px solid rgba(255,255,255,.1); border-radius: 9px; color: rgba(240,244,243,.78);
+      background: rgba(255,255,255,.045); font: 600 13px Inter,sans-serif; cursor: pointer;
+    }
+    .article-tool:hover,.article-tool:focus-visible { color: #d7ffe9; border-color: rgba(111,217,174,.38); background: rgba(46,125,110,.2); outline: none; }
+    .article-surface {
+      min-height: 320px; max-height: 700px; overflow-y: auto; padding: 18px 20px;
+      color: var(--text); font: 15px/1.75 Inter,sans-serif; outline: none;
+    }
+    .article-surface:focus { box-shadow: inset 0 0 0 1px rgba(111,217,174,.35); }
+    .article-surface:empty::before { content: attr(data-placeholder); color: rgba(240,244,243,.3); pointer-events: none; }
+    .article-surface h2,.article-surface h3,.article-surface h4 { margin: 1em 0 .45em; line-height: 1.3; }
+    .article-surface blockquote { margin: 1em 0; padding-left: 14px; border-left: 3px solid #3d9e8c; color: rgba(240,244,243,.72); }
+    .article-surface ul,.article-surface ol { padding-left: 1.5em; }
+    .article-source { display: none; }
+    @media (max-width: 600px) { .article-surface { min-height: 260px; padding: 14px; } }
 
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
@@ -215,10 +244,25 @@
 
         <div class="form-group">
           <label for="id_content">Full article <span class="req">*</span></label>
-          <textarea class="form-control" id="id_content" name="content"
-                    rows="20" placeholder="Write your full article here…"
-                    required>{{ form.content.value|default:'' }}</textarea>
-          <p class="hint">Plain text or basic HTML. Minimum 50 characters.</p>
+          <div class="article-editor">
+            <div class="article-toolbar" role="toolbar" aria-label="Article formatting">
+              <button class="article-tool" type="button" data-command="bold" aria-label="Bold" title="Bold"><strong>B</strong></button>
+              <button class="article-tool" type="button" data-command="italic" aria-label="Italic" title="Italic"><em>I</em></button>
+              <button class="article-tool" type="button" data-command="underline" aria-label="Underline" title="Underline"><u>U</u></button>
+              <button class="article-tool" type="button" data-command="formatBlock" data-value="h2" aria-label="Heading" title="Heading">H2</button>
+              <button class="article-tool" type="button" data-command="formatBlock" data-value="h3" aria-label="Subheading" title="Subheading">H3</button>
+              <button class="article-tool" type="button" data-command="formatBlock" data-value="blockquote" aria-label="Quote" title="Quote">❝</button>
+              <button class="article-tool" type="button" data-command="insertUnorderedList" aria-label="Bulleted list" title="Bulleted list">• List</button>
+              <button class="article-tool" type="button" data-command="insertOrderedList" aria-label="Numbered list" title="Numbered list">1. List</button>
+              <button class="article-tool" type="button" data-command="createLink" aria-label="Add link" title="Add link">↗ Link</button>
+              <button class="article-tool" type="button" data-command="removeFormat" aria-label="Clear formatting" title="Clear formatting">Tx</button>
+            </div>
+            <div class="article-surface" id="content-editor" contenteditable="true" role="textbox"
+                 aria-multiline="true" aria-required="true" aria-label="Full article"
+                 data-placeholder="Write your article here. Use the toolbar to format headings, lists, and quotes."></div>
+            <textarea class="article-source" id="id_content" name="content" tabindex="-1" aria-hidden="true">{{ form.content.value|default:'' }}</textarea>
+          </div>
+          <p class="hint">Use the formatting tools to structure your article. Minimum 50 characters.</p>
           {% if form.content.errors %}
             <ul class="error-list">{% for e in form.content.errors %}<li>{{ e }}</li>{% endfor %}</ul>
           {% endif %}
@@ -260,8 +304,6 @@
     </div>
   </div>
 
-  {% include "core/includes/site_footer.html" %}
-
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(() => document.body.classList.add('loaded'));
@@ -278,6 +320,27 @@
         m.classList.remove('open'); document.getElementById('ham').classList.remove('open');
       }
     });
+    const articleEditor = document.getElementById('content-editor');
+    const articleSource = document.getElementById('id_content');
+    if (articleEditor && articleSource) {
+      articleEditor.innerHTML = articleSource.value;
+      document.querySelectorAll('.article-tool').forEach(tool => {
+        tool.addEventListener('mousedown', event => event.preventDefault());
+        tool.addEventListener('click', () => {
+          articleEditor.focus();
+          const command = tool.dataset.command;
+          if (command === 'createLink') {
+            const url = window.prompt('Enter a link URL (https:// or mailto:)');
+            if (url) document.execCommand(command, false, url);
+          } else {
+            document.execCommand(command, false, tool.dataset.value || null);
+          }
+        });
+      });
+      articleEditor.closest('form').addEventListener('submit', () => {
+        articleSource.value = articleEditor.innerHTML;
+      });
+    }
   </script>
 {% include "core/includes/adsterra_banner.html" %}
 </body>

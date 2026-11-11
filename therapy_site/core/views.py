@@ -511,6 +511,7 @@ def sections(request):
 
 
 def logout_view(request):
+    auth_logout(request)
     request.session.flush()
     return redirect("welcome")
 
@@ -1363,6 +1364,7 @@ def admin_create_post(request):
         "form": form,
         "author_error": author_error,
         "success": success,
+        "active_admin_page": "create",
     })
 
 
@@ -1420,20 +1422,31 @@ def admin_edit_blog(request, blog_id):
         return redirect("sections")
 
     blog = get_object_or_404(Blog, id=blog_id)
+    author = blog.author
+    author_error = ''
+    success = False
     if request.method == 'POST':
         form = BlogCreateForm(request.POST, request.FILES, instance=blog)
-        if form.is_valid():
-            form.save()
+        author = request.POST.get('author', '').strip()
+        if not author:
+            author_error = 'Enter an author name.'
+        elif form.is_valid():
+            updated_post = form.save(commit=False)
+            updated_post.author = author
+            updated_post.save()
             messages.success(request, 'Post changes saved.')
             return redirect('admin_posts')
     else:
         form = BlogCreateForm(instance=blog)
 
-    return render(request, 'core/blog_create.html', {
+    return render(request, 'core/admin_blog_create.html', {
         'form': form,
         'edit_mode': True,
-        'admin_mode': True,
         'blog': blog,
+        'author': author,
+        'author_error': author_error,
+        'success': success,
+        'active_admin_page': 'posts',
     })
 
 

@@ -296,43 +296,11 @@
       body, body::before, body::after { animation: none; transition: none; }
     }
   </style>
+  <link rel="stylesheet" href="{% static 'core/admin-shell.css' %}">
 </head>
-<body>
+<body class="admin-workspace">
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-inner">
-      <a class="nav-brand" href="{% url 'admin_dashboard' %}">
-        <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor">
-        <span class="brand-label">Admin Panel</span>
-      </a>
-      <button class="admin-menu-toggle" id="admin-menu-toggle" type="button" aria-label="Open dashboard menu" aria-controls="admin-sidebar" aria-expanded="false">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      </button>
-      <div class="nav-right">
-        <a class="nav-pill" href="{% url 'welcome' %}">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          Site
-        </a>
-        <a class="nav-pill" href="{% url 'blog_list' %}">Blog</a>
-        <a class="nav-pill danger" href="{% url 'logout' %}">Sign out</a>
-      </div>
-    </div>
-  </nav>
-
-  <aside class="admin-sidebar" id="admin-sidebar" aria-label="Admin dashboard navigation">
-    <div class="sidebar-label">Workspace</div>
-    <a class="sidebar-link active" href="{% url 'admin_dashboard' %}"><span class="sidebar-icon">⌂</span>Overview</a>
-    <a class="sidebar-link" href="{% url 'admin_create_post' %}"><span class="sidebar-icon">✎</span>Create post</a>
-    <a class="sidebar-link" href="{% url 'admin_withdrawals' %}"><span class="sidebar-icon">₦</span>Withdrawals</a>
-    <a class="sidebar-link" href="{% url 'admin_posts' %}"><span class="sidebar-icon">✓</span>Post management</a>
-    <div class="sidebar-spacer"></div>
-    <div class="sidebar-label">Quick links</div>
-    <a class="sidebar-link" href="{% url 'welcome' %}"><span class="sidebar-icon">↗</span>View website</a>
-    <a class="sidebar-link" href="{% url 'blog_list' %}"><span class="sidebar-icon">▤</span>Journal</a>
-    <a class="sidebar-link" href="/admin/"><span class="sidebar-icon">⚙</span>Django admin</a>
-  </aside>
-  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  {% include "core/includes/admin_shell.html" with active_admin_page="overview" %}
 
   <main class="admin-main">
   <div class="page">
@@ -496,22 +464,6 @@
     window.addEventListener('pageshow', () => {
       document.body.classList.remove('page-exit');
       document.body.classList.add('page-loaded');
-    });
-    const menuToggle = document.getElementById('admin-menu-toggle');
-    const sidebar = document.getElementById('admin-sidebar');
-    const sidebarOverlay = document.getElementById('sidebar-overlay');
-    function setAdminMenuOpen(open) {
-      sidebar.classList.toggle('open', open);
-      sidebarOverlay.classList.toggle('open', open);
-      menuToggle.setAttribute('aria-expanded', String(open));
-      menuToggle.setAttribute('aria-label', open ? 'Close dashboard menu' : 'Open dashboard menu');
-    }
-    menuToggle.addEventListener('click', () => {
-      setAdminMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true');
-    });
-    sidebarOverlay.addEventListener('click', () => setAdminMenuOpen(false));
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') setAdminMenuOpen(false);
     });
   </script>
 

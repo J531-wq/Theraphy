@@ -245,26 +245,13 @@
       body, body::before, body::after { animation: none; transition: none; }
     }
   </style>
+  <link rel="stylesheet" href="{% static 'core/admin-shell.css' %}">
 </head>
-<body>
+<body class="admin-workspace">
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-inner">
-      <a class="nav-brand" href="{% url 'admin_dashboard' %}">
-        <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor">
-        <span class="brand-label">Admin Panel</span>
-      </a>
-      <div class="nav-right">
-        <a class="nav-pill" href="{% url 'admin_dashboard' %}">← Dashboard</a>
-        <a class="nav-pill" href="{% url 'admin_posts' %}">Post Management</a>
-        <a class="nav-pill" href="{% url 'admin_create_post' %}">✍ Create Post</a>
-        <a class="nav-pill" href="{% url 'welcome' %}">Site</a>
-        <a class="nav-pill danger" href="{% url 'logout' %}">Sign out</a>
-      </div>
-    </div>
-  </nav>
+  {% include "core/includes/admin_shell.html" with active_admin_page="withdrawals" %}
 
+  <main class="admin-main">
   <div class="page">
 
     <!-- ── WITHDRAWALS ── -->
@@ -372,6 +359,7 @@
     {% endif %}
 
   </div><!-- /page -->
+  </main>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {

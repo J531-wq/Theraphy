@@ -108,6 +108,29 @@ class AdminDashboardTests(TestCase):
         self.assertContains(create_response, 'contenteditable="true"')
         self.assertContains(create_response, 'id="image-dropzone"')
 
+    def test_superuser_site_navigation_has_dashboard_and_sign_out(self):
+        self.client.post(reverse("login"), {
+            "username": "siteadmin",
+            "password": "admin-password",
+        }, secure=True)
+
+        response = self.client.get(reverse("blog_list"), secure=True)
+
+        self.assertContains(response, 'href="/admin-panel/">Dashboard</a>')
+        self.assertContains(response, 'href="/logout/">Sign out</a>')
+        self.assertNotContains(response, 'href="/login/">Sign in</a>')
+        self.assertNotContains(response, 'href="/register/">Get started</a>')
+
+    def test_sign_out_ends_superuser_session(self):
+        self.client.post(reverse("login"), {
+            "username": "siteadmin",
+            "password": "admin-password",
+        }, secure=True)
+
+        self.client.get(reverse("logout"), secure=True)
+
+        self.assertNotIn("_auth_user_id", self.client.session)
+
     def test_django_superuser_can_login_to_custom_dashboard(self):
         get_user_model().objects.create_superuser(
             username="django-admin",
@@ -372,13 +395,21 @@ class CreatorPostManagementTests(TestCase):
         session.save()
 
     def test_creator_dashboard_lists_posts_views_and_management_actions(self):
-        response = self.client.get(reverse("creator_dashboard"))
+        response = self.client.get(reverse("creator_dashboard"), secure=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Creator Dashboard")
         self.assertContains(response, "240")
         self.assertContains(response, reverse("blog_edit", args=[self.post.id]))
         self.assertContains(response, reverse("blog_delete", args=[self.post.id]))
+        self.assertNotContains(response, 'class="site-chrome-footer"')
+
+    def test_creator_post_form_has_rich_editor_and_no_footer(self):
+        response = self.client.get(reverse("blog_create"), secure=True)
+
+        self.assertContains(response, 'id="content-editor" contenteditable="true"')
+        self.assertContains(response, 'input[type="file"].form-control::file-selector-button')
+        self.assertNotContains(response, 'class="site-chrome-footer"')
 
     def test_creator_edit_resubmits_post_for_approval(self):
         response = self.client.post(

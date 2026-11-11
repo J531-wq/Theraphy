@@ -29,20 +29,15 @@
     .actions textarea{width:100%;resize:vertical;min-height:68px;border:1px solid var(--line);border-radius:8px;background:#111e19;color:#edf4f1;padding:10px;font:12px/1.5 Inter,system-ui,sans-serif}
     .empty{padding:42px;text-align:center;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
     .pages{display:flex;justify-content:space-between;margin-top:20px;color:var(--muted);font-size:13px}
-    @media(max-width:720px){.nav{padding:0 16px}.page{padding:32px 16px 56px}.post{grid-template-columns:1fr;gap:16px}.actions{grid-template-columns:1fr 1fr}.actions form{grid-column:1/-1}.nav-links .optional{display:none}}
+    .admin-main .page{padding:0 0 56px}
+    @media(max-width:720px){.admin-main .page{padding:0 0 56px}.post{grid-template-columns:1fr;gap:16px}.actions{grid-template-columns:1fr 1fr}.actions form{grid-column:1/-1}}
   </style>
+  <link rel="stylesheet" href="{% static 'core/admin-shell.css' %}">
 </head>
-<body>
-  <nav class="nav">
-    <a class="brand" href="{% url 'admin_dashboard' %}">MyTherapyDoctor · Admin</a>
-    <div class="nav-links">
-      <a class="pill optional" href="{% url 'admin_dashboard' %}">Overview</a>
-      <a class="pill optional" href="{% url 'admin_withdrawals' %}">Withdrawals</a>
-      <a class="pill" href="{% url 'admin_create_post' %}">Create post</a>
-      <a class="pill" href="{% url 'logout' %}">Sign out</a>
-    </div>
-  </nav>
-  <main class="page">
+<body class="admin-workspace">
+  {% include "core/includes/admin_shell.html" with active_admin_page="posts" %}
+  <main class="admin-main">
+  <div class="page">
     <div class="eyebrow">Admin workspace · Journal</div>
     <h1>Post management</h1>
     <p class="intro">Oversee every submitted post, review views, edit content, approve new submissions, and remove posts with a clear reason for the author.</p>
@@ -106,6 +101,7 @@
     {% else %}
       <div class="empty">No {{ status_filter }} posts found.</div>
     {% endif %}
+  </div>
   </main>
 </body>
 </html>

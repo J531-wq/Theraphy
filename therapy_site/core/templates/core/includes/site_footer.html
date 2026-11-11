@@ -141,7 +141,9 @@
       <ul>
         <li><a href="{% url 'blog_create' %}">Write a post</a></li>
         <li><a href="{% url 'earnings_dashboard' %}">Creator earnings</a></li>
-        {% if request.session.user_id %}
+        {% if request.user.is_authenticated and request.user.is_superuser %}
+          <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+        {% elif request.session.user_id %}
           <li><a href="{% url 'sections' %}">Your dashboard</a></li>
         {% else %}
           <li><a href="{% url 'register' %}">Create an account</a></li>
@@ -151,7 +153,10 @@
     <div class="site-footer-column">
       <h2>Account</h2>
       <ul>
-        {% if request.session.user_id %}
+        {% if request.user.is_authenticated and request.user.is_superuser %}
+          <li><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          <li><a href="{% url 'logout' %}">Sign out</a></li>
+        {% elif request.session.user_id %}
           <li><a href="{% url 'logout' %}">Sign out</a></li>
         {% else %}
           <li><a href="{% url 'login' %}">Sign in</a></li>

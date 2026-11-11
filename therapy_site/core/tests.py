@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.test import TestCase
+from django.test import override_settings
 from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
@@ -100,6 +102,30 @@ class AdminDashboardTests(TestCase):
             200,
         )
 
+    def test_regular_login_clears_a_previous_django_admin_session(self):
+        django_admin = get_user_model().objects.create_superuser(
+            username="django-admin",
+            email="django-admin@example.com",
+            password="admin-password",
+        )
+        self.client.force_login(django_admin)
+        User.objects.create(
+            username="member",
+            full_name="Regular Member",
+            password=make_password("member-password"),
+            is_active=True,
+        )
+
+        self.client.post(reverse("login"), {
+            "username": "member",
+            "password": "member-password",
+        })
+
+        self.assertRedirects(
+            self.client.get(reverse("admin_dashboard")),
+            reverse("sections"),
+        )
+
     def test_admin_can_create_published_post_from_custom_panel(self):
         self.client.post(reverse("login"), {
             "username": "siteadmin",
@@ -161,6 +187,12 @@ class AdminDashboardTests(TestCase):
         self.assertRedirects(response, reverse("sections"))
 
 
+@override_settings(STORAGES={
+   **settings.STORAGES,
+   "staticfiles": {
+       "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+   },
+})
 class AccountRecoveryTests(TestCase):
     def setUp(self):
         self.user = User.objects.create(

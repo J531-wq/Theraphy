@@ -5,6 +5,7 @@ import re
 
 from decimal import Decimal
 
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.paginator import Paginator
 from django.db import IntegrityError
@@ -325,8 +326,6 @@ def login_view(request):
         if form.is_valid():
             username = form.cleaned_data["username"]
             password = form.cleaned_data["password"]
-            from django.contrib.auth import authenticate
-
             auth_user = authenticate(
                 request,
                 username=username,
@@ -337,8 +336,7 @@ def login_view(request):
                 and auth_user.is_active
                 and auth_user.is_superuser
             ):
-                from django.contrib.auth import login as auth_login
-
+                request.session.pop("user_id", None)
                 auth_login(request, auth_user)
                 if next_url and url_has_allowed_host_and_scheme(
                     next_url,
@@ -357,21 +355,15 @@ def login_view(request):
                         "next": next_url,
                     })
                 if check_password(password, user.password):
-                    request.session["user_id"] = user.id
-                    request.session.modified = True
-
-                    # If this user is staff/superuser, also log them into
-                    # Django's auth system so request.user.is_superuser works
-                    # for /admin/ and the custom admin-panel views.
                     if user.is_staff or user.is_superuser:
-                        from django.contrib.auth import login as auth_login
                         from django.contrib.auth.models import User as AuthUser
+
                         auth_user, _ = AuthUser.objects.get_or_create(
                             username=user.username,
                             defaults={
-                                'is_staff': True,
-                                'is_superuser': user.is_superuser,
-                                'is_active': True,
+                                "is_staff": True,
+                                "is_superuser": user.is_superuser,
+                                "is_active": True,
                             },
                         )
                         auth_user.is_staff = user.is_staff or user.is_superuser
@@ -381,6 +373,11 @@ def login_view(request):
                             "is_active", "is_staff", "is_superuser",
                         ])
                         auth_login(request, auth_user)
+                    else:
+                        auth_logout(request)
+
+                    request.session["user_id"] = user.id
+                    request.session.modified = True
 
                     if next_url and url_has_allowed_host_and_scheme(
                         next_url,

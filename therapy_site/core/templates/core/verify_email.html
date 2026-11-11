@@ -3,200 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verify Email - Therapy Site</title>
+  <title>Verify Email — MyTherapyDoctor</title>
   <meta name="robots" content="noindex, nofollow">
-
-    {% load static %}
+  {% load static %}
   <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
-
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:        #2e7d6e;
+      --teal-light:  #3d9e8c;
+      --teal-glow:   rgba(46,125,110,0.35);
+      --glass-bg:    rgba(10,18,16,0.72);
+      --glass-border:rgba(255,255,255,0.08);
+      --input-bg:    rgba(255,255,255,0.05);
+      --input-border:rgba(255,255,255,0.12);
+      --text:        #f0f4f3;
+      --muted:       rgba(240,244,243,0.5);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
       font-family: 'Inter', sans-serif;
-
-      background:
-        linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)),
-        url("{% static 'core/Register.jpg.jpeg' %}") no-repeat center center fixed;
-
-      background-size: cover;
-
-      text-align: center;
-      margin: 0;
-      padding: 0;
-
-      width: 100%;
-      height: 100vh;
-      height: 100dvh;
-
-      overflow: hidden;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      /* Smooth page transition */
-      opacity: 0;
-      transition: opacity 0.45s ease;
     }
 
-
-    /* =========================
-       PAGE FADE IN
-       ========================= */
-
-    body.page-loaded {
-      opacity: 1;
-    }
-
-
-    /* =========================
-       PAGE FADE OUT
-       ========================= */
-
-    body.page-exit {
-      opacity: 0;
-    }
-
-
-    /* =========================
-       VERIFICATION BOX
-       ========================= */
-
-    .verify-box {
-      color: white;
-
-      background: black;
-
-      width: 350px;
-
-      margin: 100px auto;
-
-      padding: 25px 20px;
-
-      border-radius: 8px;
-
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-
-      box-sizing: border-box;
-    }
-
-
-    .verify-box h2 {
-      margin-top: 0;
-      margin-bottom: 15px;
-    }
-
-
-    .notification {
-      font-size: 15px;
-
-      line-height: 1.5;
-
-      margin-bottom: 10px;
-    }
-
-
-    .email {
-      color: #28a745;
-
-      font-weight: bold;
-
-      word-break: break-word;
-
-      margin-bottom: 20px;
-    }
-
-
-    input {
-      width: 90%;
-
-      padding: 10px;
-
-      margin: 10px 0;
-
-      border: 1px solid #ccc;
-
-      border-radius: 5px;
-
-      box-sizing: border-box;
-
-      text-align: center;
-
-      font-size: 16px;
-
-      letter-spacing: 2px;
-    }
-
-
-    button {
-      padding: 10px 20px;
-
-      border: none;
-
-      border-radius: 5px;
-
-      background: #28a745;
-
-      color: white;
-
-      cursor: pointer;
-    }
-
-
-    button:hover {
-      background: #1e7e34;
-    }
-
-
-    .error {
-      color: red;
-
-      margin-top: 10px;
-
-      font-weight: bold;
-    }
-
-
-    /* =========================
-       MOBILE
-       ========================= */
-
-    @media (max-width: 600px) {
-
-      .verify-box {
-        width: 90%;
-
-        padding: 22px 15px;
-      }
-
-      .verify-box h2 {
-        font-size: 24px;
-      }
-
-      .notification {
-        font-size: 14px;
-      }
-
-      .email {
-        font-size: 14px;
-      }
-    }
     body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       position: relative;
+      width: 100%;
       min-height: 100dvh;
-      height: auto;
       overflow-x: hidden;
       overflow-y: auto;
-      padding: 72px 16px;
-      color: #f0f4f3;
-      text-align: left;
+      padding: 76px 16px 40px;
       background:
-        radial-gradient(ellipse at 12% 18%, rgba(255,91,126,.72), transparent 32%),
-        radial-gradient(ellipse at 88% 78%, rgba(113,90,255,.76), transparent 34%),
-        radial-gradient(ellipse at 76% 10%, rgba(255,205,72,.62), transparent 26%),
+        radial-gradient(ellipse at 12% 18%, rgba(46,125,110,.35), transparent 32%),
+        radial-gradient(ellipse at 88% 78%, rgba(61,158,140,.25), transparent 34%),
+        radial-gradient(ellipse at 76% 10%, rgba(46,125,110,.20), transparent 26%),
         linear-gradient(135deg, #17132c 0%, #171a36 52%, #092e32 100%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
     }
+    body.page-loaded { opacity: 1; }
+    body.page-exit   { opacity: 0; }
+
     body::before, body::after {
       content: "";
       position: fixed;
@@ -206,32 +59,48 @@
       animation: authDrift 9s ease-in-out infinite alternate;
     }
     body::before {
-      width: 250px; height: 250px; top: 8%; left: -100px;
+      width: 250px;
+      height: 250px;
+      top: 8%;
+      left: -100px;
       border: 1px solid rgba(255,255,255,.35);
       box-shadow: 0 0 0 18px rgba(255,255,255,.035), 0 0 0 42px rgba(255,255,255,.025);
     }
     body::after {
-      width: 160px; height: 160px; right: -52px; bottom: 8%;
-      background: linear-gradient(145deg,#ffdb61,#ff777e); opacity: .8; animation-delay: -3s;
+      width: 160px;
+      height: 160px;
+      right: -52px;
+      bottom: 8%;
+      background: linear-gradient(145deg, rgba(46,125,110,.4), rgba(61,158,140,.2));
+      opacity: .8;
+      animation-delay: -3s;
     }
     @keyframes authDrift {
       from { transform: translate3d(0,-8px,0) rotate(-8deg); }
       to { transform: translate3d(12px,16px,0) rotate(8deg); }
     }
-    .verify-box {
+
+    /* ── Card ── */
+    .card {
       position: relative;
       z-index: 1;
+      overflow: visible;
       width: min(460px, 100%);
       margin: auto;
-      padding: 38px 34px;
+      padding: 38px 36px 32px;
       border: 1px solid rgba(255,255,255,.2);
       border-radius: 28px 10px 28px 10px;
-      color: #f0f4f3;
-      background: rgba(14,17,33,.93);
-      box-shadow: 14px 18px 0 rgba(255,221,88,.9), 0 35px 100px rgba(0,0,0,.4);
+      background: rgba(14,17,33,.91);
+      box-shadow: 14px 18px 0 rgba(46,125,110,.6), 0 35px 100px rgba(0,0,0,.4);
       backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      animation: slideUp 0.55s cubic-bezier(0.22,1,0.36,1) both;
     }
-    .verify-box::before {
+    @keyframes slideUp {
+      from { opacity:0; transform: translateY(28px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+    .card::before {
       content: "✦";
       position: absolute;
       top: -25px;
@@ -243,98 +112,189 @@
       border: 2px solid #17132c;
       border-radius: 16px 50% 50%;
       color: #17132c;
-      background: #ffdb61;
+      background: #2e7d6e;
       font-size: 25px;
       transform: rotate(12deg);
       box-shadow: 4px 5px 0 #ff7189;
     }
-    .verify-box h2 { font-size: clamp(26px,7vw,34px); letter-spacing: -.05em; }
-    .notification { color: rgba(240,244,243,.72); }
-    .email { color: #9af4d1; }
-    .verify-box input {
-      width: 100%;
-      margin: 10px 0 16px;
-      padding: 14px;
-      border: 1px solid rgba(255,255,255,.2);
+
+    /* ── Brand ── */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .brand-logo {
+      width: 30px;
+      height: 30px;
+      object-fit: contain;
+      padding: 5px;
+      border: 1px solid rgba(255,255,255,.22);
       border-radius: 12px;
-      color: #f0f4f3;
-      background: rgba(255,255,255,.08);
+      background: rgba(255,255,255,.1);
     }
-    .verify-box input:focus { outline: 2px solid #ffdb61; }
-    .verify-box button {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px 4px 12px 4px;
-      color: #17132c;
-      background: linear-gradient(110deg,#ffdc65,#ff937c 52%,#ff70a0);
-      font-weight: 800;
-    }
-    .verify-box button:hover { background: linear-gradient(110deg,#ffe887,#ffad93 52%,#ff8ab2); }
-    .error { color: #ff9aab; }
-    @media (max-width: 600px) { .verify-box { padding: 34px 24px; } }
-    @media (prefers-reduced-motion: reduce) {
-      body, body::before, body::after { animation: none; transition: none; }
+    .brand-name {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #9af4d1;
     }
 
+    h1 {
+      font-size: clamp(24px,7vw,32px);
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.05em;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: rgba(240,244,243,.72);
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    /* ── Email chip ── */
+    .email-chip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(154,244,209,.09);
+      border: 1px solid rgba(154,244,209,.35);
+      border-radius: 10px;
+      padding: 11px 14px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #9af4d1;
+      word-break: break-word;
+      text-align: center;
+    }
+    .email-chip svg { flex-shrink: 0; }
+
+    /* ── Field ── */
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #b7c5ff;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .field input {
+      width: 100%;
+      padding: 13px 16px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 22px;
+      font-family: inherit;
+      letter-spacing: 10px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input::placeholder {
+      color: rgba(255,255,255,.25);
+      letter-spacing: 2px;
+      font-size: 15px;
+    }
+    .field input:focus {
+      border-color: #2e7d6e;
+      box-shadow: 0 0 0 4px rgba(46,125,110,.3);
+    }
+
+    /* ── Button ── */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      margin-top: 6px;
+      border: none;
+      border-radius: 12px 4px 12px 4px;
+      color: #17132c;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      font-size: 15px;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(46,125,110,.35);
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* ── Error ── */
+    .error-box {
+      background: rgba(255,87,117,.14);
+      border: 1px solid rgba(255,135,156,.45);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #ffe2e7;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 70px 16px 38px; }
+      .card { padding: 30px 22px 26px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body, .card, body::before, body::after { animation: none; transition: none; }
+    }
   </style>
-  <link rel="stylesheet" href="{% static 'core/responsive.css' %}">
 </head>
 
 <body>
 
-  <div class="verify-box">
+  <div class="card">
+    <div class="brand">
+      <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor" class="brand-logo">
+      <span class="brand-name">MyTherapyDoctor</span>
+    </div>
 
-    <h2>Verify Your Email</h2>
+    <h1>Verify your email</h1>
+    <p class="subtitle">A 6-digit verification code has been sent to your email address.</p>
 
-    <p class="notification">
-      A verification code has been sent to your registered email address.
-    </p>
-
-    <p class="email">
+    <div class="email-chip">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
       {{ email }}
-    </p>
-
+    </div>
 
     <form method="POST" id="verify-form">
-
       {% csrf_token %}
-
-      {{ form.verification_code }}
-
-      <br>
-
-      <button type="submit">Confirm</button>
-
+      <div class="field">
+        <label for="id_verification_code">Verification Code</label>
+        {{ form.verification_code }}
+      </div>
+      <button type="submit" class="btn-primary">Confirm &amp; Activate</button>
     </form>
 
-
     {% if error %}
-      <p class="error">{{ error }}</p>
+      <div class="error-box">{{ error }}</div>
     {% endif %}
-
   </div>
 
-
-  <!-- =========================
-       SMOOTH PAGE TRANSITION
-       ========================= -->
-
   <script>
-
-    /* Fade in when verification page loads */
-    window.addEventListener("load", function() {
+    document.addEventListener("DOMContentLoaded", () => {
+      requestAnimationFrame(() => document.body.classList.add("page-loaded"));
+    });
+    window.addEventListener("pageshow", () => {
+      document.body.classList.remove("page-exit");
       document.body.classList.add("page-loaded");
     });
-
-
-    /* Fade out when verification form is submitted */
     document.getElementById("verify-form").addEventListener("submit", function() {
-
       document.body.classList.remove("page-loaded");
       document.body.classList.add("page-exit");
-
     });
-
   </script>
 
 </body>

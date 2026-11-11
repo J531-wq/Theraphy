@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.urls import reverse
 
 from .models import Blog, User
 
@@ -36,3 +37,20 @@ class BlogCreateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'This field is required.')
         self.assertFalse(Blog.objects.filter(title='A Helpful Blog Post').exists())
+
+    def test_blog_detail_renders_one_shared_header_and_footer(self):
+        blog = Blog.objects.create(
+            title='A Published Article',
+            slug='a-published-article',
+            author='Blog Writer',
+            category='wellness',
+            excerpt='A short summary for this published article.',
+            content='This published article contains enough text for a useful example.',
+            is_published=True,
+        )
+
+        response = self.client.get(reverse('blog_detail', args=[blog.slug]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="site-chrome-header"', count=1)
+        self.assertContains(response, 'class="site-chrome-footer"', count=1)

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — MyTherapyDoctor</title>
+  <meta name="robots" content="noindex, nofollow">
+  {% load static %}
+  <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:        #2e7d6e;
+      --teal-light:  #3d9e8c;
+      --teal-glow:   rgba(46,125,110,0.35);
+      --text:        #f0f4f3;
+      --muted:       rgba(240,244,243,0.55);
+    }
+
+    html, body { font-family: 'Inter', sans-serif; }
+
+    body {
+      position: relative;
+      width: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 96px 20px 60px;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 12% 18%, rgba(46,125,110,.35), transparent 32%),
+        radial-gradient(ellipse at 88% 78%, rgba(61,158,140,.25), transparent 34%),
+        radial-gradient(ellipse at 76% 10%, rgba(46,125,110,.20), transparent 26%),
+        linear-gradient(135deg, #17132c 0%, #171a36 52%, #092e32 100%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    body.page-loaded { opacity: 1; }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      z-index: 0;
+      pointer-events: none;
+      border-radius: 50%;
+      animation: authDrift 9s ease-in-out infinite alternate;
+    }
+    body::before {
+      width: 320px; height: 320px; top: 5%; left: -120px;
+      border: 1px solid rgba(255,255,255,.25);
+      box-shadow: 0 0 0 20px rgba(255,255,255,.025), 0 0 0 48px rgba(255,255,255,.015);
+    }
+    body::after {
+      width: 200px; height: 200px; right: -60px; bottom: 10%;
+      background: linear-gradient(145deg, rgba(46,125,110,.4), rgba(61,158,140,.2));
+      opacity: .7; animation-delay: -3s;
+    }
+    @keyframes authDrift {
+      from { transform: translate3d(0,-8px,0) rotate(-8deg); }
+      to   { transform: translate3d(12px,16px,0) rotate(8deg); }
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 64px; display: flex; align-items: center; padding: 0 40px;
+      background: rgba(14,17,33,.92);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      backdrop-filter: blur(20px);
+    }
+    .nav-inner { width: 100%; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-size: 14px; font-weight: 600; }
+    .nav-brand img { width: 28px; height: 28px; padding: 4px; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; background: rgba(255,255,255,.08); }
+    .brand-label { color: #9af4d1; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+    .nav-pill {
+      display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+      border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--muted);
+      border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
+      text-decoration: none; transition: all .2s; white-space: nowrap;
+    }
+    .nav-pill:hover { color: var(--text); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.2); }
+    .nav-pill.danger { color: #f87171; border-color: rgba(248,113,113,.25); background: rgba(248,113,113,.07); }
+    .nav-pill.danger:hover { background: rgba(248,113,113,.14); }
+
+    /* ── PAGE ── */
+    .page { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+
+    /* ── HEADER ── */
+    .page-head { margin-bottom: 40px; }
+    .kicker {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: #9af4d1; margin-bottom: 10px;
+    }
+    .kicker::before { content: ''; width: 20px; height: 1px; background: #9af4d1; }
+    .page-head h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -.04em; line-height: 1.1; }
+    .page-head p { margin-top: 10px; color: var(--muted); font-size: 15px; line-height: 1.65; }
+
+    /* ── STAT CARDS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .stat-card {
+      position: relative; overflow: hidden;
+      padding: 22px 24px;
+      background: rgba(14,17,33,.85);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px 8px 20px 8px;
+      backdrop-filter: blur(16px);
+      box-shadow: 8px 10px 0 rgba(46,125,110,.35), 0 20px 50px rgba(0,0,0,.3);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--teal), var(--teal-light));
+    }
+    .stat-icon { font-size: 22px; margin-bottom: 10px; }
+    .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .stat-value { font-size: 2rem; font-weight: 800; letter-spacing: -.03em; color: #9af4d1; }
+    .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── SECTION LABEL ── */
+    .section-title {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(240,244,243,.4); margin-bottom: 18px;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.08); }
+
+    /* ── ACTION CARDS ── */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 44px;
+    }
+    .action-card {
+      display: flex; flex-direction: column;
+      padding: 26px 28px;
+      background: rgba(14,17,33,.85);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px 8px 20px 8px;
+      backdrop-filter: blur(16px);
+      box-shadow: 8px 10px 0 rgba(46,125,110,.3), 0 20px 50px rgba(0,0,0,.3);
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+    }
+    .action-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(154,244,209,.3);
+      box-shadow: 8px 14px 0 rgba(46,125,110,.5), 0 28px 60px rgba(0,0,0,.4);
+    }
+    .action-card::before {
+      content: attr(data-badge);
+      position: absolute; top: -18px; right: 20px;
+      display: grid; width: 44px; height: 44px; place-items: center;
+      border: 2px solid #17132c; border-radius: 14px 50% 50%;
+      color: #17132c; background: #2e7d6e;
+      font-size: 20px; transform: rotate(12deg);
+      box-shadow: 3px 4px 0 #ff7189;
+    }
+    .action-card { position: relative; overflow: visible; margin-top: 20px; }
+    .ac-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .ac-desc { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; }
+    .ac-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-top: 16px; font-size: 13px; font-weight: 600;
+      color: #9af4d1;
+    }
+    .ac-link svg { transition: transform .2s; }
+    .action-card:hover .ac-link svg { transform: translateX(4px); }
+
+    /* Badge for pending counts */
+    .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px; padding: 0 6px;
+      border-radius: 999px; font-size: 11px; font-weight: 700;
+      background: rgba(248,113,113,.25); color: #f87171;
+      border: 1px solid rgba(248,113,113,.35);
+      margin-left: 6px;
+    }
+
+    /* ── QUICK BLOG LIST ── */
+    .recent-box {
+      background: rgba(14,17,33,.85);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px 8px 20px 8px;
+      backdrop-filter: blur(16px);
+      box-shadow: 8px 10px 0 rgba(46,125,110,.3), 0 20px 50px rgba(0,0,0,.3);
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    .rb-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .rb-head h3 { font-size: 14px; font-weight: 700; color: var(--text); }
+    .rb-head a { font-size: 12px; color: #9af4d1; text-decoration: none; font-weight: 500; }
+    .rb-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 24px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      transition: background .15s;
+    }
+    .rb-row:last-child { border-bottom: none; }
+    .rb-row:hover { background: rgba(255,255,255,.03); }
+    .rb-title { font-size: 14px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rb-meta { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .rb-views { font-size: 12px; color: var(--muted); }
+    .rb-status {
+      padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
+    }
+    .rb-status.published { background: rgba(46,125,110,.18); color: #9ad5b6; border: 1px solid rgba(46,125,110,.3); }
+    .rb-status.pending { background: rgba(255,160,0,.10); color: #e8b87d; border: 1px solid rgba(255,160,0,.3); }
+    .rb-approve {
+      padding: 5px 12px; border: none; border-radius: 6px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      color: #17132c; font-size: 12px; font-weight: 700; cursor: pointer;
+      transition: opacity .2s;
+    }
+    .rb-approve:hover { opacity: .85; }
+    .rb-empty { padding: 32px 24px; text-align: center; color: var(--muted); font-size: 14px; }
+
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      body { padding: 84px 16px 50px; }
+      .stat-card { box-shadow: 4px 6px 0 rgba(46,125,110,.35), 0 10px 30px rgba(0,0,0,.3); }
+      .action-card { box-shadow: 4px 6px 0 rgba(46,125,110,.3), 0 10px 30px rgba(0,0,0,.3); }
+      .nav-right .nav-pill:not(.danger) { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body, body::before, body::after { animation: none; transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="{% url 'admin_dashboard' %}">
+        <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor">
+        <span class="brand-label">Admin Panel</span>
+      </a>
+      <div class="nav-right">
+        <a class="nav-pill" href="{% url 'welcome' %}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          Site
+        </a>
+        <a class="nav-pill" href="{% url 'blog_list' %}">Blog</a>
+        <a class="nav-pill danger" href="{% url 'logout' %}">Sign out</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <!-- PAGE HEADER -->
+    <div class="page-head">
+      <div class="kicker">MyTherapyDoctor</div>
+      <h1>Admin Dashboard</h1>
+      <p>Manage content, withdrawals, and monitor your platform from one place.</p>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-sub">Registered accounts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-label">Blog Posts</div>
+        <div class="stat-value">{{ total_posts }}</div>
+        <div class="stat-sub">{{ published_posts }} published · {{ pending_posts }} pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💸</div>
+        <div class="stat-label">Pending Withdrawals</div>
+        <div class="stat-value">{{ pending_withdrawals }}</div>
+        <div class="stat-sub">Awaiting payment</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">👁</div>
+        <div class="stat-label">Total Views</div>
+        <div class="stat-value">{{ total_views|default:"0" }}</div>
+        <div class="stat-sub">Across all blog posts</div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="section-title">Quick Actions</div>
+    <div class="actions-grid">
+
+      <a class="action-card" href="{% url 'admin_create_post' %}" data-badge="✍">
+        <div class="ac-title">Create Blog Post</div>
+        <div class="ac-desc">Write and publish a new blog post directly as admin — goes live immediately without review.</div>
+        <div class="ac-link">
+          Write a post
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
+
+      <a class="action-card" href="{% url 'admin_withdrawals' %}" data-badge="💸">
+        <div class="ac-title">
+          Withdrawals
+          {% if pending_withdrawals %}<span class="badge">{{ pending_withdrawals }}</span>{% endif %}
+        </div>
+        <div class="ac-desc">Review pending withdrawal requests, mark payments as sent, and email users confirmation.</div>
+        <div class="ac-link">
+          Manage withdrawals
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
+
+      <a class="action-card" href="{% url 'admin_withdrawals' %}#blog-approvals" data-badge="📋">
+        <div class="ac-title">
+          Blog Approvals
+          {% if pending_posts %}<span class="badge">{{ pending_posts }}</span>{% endif %}
+        </div>
+        <div class="ac-desc">Review user-submitted blog posts and publish them to notify subscribers and start their earnings.</div>
+        <div class="ac-link">
+          Review posts
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
+
+      <a class="action-card" href="/admin/" data-badge="⚙">
+        <div class="ac-title">Django Admin</div>
+        <div class="ac-desc">Access the full Django admin panel to manage users, models, and all database records.</div>
+        <div class="ac-link">
+          Open Django admin
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- RECENT BLOG POSTS -->
+    <div class="section-title">Recent Blog Posts</div>
+    <div class="recent-box">
+      <div class="rb-head">
+        <h3>Latest Posts</h3>
+        <a href="{% url 'blog_list' %}">View all →</a>
+      </div>
+      {% if recent_posts %}
+        {% for post in recent_posts %}
+        <div class="rb-row">
+          <span class="rb-title">{{ post.title }}</span>
+          <div class="rb-meta">
+            <span class="rb-views">👁 {{ post.views_count }}</span>
+            {% if post.is_published %}
+              <span class="rb-status published">Published</span>
+            {% else %}
+              <span class="rb-status pending">Pending</span>
+              <form method="POST" action="{% url 'admin_approve_blog' post.id %}" style="display:inline">
+                {% csrf_token %}
+                <button class="rb-approve" type="submit">Approve</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="rb-empty">No blog posts yet.</div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => document.body.classList.add('page-loaded'));
+    });
+    window.addEventListener('pageshow', () => {
+      document.body.classList.remove('page-exit');
+      document.body.classList.add('page-loaded');
+    });
+  </script>
+
+</body>
+</html>

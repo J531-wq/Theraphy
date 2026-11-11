@@ -3,176 +3,278 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin — Withdrawals · MyTherapyDoctor</title>
+  <title>Withdrawals &amp; Blog Approvals — Admin · MyTherapyDoctor</title>
+  <meta name="robots" content="noindex, nofollow">
   {% load static %}
   <link rel="icon" type="image/png" href="{% static 'core/logo.png' %}">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg:#0c0f0e;--bg2:#111614;--bg3:#161c1a;
-      --surface:#1a2220;
-      --brd:rgba(255,255,255,0.07);--brd2:rgba(255,255,255,0.13);
-      --teal:#2e7d6e;--teal-mid:#3d9e8c;--teal-glow:rgba(46,125,110,0.35);
-      --text:#e8eeec;--text2:rgba(232,238,236,0.60);--text3:rgba(232,238,236,0.35);
-      --red:#f87171;--red-b:rgba(220,53,69,0.28);--red-p:rgba(220,53,69,0.10);
-      --serif:'DM Serif Display',Georgia,serif;--sans:'Inter',system-ui,sans-serif;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal:       #2e7d6e;
+      --teal-light: #3d9e8c;
+      --teal-glow:  rgba(46,125,110,0.35);
+      --text:       #f0f4f3;
+      --muted:      rgba(240,244,243,0.55);
     }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:var(--sans);min-height:100vh;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-    a{color:inherit;text-decoration:none}
 
-    /* ── LOADER ── */
-    #pl{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;transition:opacity .5s,visibility .5s}
-    #pl.h{opacity:0;visibility:hidden}
-    .ll{width:38px;height:38px;animation:lp 1.4s ease-in-out infinite}
-    @keyframes lp{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.14);opacity:.65}}
-    .lt{width:180px;height:2px;background:var(--brd);border-radius:2px;overflow:hidden}
-    .lb{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--teal-mid));animation:lb .9s ease forwards}
-    @keyframes lb{to{width:100%}}
-    .ld{display:flex;gap:7px}
-    .ld span{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:ldot 1.2s ease-in-out infinite}
-    .ld span:nth-child(2){animation-delay:.18s;background:var(--teal-mid)}
-    .ld span:nth-child(3){animation-delay:.36s;background:rgba(61,158,140,.5)}
-    @keyframes ldot{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    html, body { font-family: 'Inter', sans-serif; }
 
-    /* ── REVEAL ── */
-    .rv{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease}
-    .rv.in{opacity:1;transform:none}
-    .sg>*{opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
-    .sg.in>*{opacity:1;transform:none}
-    .sg.in>*:nth-child(1){transition-delay:0s}
-    .sg.in>*:nth-child(2){transition-delay:.06s}
-    .sg.in>*:nth-child(3){transition-delay:.12s}
-    .sg.in>*:nth-child(4){transition-delay:.18s}
-    .sg.in>*:nth-child(5){transition-delay:.24s}
-    .sg.in>*:nth-child(6){transition-delay:.30s}
+    body {
+      position: relative;
+      width: 100%;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 96px 20px 60px;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 12% 18%, rgba(46,125,110,.35), transparent 32%),
+        radial-gradient(ellipse at 88% 78%, rgba(61,158,140,.25), transparent 34%),
+        radial-gradient(ellipse at 76% 10%, rgba(46,125,110,.20), transparent 26%),
+        linear-gradient(135deg, #17132c 0%, #171a36 52%, #092e32 100%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    body.page-loaded { opacity: 1; }
+
+    body::before, body::after {
+      content: "";
+      position: fixed; z-index: 0; pointer-events: none; border-radius: 50%;
+      animation: authDrift 9s ease-in-out infinite alternate;
+    }
+    body::before {
+      width: 320px; height: 320px; top: 5%; left: -120px;
+      border: 1px solid rgba(255,255,255,.25);
+      box-shadow: 0 0 0 20px rgba(255,255,255,.025), 0 0 0 48px rgba(255,255,255,.015);
+    }
+    body::after {
+      width: 200px; height: 200px; right: -60px; bottom: 10%;
+      background: linear-gradient(145deg, rgba(46,125,110,.4), rgba(61,158,140,.2));
+      opacity: .7; animation-delay: -3s;
+    }
+    @keyframes authDrift {
+      from { transform: translate3d(0,-8px,0) rotate(-8deg); }
+      to   { transform: translate3d(12px,16px,0) rotate(8deg); }
+    }
 
     /* ── NAV ── */
-    nav{position:fixed;top:0;left:0;right:0;z-index:200;height:64px;display:flex;align-items:center;padding:0 48px;background:rgba(12,15,14,.92);border-bottom:1px solid var(--brd);backdrop-filter:blur(20px)}
-    .ni{width:100%;max-width:1240px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .nb{display:flex;align-items:center;gap:9px;font-size:14.5px;font-weight:600;color:var(--text)}
-    .nb img{width:26px;height:26px}
-    .nr{display:flex;align-items:center;gap:8px}
-    .np{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:500;color:var(--text2);border:1px solid var(--brd);background:rgba(255,255,255,.03);text-decoration:none;transition:all .15s;white-space:nowrap}
-    .np:hover{color:var(--text);border-color:var(--brd2);background:rgba(255,255,255,.07)}
-    .np.admin{color:var(--red);border-color:var(--red-b);background:var(--red-p);font-weight:600}
-    /* Hamburger */
-    .nh{display:none;flex-direction:column;gap:5px;width:34px;height:34px;align-items:center;justify-content:center;background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:7px;cursor:pointer}
-    .nh span{display:block;width:16px;height:1.5px;background:var(--text);border-radius:2px;transition:transform .25s,opacity .25s}
-    .nh.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
-    .nh.open span:nth-child(2){opacity:0}
-    .nh.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
-    .mm{display:none;position:fixed;top:64px;left:0;right:0;z-index:190;background:rgba(12,15,14,.98);border-bottom:1px solid var(--brd);backdrop-filter:blur(20px);padding:14px 20px 18px;flex-direction:column;gap:4px;opacity:0;transform:translateY(-8px);transition:opacity .2s,transform .2s}
-    .mm.open{opacity:1;transform:none}
-    .ml{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--text2);text-decoration:none;transition:background .15s,color .15s}
-    .ml:hover{background:rgba(255,255,255,.06);color:var(--text)}
-    .ml.red{color:var(--red)}
-    .ms{height:1px;background:var(--brd);margin:5px 0}
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 64px; display: flex; align-items: center; padding: 0 40px;
+      background: rgba(14,17,33,.92);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      backdrop-filter: blur(20px);
+    }
+    .nav-inner { width: 100%; max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-size: 14px; font-weight: 600; }
+    .nav-brand img { width: 28px; height: 28px; padding: 4px; border: 1px solid rgba(255,255,255,.2); border-radius: 8px; background: rgba(255,255,255,.08); }
+    .brand-label { color: #9af4d1; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+    .nav-right { display: flex; align-items: center; gap: 8px; }
+    .nav-pill {
+      display: flex; align-items: center; gap: 6px; padding: 7px 14px;
+      border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--muted);
+      border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04);
+      text-decoration: none; transition: all .2s; white-space: nowrap;
+    }
+    .nav-pill:hover { color: var(--text); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.2); }
+    .nav-pill.danger { color: #f87171; border-color: rgba(248,113,113,.25); background: rgba(248,113,113,.07); }
 
     /* ── PAGE ── */
-    .page{max-width:1200px;margin:0 auto;padding:88px 48px 80px}
+    .page { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
 
     /* ── PAGE HEAD ── */
-    .ph{margin-bottom:32px}
-    .kicker{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--red);display:flex;align-items:center;gap:10px;margin-bottom:8px}
-    .kicker::before{content:'';width:24px;height:1px;background:var(--red)}
-    .ph h1{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;line-height:1.1}
-    .ph p{margin-top:8px;color:var(--text2);font-size:14px;line-height:1.65}
+    .page-head { margin-bottom: 32px; }
+    .kicker {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: #9af4d1; margin-bottom: 10px;
+    }
+    .kicker::before { content: ''; width: 20px; height: 1px; background: #9af4d1; }
+    .page-head h1 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 800; letter-spacing: -.04em; }
+    .page-head p { margin-top: 8px; color: var(--muted); font-size: 14px; line-height: 1.65; }
 
-    /* ── SECTION HEADER ── */
-    .sh{display:flex;align-items:center;gap:14px;margin-bottom:20px}
-    .sh span{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);white-space:nowrap}
-    .sh::after{content:'';flex:1;height:1px;background:var(--brd)}
+    /* ── SECTION LABEL ── */
+    .section-title {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(240,244,243,.4); margin-bottom: 16px; margin-top: 44px;
+    }
+    .section-title:first-of-type { margin-top: 0; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,.08); }
 
     /* ── TABS ── */
-    .tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
-    .tab{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border:1px solid var(--brd);border-radius:999px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:all .2s}
-    .tab:hover{color:var(--text);border-color:var(--brd2)}
-    .tab.active{background:rgba(46,125,110,.15);border-color:rgba(46,125,110,.5);color:#9ad5b6}
-    .tab-count{padding:1px 7px;border-radius:999px;background:rgba(220,53,69,.28);color:var(--red);font-size:10.5px;font-weight:700}
+    .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab {
+      display: inline-flex; align-items: center; gap: 6px; padding: 7px 18px;
+      border: 1px solid rgba(255,255,255,.12); border-radius: 999px;
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      text-decoration: none; transition: all .2s;
+    }
+    .tab:hover { color: var(--text); border-color: rgba(255,255,255,.22); background: rgba(255,255,255,.05); }
+    .tab.active { background: rgba(46,125,110,.18); border-color: rgba(46,125,110,.5); color: #9af4d1; }
+    .tab-count {
+      padding: 1px 7px; border-radius: 999px;
+      background: rgba(248,113,113,.25); color: #f87171;
+      font-size: 10.5px; font-weight: 700;
+      border: 1px solid rgba(248,113,113,.35);
+    }
 
     /* ── WITHDRAWAL CARDS ── */
-    .wd-card{background:var(--bg2);border:1px solid var(--brd);border-radius:14px;padding:22px 26px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start;transition:border-color .2s}
-    .wd-card:hover{border-color:var(--brd2)}
-    .wd-card.sent{opacity:.6}
-    .wd-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-    .wd-amount{font-family:var(--serif);font-size:2rem;font-weight:400;color:#9ad5b6;line-height:1;flex-shrink:0}
-    .wd-user-info{}
-    .wd-name{font-size:15px;font-weight:600;color:var(--text)}
-    .wd-email{font-size:12px;color:var(--text3);margin-top:2px}
-    .wd-date{font-size:12px;color:var(--text3);margin-top:4px}
-    .detail-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
-    .di{background:rgba(255,255,255,.04);border:1px solid var(--brd);border-radius:8px;padding:10px 14px}
-    .dl{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
-    .dv{font-size:14px;font-weight:600;color:var(--text)}
-    .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
-    .bg{background:rgba(46,125,110,.18);color:#9ad5b6;border:1px solid rgba(46,125,110,.3)}
-    .bo{background:rgba(255,160,0,.10);color:#e8b87d;border:1px solid rgba(255,160,0,.3)}
+    .wd-list { display: flex; flex-direction: column; gap: 14px; }
+    .wd-card {
+      position: relative; overflow: visible;
+      padding: 24px 28px;
+      background: rgba(14,17,33,.85);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px 8px 20px 8px;
+      backdrop-filter: blur(16px);
+      box-shadow: 8px 10px 0 rgba(46,125,110,.3), 0 20px 50px rgba(0,0,0,.3);
+      display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: start;
+      transition: border-color .2s, transform .2s;
+    }
+    .wd-card:hover { border-color: rgba(154,244,209,.2); }
+    .wd-card.sent { opacity: .65; }
 
-    /* Mark sent */
-    .sent-form{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:190px}
-    .note-input{width:100%;padding:9px 12px;background:rgba(255,255,255,.06);border:1px solid var(--brd);border-radius:8px;color:var(--text);font:13px var(--sans);resize:none;transition:border-color .2s}
-    .note-input::placeholder{color:rgba(232,238,236,.3)}
-    .note-input:focus{outline:none;border-color:var(--teal-mid)}
-    .btn-send{padding:10px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--teal),var(--teal-mid));color:#fff;font:600 13px var(--sans);cursor:pointer;box-shadow:0 4px 14px var(--teal-glow);white-space:nowrap;transition:opacity .2s}
-    .btn-send:hover{opacity:.85}
-    .sent-label{font-size:12px;color:#9ad5b6;text-align:right}
-    .admin-note{font-size:12px;color:var(--text3);margin-top:6px}
+    .wd-top { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+    .wd-amount { font-size: 2.2rem; font-weight: 800; color: #9af4d1; line-height: 1; flex-shrink: 0; letter-spacing: -.03em; }
+    .wd-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .wd-email { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .wd-date { font-size: 12px; color: rgba(240,244,243,.35); margin-top: 4px; }
+
+    .detail-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 10px; }
+    .di {
+      padding: 10px 14px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+    }
+    .dl { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(240,244,243,.35); margin-bottom: 4px; }
+    .dv { font-size: 14px; font-weight: 600; color: var(--text); }
+
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .badge-green { background: rgba(46,125,110,.18); color: #9ad5b6; border: 1px solid rgba(46,125,110,.3); }
+    .badge-yellow { background: rgba(255,160,0,.10); color: #e8b87d; border: 1px solid rgba(255,160,0,.3); }
+
+    /* Mark sent form */
+    .sent-form { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; min-width: 200px; }
+    .note-input {
+      width: 100%; padding: 9px 12px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 10px; color: var(--text); font: 13px 'Inter',sans-serif; resize: none;
+      transition: border-color .2s;
+    }
+    .note-input::placeholder { color: rgba(240,244,243,.25); }
+    .note-input:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-glow); }
+    .btn-send {
+      padding: 10px 18px; border: none; border-radius: 10px 4px 10px 4px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      color: #17132c; font: 700 13px 'Inter',sans-serif;
+      cursor: pointer; box-shadow: 0 4px 14px var(--teal-glow);
+      white-space: nowrap; transition: opacity .2s;
+    }
+    .btn-send:hover { opacity: .85; }
+    .sent-label { font-size: 12px; color: #9af4d1; text-align: right; }
+    .admin-note-text { font-size: 12px; color: rgba(240,244,243,.4); margin-top: 6px; }
+
+    /* ── BLOG APPROVAL CARDS ── */
+    .bp-list { display: flex; flex-direction: column; gap: 14px; }
+    .bp-card {
+      position: relative; overflow: visible;
+      padding: 24px 28px;
+      background: rgba(14,17,33,.85);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px 8px 20px 8px;
+      backdrop-filter: blur(16px);
+      box-shadow: 8px 10px 0 rgba(46,125,110,.3), 0 20px 50px rgba(0,0,0,.3);
+      transition: border-color .2s;
+    }
+    .bp-card:hover { border-color: rgba(154,244,209,.2); }
+    .bp-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .bp-excerpt { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 12px; }
+    .bp-meta { display: flex; align-items: center; gap: 16px; font-size: 12px; color: rgba(240,244,243,.4); margin-bottom: 14px; flex-wrap: wrap; }
+    .btn-approve {
+      padding: 10px 22px; border: none; border-radius: 10px 4px 10px 4px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-light));
+      color: #17132c; font: 700 13px 'Inter',sans-serif;
+      cursor: pointer; box-shadow: 0 4px 14px var(--teal-glow);
+      transition: opacity .2s;
+    }
+    .btn-approve:hover { opacity: .85; }
 
     /* ── USER STATS TABLE ── */
-    .stats-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--brd)}
-    .st{width:100%;border-collapse:collapse;font-size:13px}
-    .st thead{background:var(--bg3)}
-    .st th{padding:11px 16px;text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--brd);white-space:nowrap}
-    .st td{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
-    .st tr:last-child td{border-bottom:none}
-    .st tr:hover td{background:rgba(255,255,255,.025)}
-    .st .user-col{display:flex;flex-direction:column;gap:2px}
-    .st .un{font-weight:600;color:var(--text)}
-    .st .ue{font-size:11px;color:var(--text3)}
-    .st .earn{color:#9ad5b6;font-weight:700}
-    .st .views{color:var(--text2)}
-    .st .posts{color:var(--text2)}
+    .stats-wrap {
+      background: rgba(14,17,33,.85);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px 8px 20px 8px;
+      backdrop-filter: blur(16px);
+      box-shadow: 8px 10px 0 rgba(46,125,110,.3), 0 20px 50px rgba(0,0,0,.3);
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead { background: rgba(255,255,255,.04); }
+    th {
+      padding: 12px 18px; text-align: left;
+      font-size: 10.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase;
+      color: rgba(240,244,243,.35); border-bottom: 1px solid rgba(255,255,255,.07);
+      white-space: nowrap;
+    }
+    td { padding: 13px 18px; border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.025); }
+    .td-user { display: flex; flex-direction: column; gap: 2px; }
+    .td-un { font-weight: 600; color: var(--text); }
+    .td-ue { font-size: 11px; color: rgba(240,244,243,.35); }
+    .td-earn { color: #9af4d1; font-weight: 700; }
 
     /* ── EMPTY ── */
-    .empty{text-align:center;padding:60px 24px;color:var(--text3)}
-    .empty-icon{font-size:44px;margin-bottom:14px}
-    .empty p{font-size:15px}
+    .empty { text-align: center; padding: 50px 24px; color: var(--muted); }
+    .empty-icon { font-size: 42px; margin-bottom: 12px; }
+    .empty p { font-size: 15px; }
 
-    /* ── RESPONSIVE ── */
-    @media(max-width:900px){.wd-card{grid-template-columns:1fr}.sent-form{align-items:stretch;min-width:0}.detail-row{grid-template-columns:1fr 1fr}}
-    @media(max-width:640px){
-      nav{padding:0 16px      }
-      @media(min-width:641px) and (max-width:768px){.nr{display:none}.nh{display:flex}.mm{display:flex}}
-      .nr{display:none}.nh{display:flex}.mm{display:flex}
-      .page{padding:84px 16px 60px}
-      .detail-row{grid-template-columns:1fr}
-      .st th:nth-child(4),.st td:nth-child(4){display:none}
+    @media (max-width: 900px) { .wd-card { grid-template-columns: 1fr; } .sent-form { align-items: stretch; min-width: 0; } .detail-row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      body { padding: 84px 16px 50px; }
+      .detail-row { grid-template-columns: 1fr; }
+      .nav-right .nav-pill:not(.danger) { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body, body::before, body::after { animation: none; transition: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- LOADER -->
-  <div id="pl" aria-hidden="true">
-    <img class="ll" src="{% static 'core/logo.png' %}" alt="">
-    <div class="lt"><div class="lb"></div></div>
-    <div class="ld"><span></span><span></span><span></span></div>
-  </div>
-
-  {% include "core/includes/site_header.html" with admin_mode=True %}
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-brand" href="{% url 'admin_dashboard' %}">
+        <img src="{% static 'core/logo.png' %}" alt="MyTherapyDoctor">
+        <span class="brand-label">Admin Panel</span>
+      </a>
+      <div class="nav-right">
+        <a class="nav-pill" href="{% url 'admin_dashboard' %}">← Dashboard</a>
+        <a class="nav-pill" href="{% url 'admin_create_post' %}">✍ Create Post</a>
+        <a class="nav-pill" href="{% url 'welcome' %}">Site</a>
+        <a class="nav-pill danger" href="{% url 'logout' %}">Sign out</a>
+      </div>
+    </div>
+  </nav>
 
   <div class="page">
 
-    <!-- HEAD -->
-    <div class="ph rv">
-      <div class="kicker">Admin Panel</div>
+    <!-- ── WITHDRAWALS ── -->
+    <div class="page-head">
+      <div class="kicker">Admin · Finance</div>
       <h1>Withdrawal Requests</h1>
       <p>Review pending requests, send payments, then mark as sent — the user gets an email confirmation automatically.</p>
     </div>
 
     <!-- TABS -->
-    <div class="tabs rv">
+    <div class="tabs">
       <a class="tab {% if status_filter == 'pending' %}active{% endif %}" href="?status=pending">
         Pending {% if pending_count %}<span class="tab-count">{{ pending_count }}</span>{% endif %}
       </a>
@@ -180,39 +282,34 @@
       <a class="tab {% if status_filter == 'all' %}active{% endif %}" href="?status=all">All</a>
     </div>
 
-    <!-- WITHDRAWAL CARDS -->
-    <div class="sh"><span>Withdrawal Queue</span></div>
+    <div class="section-title">Withdrawal Queue</div>
 
     {% if withdrawals %}
+    <div class="wd-list">
       {% for wd in withdrawals %}
-      <div class="wd-card {% if wd.status == 'sent' %}sent{% endif %} rv">
+      <div class="wd-card {% if wd.status == 'sent' %}sent{% endif %}">
         <div>
           <div class="wd-top">
             <div class="wd-amount">₦{{ wd.amount|floatformat:2 }}</div>
-            <div class="wd-user-info">
+            <div>
               <div class="wd-name">{{ wd.user.full_name|default:wd.user.username }}</div>
               <div class="wd-email">{{ wd.user.email|default:"No email" }}</div>
               <div class="wd-date">Requested {{ wd.created_at|date:"M d, Y · g:i A" }}</div>
               {% if wd.sent_at %}<div class="wd-date">Sent {{ wd.sent_at|date:"M d, Y · g:i A" }}</div>{% endif %}
             </div>
             {% if wd.status == 'sent' %}
-              <span class="badge bg">Sent ✓</span>
+              <span class="badge badge-green">Sent ✓</span>
             {% else %}
-              <span class="badge bo">Pending</span>
+              <span class="badge badge-yellow">Pending</span>
             {% endif %}
           </div>
-
           <div class="detail-row">
             <div class="di"><div class="dl">Bank</div><div class="dv">{{ wd.bank_name }}</div></div>
             <div class="di"><div class="dl">Account Number</div><div class="dv">{{ wd.account_number }}</div></div>
             <div class="di"><div class="dl">Account Name</div><div class="dv">{{ wd.account_name }}</div></div>
           </div>
-
-          {% if wd.admin_note %}
-            <p class="admin-note">Note: {{ wd.admin_note }}</p>
-          {% endif %}
+          {% if wd.admin_note %}<p class="admin-note-text">Note: {{ wd.admin_note }}</p>{% endif %}
         </div>
-
         <div>
           {% if wd.status == 'pending' %}
           <form class="sent-form" method="post" action="{% url 'admin_mark_withdrawal_sent' wd.id %}"
@@ -227,131 +324,86 @@
         </div>
       </div>
       {% endfor %}
+    </div>
     {% else %}
-    <div class="empty rv">
+    <div class="empty">
       <div class="empty-icon">💸</div>
       <p>No {% if status_filter != 'all' %}{{ status_filter }} {% endif %}withdrawal requests found.</p>
     </div>
     {% endif %}
 
-    </div><!-- /pending list -->
-    </div><!-- /page -->
+    <!-- ── BLOG APPROVALS ── -->
+    <div class="section-title" id="blog-approvals">Pending Blog Posts</div>
 
-    <!-- ═══════════════════════════════════════════════════════
-         ADMIN: BLOG APPROVAL SECTION
-    ═══════════════════════════════════════════════════════ -->
-    <div class="pending rv" style="margin-top:42px">
-      <div class="sh"><span>📝 Pending Blog Posts</span></div>
-      <div class="rv in">
-        <div class="blog-pending-list">
-          {% for blog in blog_approvals %}
-          <div class="bp-card">
-            <div class="bp-head">
-              <strong>{{ blog.title }}</strong>
-              <span class="bp-status">Pending approval</span>
-            </div>
-            <p class="bp-excerpt">{{ blog.excerpt|truncatechars:120 }}</p>
-            <div class="bp-meta">
-              <span>By {{ blog.author }}</span>
-              <span>👁 {{ blog.views_count }} views</span>
-            </div>
-            <form method="POST" action="{% url 'admin_approve_blog' blog.id %}" style="margin-top:12px">
-              {% csrf_token %}
-              <button class="btn-publish" type="submit">✓ Publish &amp; Notify Subscribers</button>
-            </form>
-          </div>
-          {% empty %}
-          <div class="empty rv"><p>No pending blog posts awaiting approval.</p></div>
-          {% endfor %}
+    {% if blog_approvals %}
+    <div class="bp-list">
+      {% for blog in blog_approvals %}
+      <div class="bp-card">
+        <div class="bp-title">{{ blog.title }}</div>
+        <div class="bp-excerpt">{{ blog.excerpt|truncatechars:160 }}</div>
+        <div class="bp-meta">
+          <span>By {{ blog.author }}</span>
+          <span>{{ blog.created_at|date:"M d, Y" }}</span>
+          <span>{{ blog.get_category_display }}</span>
+          <span>👁 {{ blog.views_count }} views</span>
         </div>
+        <form method="POST" action="{% url 'admin_approve_blog' blog.id %}">
+          {% csrf_token %}
+          <button class="btn-approve" type="submit">✓ Publish &amp; Notify Subscribers</button>
+        </form>
       </div>
+      {% endfor %}
     </div>
+    {% else %}
+    <div class="empty">
+      <div class="empty-icon">📋</div>
+      <p>No pending blog posts awaiting approval.</p>
+    </div>
+    {% endif %}
 
-    {% include "core/includes/site_footer.html" %}
-
-    <script>
-      window.addEventListener('load', () => {
-        setTimeout(() => document.getElementById('pl').classList.add('h'), 800);
-        kick();
-      });
-      window.addEventListener('pageshow', () => { document.getElementById('pl').classList.add('h'); kick(); });
-      function kick() {
-        const io = new IntersectionObserver(entries => {
-          entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-        }, { threshold: 0.05 });
-        document.querySelectorAll('.rv,.sg').forEach(el => io.observe(el));
-      }
-      function toggleMob() {
-        const h = document.getElementById('ham'), m = document.getElementById('mob');
-        const o = m.classList.toggle('open'); h.classList.toggle('open', o);
-      }
-      document.addEventListener('click', e => {
-        const m = document.getElementById('mob');
-        if (m.classList.contains('open') && !m.contains(e.target) && !document.getElementById('ham').contains(e.target)) {
-          m.classList.remove('open'); document.getElementById('ham').classList.remove('open');
-        }
-      });
-    </script>
-
-    <!-- USER EARNINGS OVERVIEW -->
+    <!-- ── CREATOR EARNINGS TABLE ── -->
     {% if user_stats %}
-    <div style="margin-top:52px">
-      <div class="sh"><span>Creator Earnings Overview</span></div>
-      <div class="stats-table-wrap rv">
-        <table class="st">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Posts</th>
-              <th>Total Views</th>
-              <th>Total Earned</th>
-            </tr>
-          </thead>
-          <tbody class="sg">
-            {% for row in user_stats %}
-            <tr>
-              <td>
-                <div class="user-col">
-                  <span class="un">{{ row.author_user__full_name|default:row.author_user__username }}</span>
-                  <span class="ue">{{ row.author_user__email|default:"" }}</span>
-                </div>
-              </td>
-              <td class="posts">{{ row.total_posts }}</td>
-              <td class="views">👁 {{ row.total_views|default:0 }}</td>
-              <td class="earn">₦{{ row.total_earned }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+    <div class="section-title">Creator Earnings Overview</div>
+    <div class="stats-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Posts</th>
+            <th>Total Views</th>
+            <th>Total Earned</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in user_stats %}
+          <tr>
+            <td>
+              <div class="td-user">
+                <span class="td-un">{{ row.author_user__full_name|default:row.author_user__username }}</span>
+                <span class="td-ue">{{ row.author_user__email|default:"" }}</span>
+              </div>
+            </td>
+            <td>{{ row.total_posts }}</td>
+            <td>👁 {{ row.total_views|default:0 }}</td>
+            <td class="td-earn">₦{{ row.total_earned }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
     {% endif %}
 
   </div><!-- /page -->
 
   <script>
-    window.addEventListener('load', () => {
-      setTimeout(() => document.getElementById('pl').classList.add('h'), 800);
-      kick();
+    document.addEventListener('DOMContentLoaded', () => {
+      requestAnimationFrame(() => document.body.classList.add('page-loaded'));
     });
-    window.addEventListener('pageshow', () => { document.getElementById('pl').classList.add('h'); kick(); });
-    function kick() {
-      const io = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
-      }, { threshold: 0.05 });
-      document.querySelectorAll('.rv,.sg').forEach(el => io.observe(el));
-    }
-    function toggleMob() {
-      const h = document.getElementById('ham'), m = document.getElementById('mob');
-      const o = m.classList.toggle('open'); h.classList.toggle('open', o);
-    }
-    document.addEventListener('click', e => {
-      const m = document.getElementById('mob');
-      if (m.classList.contains('open') && !m.contains(e.target) && !document.getElementById('ham').contains(e.target)) {
-        m.classList.remove('open'); document.getElementById('ham').classList.remove('open');
-      }
+    window.addEventListener('pageshow', () => {
+      document.body.classList.remove('page-exit');
+      document.body.classList.add('page-loaded');
     });
   </script>
-{% include "core/includes/adsterra_banner.html" %}
+
 </body>
 </html>

@@ -129,7 +129,7 @@
   background: rgba(255,255,255,.06);
   cursor: pointer;
 }
-.admin-menu-label { display:none; margin-right:5px; font:700 10px Inter,system-ui,sans-serif; letter-spacing:.08em; text-transform:uppercase; }
+.admin-mobile-signout { display:none; color:#fecaca; }
 .admin-sidebar-overlay { display: none; }
 .admin-main {
   position: relative;
@@ -161,12 +161,10 @@ body.admin-workspace { padding: 0 !important; }
   .admin-topbar-brand img { width:35px; height:35px; }
   .admin-topbar-title { font-size:10px; letter-spacing:.9px; }
   .admin-topbar-title small { display:none; }
-  .admin-menu-toggle { order:2; width:42px; height:42px; border-radius:12px; }
-  .admin-menu-label { display:inline; }
+  .admin-menu-toggle { order:3; width:42px; height:42px; margin-left:auto; border-radius:12px; }
   .admin-role { display:none; }
-  .admin-topbar-actions { order:3; }
-  .admin-topbar-action.signout { min-height:38px; padding:0 12px; }
-  .admin-topbar-actions .admin-topbar-action:not(.signout) { display: none; }
+  .admin-topbar-actions { display:none; }
+  .admin-mobile-signout { display:flex; margin-top:8px; border-color:rgba(248,113,113,.2); background:rgba(248,113,113,.07); }
   .admin-sidebar { inset-block-start:68px; }
   .admin-sidebar-overlay.open { inset-block-start:68px; }
   .admin-main { padding: 92px 16px 48px; }

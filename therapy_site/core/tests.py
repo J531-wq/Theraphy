@@ -466,6 +466,18 @@ class CreatorPostManagementTests(TestCase):
         self.assertContains(response, "Page 1 of 2")
         self.assertContains(response, "?post_page=2#my-posts")
 
+    def test_withdrawal_without_bank_details_prompts_creator_to_add_them(self):
+        response = self.client.post(reverse("request_withdrawal"), secure=True)
+
+        self.assertRedirects(
+            response,
+            reverse("earnings_dashboard"),
+            fetch_redirect_response=False,
+        )
+        response = self.client.get(reverse("earnings_dashboard"), secure=True)
+        self.assertContains(response, "Add and save your bank account details")
+        self.assertContains(response, 'href="#bank-details"')
+
     def test_creator_edit_resubmits_post_for_approval(self):
         response = self.client.post(
             reverse("blog_edit", args=[self.post.id]),

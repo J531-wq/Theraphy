@@ -1236,9 +1236,17 @@ def request_withdrawal(request):
     MIN_WITHDRAWAL = Decimal('1000')
 
     if not (user.bank_name and user.account_number and user.account_name):
+        messages.error(
+            request,
+            'Add and save your bank account details before requesting a withdrawal.',
+        )
         return redirect('earnings_dashboard')
 
     if withdrawable_balance < MIN_WITHDRAWAL:
+        messages.error(
+            request,
+            f'You need at least ₦{MIN_WITHDRAWAL:,.0f} available before requesting a withdrawal.',
+        )
         return redirect('earnings_dashboard')
 
     WithdrawalRequest.objects.create(
@@ -1249,6 +1257,7 @@ def request_withdrawal(request):
         account_name=user.account_name,
         status=WithdrawalRequest.STATUS_PENDING,
     )
+    messages.success(request, 'Your withdrawal request has been submitted for review.')
     return redirect('earnings_dashboard')
 
 

@@ -4,7 +4,7 @@
     <img src="{% static 'core/logo.png' %}" alt="">
     <span class="admin-topbar-title">MyTherapyDoctor<small>Admin control centre</small></span>
   </a>
-  <button class="admin-menu-toggle" id="admin-menu-toggle" type="button" aria-label="Open admin navigation" aria-controls="admin-sidebar" aria-expanded="false"><span class="admin-menu-label">Menu</span>
+  <button class="admin-menu-toggle" id="admin-menu-toggle" type="button" aria-label="Open admin navigation" aria-controls="admin-sidebar" aria-expanded="false">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
   </button>
   <div class="admin-topbar-actions">
@@ -24,6 +24,7 @@
   <div class="admin-sidebar-label">Quick links</div>
   <a class="admin-sidebar-link" href="{% url 'welcome' %}"><span class="admin-sidebar-icon">↗</span>View website</a>
   <a class="admin-sidebar-link" href="/admin/"><span class="admin-sidebar-icon">⚙</span>Django admin</a>
+  <a class="admin-sidebar-link admin-mobile-signout" href="{% url 'logout' %}"><span class="admin-sidebar-icon">↗</span>Sign out</a>
 </aside>
 <div class="admin-sidebar-overlay" id="sidebar-overlay"></div>
 

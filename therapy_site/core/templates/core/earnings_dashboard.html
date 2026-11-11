@@ -324,7 +324,7 @@
 
       <!-- RIGHT: withdraw + bank -->
       <div>
-        <div class="card rv">
+        <div class="card rv" id="withdrawal-request">
           <div class="ch"><h2>Request withdrawal</h2></div>
           <div class="cb">
             <div class="ei"><span>💡</span><span>Min ₦1,000. Save bank details first.</span></div>
@@ -340,14 +340,18 @@
             {% else %}
             <div class="ws nrd">
               <span class="wi-icon">🔒</span>
-              <span>{% if withdrawable_balance < min_withdrawal %}Need ₦{{ min_withdrawal|floatformat:0 }}. Have ₦{{ withdrawable_balance|floatformat:2 }}.{% else %}Add bank details below.{% endif %}</span>
+              <span>{% if not user.bank_name or not user.account_number or not user.account_name %}Add and save your bank details before you can request a withdrawal.{% elif withdrawable_balance < min_withdrawal %}Need ₦{{ min_withdrawal|floatformat:0 }}. Have ₦{{ withdrawable_balance|floatformat:2 }}.{% endif %}</span>
             </div>
-            <button class="btn bp bd" disabled>Withdraw</button>
+            {% if not user.bank_name or not user.account_number or not user.account_name %}
+              <a class="btn bp" href="#bank-details">Add bank details</a>
+            {% else %}
+              <button class="btn bp bd" disabled>Withdraw</button>
+            {% endif %}
             {% endif %}
           </div>
         </div>
 
-        <div class="card rv">
+        <div class="card rv" id="bank-details">
           <div class="ch"><h2>Bank account</h2></div>
           <div class="cb">
             <form method="post" action="{% url 'update_bank_account' %}" id="bank-form">

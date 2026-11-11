@@ -411,6 +411,26 @@ class CreatorPostManagementTests(TestCase):
         self.assertContains(response, 'input[type="file"].form-control::file-selector-button')
         self.assertNotContains(response, 'class="site-chrome-footer"')
 
+    def test_creator_post_list_is_paginated(self):
+        Blog.objects.bulk_create([
+            Blog(
+                title=f"Creator post {number}",
+                slug=f"creator-post-{number}",
+                author=self.creator.full_name,
+                category="wellness",
+                excerpt="A helpful short summary.",
+                content="This article contains enough useful information for readers.",
+                author_user=self.creator,
+            )
+            for number in range(11)
+        ])
+
+        response = self.client.get(reverse("creator_dashboard"), secure=True)
+
+        self.assertEqual(len(response.context["posts"]), 10)
+        self.assertContains(response, "Page 1 of 2")
+        self.assertContains(response, "?post_page=2#my-posts")
+
     def test_creator_edit_resubmits_post_for_approval(self):
         response = self.client.post(
             reverse("blog_edit", args=[self.post.id]),

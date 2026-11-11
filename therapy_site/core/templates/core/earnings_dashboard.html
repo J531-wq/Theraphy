@@ -112,6 +112,9 @@
     .bo{background:rgba(255,160,0,.1);color:#e8b87d;border:1px solid rgba(255,160,0,.25)}
     .ec{color:#9ad5b6;font-weight:600}
     .vc{color:var(--muted)}
+    .list-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding:14px 4px 0;border-top:1px solid var(--brd);color:var(--muted);font-size:12px}
+    .list-pagination a{display:inline-flex;align-items:center;min-height:34px;padding:0 12px;border:1px solid var(--brd);border-radius:8px;color:var(--text);background:rgba(255,255,255,.04);font-weight:650;transition:.18s ease}
+    .list-pagination a:hover{border-color:rgba(154,244,209,.4);color:#d7ffe9;background:rgba(46,125,110,.18)}
 
     /* ── WITHDRAWAL HISTORY ── */
     .wl{list-style:none;display:grid;gap:8px}
@@ -279,6 +282,13 @@
             </tbody>
           </table>
           </div>
+          {% if post_page.has_other_pages %}
+          <nav class="list-pagination" aria-label="My posts pages">
+            <span>{% if post_page.has_previous %}<a href="?post_page={{ post_page.previous_page_number }}#my-posts">← Newer posts</a>{% endif %}</span>
+            <span>Page {{ post_page.number }} of {{ post_page.paginator.num_pages }}</span>
+            <span>{% if post_page.has_next %}<a href="?post_page={{ post_page.next_page_number }}#my-posts">Older posts →</a>{% endif %}</span>
+          </nav>
+          {% endif %}
           {% else %}
           <div class="cb">
             <div class="es"><div class="ei2">✍️</div><p>No posts yet.</p><a class="btn bs" href="{% url 'blog_create' %}" style="margin-top:12px;display:inline-flex">Write your first post</a></div>

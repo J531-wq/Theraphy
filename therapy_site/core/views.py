@@ -1128,7 +1128,11 @@ def earnings_dashboard(request):
         return redirect(f"{reverse('login')}?next={reverse('earnings_dashboard')}")
 
     total_earned, total_withdrawn, available, pending = _user_earnings(user)
-    posts = Blog.objects.filter(author_user=user).order_by('-created_at')
+    post_page = Paginator(
+        Blog.objects.filter(author_user=user).order_by('-created_at'),
+        10,
+    ).get_page(request.GET.get('post_page'))
+    posts = post_page.object_list
     for post in posts:
         post.earned_amount = (
             Decimal(str(post.views_count // 100 * NAIRA_PER_100_VIEWS))
@@ -1164,6 +1168,7 @@ def earnings_dashboard(request):
         'pending': pending,
         'withdrawable_balance': withdrawable_balance,
         'posts': posts,
+        'post_page': post_page,
         'withdrawals': withdrawals,
         'bank_form': bank_form,
         'can_withdraw': can_withdraw,

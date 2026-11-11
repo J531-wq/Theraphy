@@ -108,6 +108,23 @@ class AdminDashboardTests(TestCase):
         self.assertContains(create_response, 'contenteditable="true"')
         self.assertContains(create_response, 'id="image-dropzone"')
 
+    @override_settings(STORAGES={
+        **settings.STORAGES,
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    })
+    def test_admin_dashboard_renders_with_the_shared_shell(self):
+        self.client.post(reverse("login"), {
+            "username": "siteadmin",
+            "password": "admin-password",
+        }, secure=True)
+
+        response = self.client.get(reverse("admin_dashboard"), secure=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'class="admin-topbar"')
+
     def test_superuser_site_navigation_has_dashboard_and_sign_out(self):
         self.client.post(reverse("login"), {
             "username": "siteadmin",

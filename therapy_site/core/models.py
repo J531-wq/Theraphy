@@ -10,6 +10,14 @@ class User(models.Model):
     email = models.EmailField(unique=True, null=True, blank=True)
     password = models.CharField(max_length=128, null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    is_staff = models.BooleanField(
+        default=False,
+        help_text='Designates whether the user can log into the admin site.',
+    )
+    is_superuser = models.BooleanField(
+        default=False,
+        help_text='Designates that this user has all permissions without explicitly assigning them.',
+    )
 
     # Bank / payout details (filled in by user before requesting withdrawal)
     bank_name = models.CharField(max_length=100, blank=True, default='')

@@ -335,6 +335,26 @@ def login_view(request):
                 if check_password(password, user.password):
                     request.session["user_id"] = user.id
                     request.session.modified = True
+
+                    # If this user is staff/superuser, also log them into
+                    # Django's auth system so request.user.is_superuser works
+                    # for /admin/ and the custom admin-panel views.
+                    if user.is_staff or user.is_superuser:
+                        from django.contrib.auth import login as auth_login
+                        from django.contrib.auth.models import User as AuthUser
+                        auth_user, _ = AuthUser.objects.get_or_create(
+                            username=user.username,
+                            defaults={
+                                'is_staff': True,
+                                'is_superuser': user.is_superuser,
+                                'is_active': True,
+                            },
+                        )
+                        auth_user.is_staff = user.is_staff or user.is_superuser
+                        auth_user.is_superuser = user.is_superuser
+                        auth_user.save()
+                        auth_login(request, auth_user)
+
                     return redirect(next_url)
                 return render(request, "core/login.html", {
                     "form": form, "error": "Incorrect password.",

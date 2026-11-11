@@ -20,15 +20,15 @@ logger = logging.getLogger(__name__)
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'full_name', 'email', 'is_active', 'has_bank_details')
+    list_display = ('username', 'full_name', 'email', 'is_active', 'is_staff', 'is_superuser', 'has_bank_details')
     search_fields = ('username', 'full_name', 'email')
-    list_filter = ('is_active',)
+    list_filter = ('is_active', 'is_staff', 'is_superuser')
     fieldsets = (
         ('User Information', {
             'fields': ('username', 'full_name', 'email')
         }),
         ('Account Status', {
-            'fields': ('is_active',)
+            'fields': ('is_active', 'is_staff', 'is_superuser')
         }),
         ('Bank / Payout Details', {
             'fields': ('bank_name', 'account_number', 'account_name'),

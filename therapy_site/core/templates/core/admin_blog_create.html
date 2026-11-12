@@ -159,6 +159,34 @@
     .editor-surface ul, .editor-surface ol { padding-left: 1.5em; }
     .editor-help { display: flex; justify-content: space-between; gap: 12px; margin-top: 7px; color: var(--muted); font-size: 11.5px; }
     .content-source { display: none; }
+
+    /* ── Color dropdown ── */
+    .color-dropdown-wrap { position: relative; }
+    .color-dropdown {
+      display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+      padding: 12px; min-width: 210px;
+      background: rgba(6,14,12,.97); border: 1px solid rgba(255,255,255,.18);
+      border-radius: 12px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.5);
+    }
+    .color-dropdown.open { display: block; animation: colorDrop .15s ease; }
+    @keyframes colorDrop { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+    .color-dropdown-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(240,244,243,.4); margin-bottom: 8px; }
+    .color-palette { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+    .color-swatch {
+      width: 24px; height: 24px; border-radius: 7px; cursor: pointer;
+      border: 2px solid rgba(255,255,255,.15); padding: 0; outline: none;
+      transition: transform .12s, border-color .12s;
+    }
+    .color-swatch:hover { transform: scale(1.18); border-color: #9af4d1; }
+    .color-swatch.no-color { background: rgba(255,255,255,.05) !important; position: relative; }
+    .color-swatch.no-color::after {
+      content: '✕'; position: absolute; inset: 0; display: grid; place-items: center;
+      color: #f87171; font-size: 13px; font-weight: 700;
+    }
+    .color-indicator { width: 16px; height: 4px; border-radius: 3px; display: inline-block; transition: background .15s; }
+    .editor-tool.reset-btn { color: #f87171; border-color: rgba(248,113,113,.2); }
+    .editor-tool.reset-btn:hover { color: #fca5a5; border-color: rgba(248,113,113,.4); background: rgba(248,113,113,.1); }
     .cover-studio { display:grid; grid-template-columns:minmax(0,1fr) 34px minmax(210px,.86fr) minmax(190px,.74fr); gap:14px; align-items:stretch; padding:14px; border:1px solid rgba(154,244,209,.16); border-radius:18px; background:linear-gradient(145deg,rgba(46,125,110,.1),rgba(255,255,255,.02)); }
     .cover-source { padding:16px; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:rgba(4,13,10,.34); }
     .cover-source-head { display:flex; gap:9px; align-items:center; margin-bottom:11px; }
@@ -337,6 +365,33 @@
               <button class="editor-tool" type="button" data-command="insertOrderedList" aria-label="Numbered list" title="Numbered list">1. List</button>
               <button class="editor-tool" type="button" data-command="createLink" aria-label="Add link" title="Add link">↗ Link</button>
               <button class="editor-tool" type="button" data-command="removeFormat" aria-label="Clear formatting" title="Clear formatting">Tx</button>
+              <span class="editor-divider" aria-hidden="true"></span>
+              <div class="color-dropdown-wrap">
+                <button class="editor-tool" type="button" id="text-color-btn" aria-label="Text color" title="Text color">
+                  <span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px;">
+                    <strong style="font-size:13px;line-height:1;">A</strong>
+                    <span class="color-indicator" id="text-color-indicator" style="background:#f0f4f3;"></span>
+                  </span>
+                </button>
+                <div class="color-dropdown" id="text-color-dropdown">
+                  <div class="color-dropdown-label">Text Color</div>
+                  <div class="color-palette" id="text-color-palette"></div>
+                </div>
+              </div>
+              <div class="color-dropdown-wrap">
+                <button class="editor-tool" type="button" id="bg-color-btn" aria-label="Highlight / background color" title="Highlight / background color">
+                  <span style="display:inline-flex;flex-direction:column;align-items:center;gap:1px;">
+                    <span style="font-size:13px;font-weight:700;line-height:1;color:#fff;background:#3d9e8c;padding:0 3px;border-radius:2px;">A</span>
+                    <span class="color-indicator" id="bg-color-indicator" style="background:transparent;border:1px solid rgba(255,255,255,.25);"></span>
+                  </span>
+                </button>
+                <div class="color-dropdown" id="bg-color-dropdown">
+                  <div class="color-dropdown-label">Background Color</div>
+                  <div class="color-palette" id="bg-color-palette"></div>
+                </div>
+              </div>
+              <span class="editor-divider" aria-hidden="true"></span>
+              <button class="editor-tool reset-btn" type="button" id="reset-editor-btn" aria-label="Reset to default" title="Reset editor to original content">↺ Reset</button>
             </div>
             <div class="editor-surface" id="content-editor" contenteditable="true" role="textbox"
                  aria-multiline="true" aria-label="Full Article"
@@ -428,6 +483,78 @@
             document.execCommand(command, false, tool.dataset.value || null);
           }
         });
+      });
+
+      // ── Color swatches ──
+      const COLOR_PALETTE = [
+        '#000000','#333333','#666666','#999999','#cccccc','#ffffff','#f0f4f3','transparent',
+        '#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#e91e63',
+        '#c0392b','#d35400','#f39c12','#27ae60','#16a085','#2980b9','#8e44ad','#c0334e',
+        '#2e7d6e','#3d9e8c','#9af4d1','#b7c5ff','#ffdb61','#ff7189','#ff9aab','#ffe2e7'
+      ];
+
+      function buildPalette(containerId, indicatorId, command, dropdownId) {
+        const container = document.getElementById(containerId);
+        const indicator = document.getElementById(indicatorId);
+        const dropdown = document.getElementById(dropdownId);
+        COLOR_PALETTE.forEach(color => {
+          const sw = document.createElement('button');
+          sw.type = 'button';
+          sw.className = 'color-swatch' + (color === 'transparent' ? ' no-color' : '');
+          if (color !== 'transparent') sw.style.background = color;
+          sw.title = color === 'transparent' ? 'No color' : color;
+          sw.addEventListener('mousedown', e => e.preventDefault());
+          sw.addEventListener('click', () => {
+            editor.focus();
+            if (command === 'hiliteColor' && color === 'transparent') {
+              document.execCommand('hiliteColor', false, 'rgba(0,0,0,0)');
+            } else {
+              document.execCommand(command, false, color === 'transparent' ? 'inherit' : color);
+            }
+            if (color !== 'transparent') indicator.style.background = color;
+            else { indicator.style.background = 'transparent'; indicator.style.border = '1px solid rgba(255,255,255,.25)'; }
+            dropdown.classList.remove('open');
+          });
+          container.appendChild(sw);
+        });
+      }
+      buildPalette('text-color-palette', 'text-color-indicator', 'foreColor', 'text-color-dropdown');
+      buildPalette('bg-color-palette', 'bg-color-indicator', 'hiliteColor', 'bg-color-dropdown');
+
+      // Toggle dropdowns
+      function toggleDropdown(btnId, dropdownId, otherId) {
+        const btn = document.getElementById(btnId);
+        const dd = document.getElementById(dropdownId);
+        const other = document.getElementById(otherId);
+        btn.addEventListener('mousedown', e => e.preventDefault());
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          other.classList.remove('open');
+          dd.classList.toggle('open');
+        });
+      }
+      toggleDropdown('text-color-btn', 'text-color-dropdown', 'bg-color-dropdown');
+      toggleDropdown('bg-color-btn', 'bg-color-dropdown', 'text-color-dropdown');
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.color-dropdown-wrap')) {
+          document.getElementById('text-color-dropdown').classList.remove('open');
+          document.getElementById('bg-color-dropdown').classList.remove('open');
+        }
+      });
+
+      // ── Reset to default ──
+      const defaultContent = editor.innerHTML;
+      const resetBtn = document.getElementById('reset-editor-btn');
+      resetBtn.addEventListener('mousedown', e => e.preventDefault());
+      resetBtn.addEventListener('click', () => {
+        if (confirm('Reset the editor back to its original content?\nAll unsaved changes will be lost.')) {
+          editor.innerHTML = defaultContent;
+          contentSource.value = defaultContent;
+          // Reset color indicators
+          document.getElementById('text-color-indicator').style.background = '#f0f4f3';
+          document.getElementById('bg-color-indicator').style.background = 'transparent';
+          document.getElementById('bg-color-indicator').style.border = '1px solid rgba(255,255,255,.25)';
+        }
       });
       form.addEventListener('submit', () => {
         contentSource.value = editor.innerHTML;

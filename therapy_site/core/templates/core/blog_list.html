@@ -68,6 +68,18 @@
     .subscribe-fields { display: flex; flex-wrap: wrap; gap: 8px; }
     .subscribe-fields input { min-width: 200px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: rgba(255,255,255,.05); font: inherit; }
     .subscribe-btn { padding: 10px 18px; border: 0; border-radius: 8px; color: #fff; background: linear-gradient(135deg, #2e7d6e, #3d9e8c); font: 600 13px 'DM Sans', sans-serif; cursor: pointer; }
+    .subscribe-btn:disabled { opacity: .7; cursor: not-allowed; }
+
+    /* ── Subscribe success modal ── */
+    .subscribe-modal { position: fixed; inset: 0; z-index: 500; display: none; place-items: center; padding: 20px; background: rgba(0,0,0,.68); backdrop-filter: blur(8px); }
+    .subscribe-modal.open { display: grid; }
+    .subscribe-modal-card { width: min(100%, 460px); padding: 30px; border: 1px solid rgba(137,201,174,.28); border-radius: 16px; color: var(--ink); background: var(--card); box-shadow: 0 24px 70px rgba(0,0,0,.45); text-align: center; animation: subscribeModalIn .35s ease; }
+    @keyframes subscribeModalIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    .subscribe-modal-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 50%; color: var(--muted); background: transparent; cursor: pointer; font-size: 1.4rem; line-height: 1; }
+    .subscribe-modal-close:hover { color: #fff; border-color: var(--green); }
+    .subscribe-modal-icon { font-size: 2.2rem; margin-bottom: 12px; }
+    .subscribe-modal-title { margin: 0 0 8px; font-size: 1.35rem; color: #fff; }
+    .subscribe-modal-message { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
     footer { padding: 25px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; text-align: center; }
     /* Loader */
     #page-loader{position:fixed;inset:0;z-index:9999;background:rgba(7,11,10,0.97);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;transition:opacity 0.5s,visibility 0.5s}
@@ -129,6 +141,17 @@
         </form>
       </div>
     </div>
+
+    <!-- Subscribe success modal -->
+    <div id="subscribe-modal" class="subscribe-modal" aria-hidden="true">
+      <div class="subscribe-modal-card">
+        <button type="button" class="subscribe-modal-close" aria-label="Close" onclick="closeSubscribeModal()">&times;</button>
+        <div class="subscribe-modal-icon" aria-hidden="true">✅</div>
+        <h2 class="subscribe-modal-title">You're subscribed 🌿</h2>
+        <p class="subscribe-modal-message">Thanks for joining the MyTherapyDoctor Journal. A welcome email is on its way to your inbox.</p>
+      </div>
+    </div>
+
     <section class="blog-grid">
       {% for blog in blogs %}
         <a class="blog-card" href="{% url 'blog_detail' blog.slug %}"><div class="blog-media">{% if blog.featured_image %}<img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}" loading="lazy">{% elif blog.cover_image_url %}<img src="{{ blog.cover_image_url }}" alt="{{ blog.title }}" loading="lazy">{% else %}<div class="media-placeholder">+</div>{% endif %}<span class="category">{{ blog.get_category_display }}</span></div><div class="card-content"><div class="card-date">{{ blog.created_at|date:"M d, Y" }}</div><h2>{{ blog.title }}</h2><p class="excerpt">{{ blog.excerpt|truncatewords:30 }}</p><div class="card-footer"><span>By {{ blog.author }}</span><span class="views-count">👁 {{ blog.views_count }}</span><span class="read-link">Read story &rarr;</span></div></div></a>
@@ -161,6 +184,64 @@
       }
     });
     window.addEventListener('pageshow', () => { document.getElementById('page-loader').classList.add('hidden'); animateCards(); });
+
+    /* ── Subscribe via AJAX + success modal ── */
+    (function() {
+      const form = document.getElementById('subscribe-form');
+      const modal = document.getElementById('subscribe-modal');
+      if (!form || !modal) return;
+
+      const btn = form.querySelector('.subscribe-btn');
+      const originalBtnText = btn.textContent;
+
+      function openSubscribeModal() {
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        modal.querySelector('.subscribe-modal-close').focus();
+      }
+
+      function closeSubscribeModal() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+
+        btn.disabled = true;
+        btn.textContent = 'Subscribing…';
+
+        try {
+          const res = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+          });
+          const data = await res.json();
+
+          if (res.ok && data.ok) {
+            form.reset();
+            openSubscribeModal();
+          } else {
+            alert(data.message || 'Something went wrong. Please try again.');
+          }
+        } catch (err) {
+          alert('Something went wrong. Please try again.');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = originalBtnText;
+        }
+      });
+
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) closeSubscribeModal();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modal.classList.contains('open')) {
+          closeSubscribeModal();
+        }
+      });
+    })();
   </script>
 </body>
 </html>

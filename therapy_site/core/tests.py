@@ -5,12 +5,32 @@ from django.urls import reverse
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from unittest.mock import patch
+from django.conf import settings
 
 from .forms import BlogCreateForm
 from .models import Blog, ChatMessage, PageView, User
 
 
 class BlogCreateTests(TestCase):
+    @patch("core.views.send_contact_message", return_value=True)
+    def test_contact_form_sends_to_configured_recipient(self, send_contact_message):
+        response = self.client.post(reverse("contact"), {
+            "name": "Contact Person",
+            "email": "person@example.com",
+            "subject": "A support question",
+            "message": "This is a valid contact message for the MyTherapyDoctor team.",
+        }, secure=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Your message has been sent")
+        send_contact_message.assert_called_once_with(
+            name="Contact Person",
+            email="person@example.com",
+            subject="A support question",
+            message="This is a valid contact message for the MyTherapyDoctor team.",
+        )
+        self.assertEqual(settings.CONTACT_RECIPIENT_EMAIL, "coderjoe16@gmail.com")
+
     def test_contact_and_legal_pages_are_available(self):
         for name, expected_text in (
             ("contact", "Contact MyTherapyDoctor"),

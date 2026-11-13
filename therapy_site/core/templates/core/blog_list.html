@@ -71,15 +71,50 @@
     .subscribe-btn:disabled { opacity: .7; cursor: not-allowed; }
 
     /* ── Subscribe success modal ── */
-    .subscribe-modal { position: fixed; inset: 0; z-index: 500; display: none; place-items: center; padding: 20px; background: rgba(0,0,0,.68); backdrop-filter: blur(8px); }
-    .subscribe-modal.open { display: grid; }
-    .subscribe-modal-card { width: min(100%, 460px); padding: 30px; border: 1px solid rgba(137,201,174,.28); border-radius: 16px; color: var(--ink); background: var(--card); box-shadow: 0 24px 70px rgba(0,0,0,.45); text-align: center; animation: subscribeModalIn .35s ease; }
-    @keyframes subscribeModalIn { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
-    .subscribe-modal-close { position: absolute; top: 14px; right: 14px; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 50%; color: var(--muted); background: transparent; cursor: pointer; font-size: 1.4rem; line-height: 1; }
-    .subscribe-modal-close:hover { color: #fff; border-color: var(--green); }
-    .subscribe-modal-icon { font-size: 2.2rem; margin-bottom: 12px; }
-    .subscribe-modal-title { margin: 0 0 8px; font-size: 1.35rem; color: #fff; }
-    .subscribe-modal-message { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .subscribe-modal { position: fixed; inset: 0; z-index: 500; display: none; place-items: center; padding: 20px; background: rgba(0,0,0,.72); backdrop-filter: blur(10px); }
+    .subscribe-modal.open { display: grid; animation: modalBgIn .25s ease; }
+    @keyframes modalBgIn { from { opacity: 0; } to { opacity: 1; } }
+    .subscribe-modal-card {
+      position: relative; overflow: visible;
+      width: min(100%, 460px); padding: 36px 32px 30px;
+      background: rgba(14,17,33,.97);
+      border: 1px solid rgba(154,244,209,.25);
+      border-radius: 28px 10px 28px 10px;
+      box-shadow: 14px 18px 0 rgba(46,125,110,.5), 0 40px 100px rgba(0,0,0,.6);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      text-align: center;
+      animation: subscribeModalIn .35s cubic-bezier(0.22,1,0.36,1);
+    }
+    @keyframes subscribeModalIn { from { opacity: 0; transform: translateY(-16px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .subscribe-modal-card::before {
+      content: '✦'; position: absolute; top: -25px; right: 24px;
+      display: grid; width: 54px; height: 54px; place-items: center;
+      border: 2px solid #17132c; border-radius: 16px 50% 50%;
+      color: #17132c; background: #2e7d6e;
+      font-size: 22px; transform: rotate(12deg);
+      box-shadow: 4px 5px 0 #ff7189;
+    }
+    .subscribe-modal-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 30px; height: 30px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.15);
+      color: rgba(240,244,243,.5); background: rgba(255,255,255,.06);
+      cursor: pointer; font-size: 1.1rem; line-height: 1;
+      display: grid; place-items: center; transition: all .15s;
+    }
+    .subscribe-modal-close:hover { color: #fff; border-color: #9af4d1; background: rgba(46,125,110,.2); }
+    .subscribe-modal-icon { font-size: 2.4rem; margin-bottom: 14px; }
+    .subscribe-modal-title { margin: 0 0 10px; font-size: 1.5rem; font-weight: 800; letter-spacing: -.03em; color: #f0f4f3; }
+    .subscribe-modal-message { margin: 0 0 22px; color: rgba(240,244,243,.65); font-size: 14px; line-height: 1.65; }
+    .subscribe-modal-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 11px 26px; border: none; border-radius: 10px 4px 10px 4px;
+      background: linear-gradient(135deg, #2e7d6e, #3d9e8c);
+      color: #17132c; font-weight: 800; font-size: 14px; cursor: pointer;
+      box-shadow: 0 6px 20px rgba(46,125,110,.4);
+      transition: opacity .2s, transform .15s;
+    }
+    .subscribe-modal-btn:hover { opacity: .88; transform: translateY(-1px); }
     footer { padding: 25px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; text-align: center; }
     /* Loader */
     #page-loader{position:fixed;inset:0;z-index:9999;background:rgba(7,11,10,0.97);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;transition:opacity 0.5s,visibility 0.5s}
@@ -113,6 +148,7 @@
     @media (max-width: 820px) { .intro { grid-template-columns: 1fr; gap: 10px; } .intro-copy { margin: 0; } .blog-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 768px) { .nav-center,.nav-right{display:none} .nav-hamburger{display:flex} .mobile-menu{display:flex} }
     @media (max-width: 560px) { .page-shell { padding-left: 16px; padding-right: 16px; padding-top: 90px; } h1 { font-size: 54px; } .filter-bar { align-items: flex-start; flex-direction: column; } .filters { justify-content: flex-start; } .blog-grid { grid-template-columns: 1fr; } .blog-media { height: 190px; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -146,18 +182,38 @@
     <div id="subscribe-modal" class="subscribe-modal" aria-hidden="true">
       <div class="subscribe-modal-card">
         <button type="button" class="subscribe-modal-close" aria-label="Close" onclick="closeSubscribeModal()">&times;</button>
-        <div class="subscribe-modal-icon" aria-hidden="true">✅</div>
-        <h2 class="subscribe-modal-title">You're subscribed 🌿</h2>
-        <p class="subscribe-modal-message">Thanks for joining the MyTherapyDoctor Journal. A welcome email is on its way to your inbox.</p>
+        <div class="subscribe-modal-icon" aria-hidden="true">📬</div>
+        <h2 class="subscribe-modal-title">You're subscribed!</h2>
+        <p class="subscribe-modal-message">Thanks for joining the MyTherapyDoctor Journal. A welcome email is on its way to your inbox — check your spam if you don't see it.</p>
+        <button class="subscribe-modal-btn" onclick="closeSubscribeModal()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Got it
+        </button>
       </div>
     </div>
 
-    <section class="blog-grid">
+    <section class="blog-grid" id="blog-grid">
       {% for blog in blogs %}
         <a class="blog-card" href="{% url 'blog_detail' blog.slug %}"><div class="blog-media">{% if blog.featured_image %}<img src="{{ blog.featured_image.url }}" alt="{{ blog.title }}" loading="lazy">{% elif blog.cover_image_url %}<img src="{{ blog.cover_image_url }}" alt="{{ blog.title }}" loading="lazy">{% else %}<div class="media-placeholder">+</div>{% endif %}<span class="category">{{ blog.get_category_display }}</span></div><div class="card-content"><div class="card-date">{{ blog.created_at|date:"M d, Y" }}</div><h2>{{ blog.title }}</h2><p class="excerpt">{{ blog.excerpt|truncatewords:30 }}</p><div class="card-footer"><span>By {{ blog.author }}</span><span class="views-count">👁 {{ blog.views_count }}</span><span class="read-link">Read story &rarr;</span></div></div></a>
       {% empty %}<div class="empty-state"><h2>No stories in this collection yet.</h2><p>Try another category or return to all stories.</p></div>{% endfor %}
     </section>
-    {% if page_obj.has_other_pages %}<nav class="pagination" aria-label="Blog pages">{% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&larr;</a>{% endif %}{% for number in page_obj.paginator.page_range %}{% if page_obj.number == number %}<span class="selected">{{ number }}</span>{% else %}<a href="?page={{ number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ number }}</a>{% endif %}{% endfor %}{% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&rarr;</a>{% endif %}</nav>{% endif %}
+
+    {% if page_obj.has_next %}
+    <div id="load-more-wrap" style="display:flex;justify-content:center;margin:40px 0 20px;">
+      <button id="load-more-btn"
+              data-next-page="{{ page_obj.next_page_number }}"
+              data-category="{{ selected_category|default:'' }}"
+              style="display:inline-flex;align-items:center;gap:10px;padding:14px 32px;
+                     background:rgba(14,17,33,.92);border:1px solid rgba(154,244,209,.3);
+                     border-radius:999px;color:#9af4d1;font:600 14px 'Inter',sans-serif;
+                     cursor:pointer;backdrop-filter:blur(12px);
+                     box-shadow:0 8px 28px rgba(0,0,0,.35);
+                     transition:background .2s,border-color .2s,transform .15s;">
+        <svg id="load-more-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        <span id="load-more-label">Load more articles</span>
+      </button>
+    </div>
+    {% endif %}
   </main>
   {% include "core/includes/monetag_ad.html" %}
   {% include "core/includes/site_footer.html" %}
@@ -166,13 +222,112 @@
       setTimeout(() => document.getElementById('page-loader').classList.add('hidden'), 800);
       animateCards();
     });
-    function animateCards() {
-      const cards = document.querySelectorAll('.blog-card');
+
+    function animateCards(scope) {
+      const cards = (scope || document).querySelectorAll('.blog-card:not(.in)');
       const io = new IntersectionObserver((entries) => {
-        entries.forEach((e, i) => { if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), i * 60); io.unobserve(e.target); } });
+        entries.forEach((e, i) => {
+          if (e.isIntersecting) {
+            setTimeout(() => e.target.classList.add('in'), i * 60);
+            io.unobserve(e.target);
+          }
+        });
       }, { threshold: 0.05 });
       cards.forEach(c => io.observe(c));
     }
+
+    // ── AJAX Load More ──
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const loadMoreWrap = document.getElementById('load-more-wrap');
+    const grid = document.getElementById('blog-grid');
+
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('mouseenter', () => {
+        loadMoreBtn.style.background = 'rgba(46,125,110,.18)';
+        loadMoreBtn.style.borderColor = 'rgba(154,244,209,.55)';
+        loadMoreBtn.style.transform = 'translateY(-2px)';
+      });
+      loadMoreBtn.addEventListener('mouseleave', () => {
+        loadMoreBtn.style.background = 'rgba(14,17,33,.92)';
+        loadMoreBtn.style.borderColor = 'rgba(154,244,209,.3)';
+        loadMoreBtn.style.transform = '';
+      });
+
+      loadMoreBtn.addEventListener('click', async () => {
+        const page = loadMoreBtn.dataset.nextPage;
+        const category = loadMoreBtn.dataset.category;
+        const label = document.getElementById('load-more-label');
+        const icon = document.getElementById('load-more-icon');
+
+        // Loading state
+        loadMoreBtn.disabled = true;
+        label.textContent = 'Loading…';
+        icon.innerHTML = '<circle cx="12" cy="12" r="9" stroke-dasharray="56" stroke-dashoffset="56" style="animation:spin .8s linear infinite;transform-origin:center"/>';
+        icon.style.animation = 'spin .8s linear infinite';
+
+        try {
+          const url = `?page=${page}${category ? '&category=' + encodeURIComponent(category) : ''}`;
+          const res = await fetch(url, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          if (!res.ok) throw new Error('Network error');
+          const data = await res.json();
+
+          // Build and append cards
+          data.cards.forEach(blog => {
+            const a = document.createElement('a');
+            a.className = 'blog-card';
+            a.href = `/blog/${blog.slug}/`;
+            const imgHtml = blog.image_url
+              ? `<img src="${blog.image_url}" alt="${escHtml(blog.title)}" loading="lazy">`
+              : `<div class="media-placeholder">+</div>`;
+            a.innerHTML = `
+              <div class="blog-media">
+                ${imgHtml}
+                <span class="category">${escHtml(blog.category_display)}</span>
+              </div>
+              <div class="card-content">
+                <div class="card-date">${escHtml(blog.created_at)}</div>
+                <h2>${escHtml(blog.title)}</h2>
+                <p class="excerpt">${escHtml(blog.excerpt)}</p>
+                <div class="card-footer">
+                  <span>By ${escHtml(blog.author)}</span>
+                  <span class="views-count">👁 ${blog.views_count}</span>
+                  <span class="read-link">Read story &rarr;</span>
+                </div>
+              </div>`;
+            grid.appendChild(a);
+          });
+
+          animateCards(grid);
+
+          if (data.has_next) {
+            loadMoreBtn.dataset.nextPage = data.next_page;
+            label.textContent = 'Load more articles';
+            icon.innerHTML = '<polyline points="6 9 12 15 18 9"/>';
+            icon.style.animation = '';
+            loadMoreBtn.disabled = false;
+          } else {
+            // No more pages — hide the button smoothly
+            loadMoreWrap.style.transition = 'opacity .4s';
+            loadMoreWrap.style.opacity = '0';
+            setTimeout(() => loadMoreWrap.remove(), 400);
+          }
+        } catch (err) {
+          label.textContent = 'Failed — tap to retry';
+          icon.innerHTML = '<polyline points="6 9 12 15 18 9"/>';
+          icon.style.animation = '';
+          loadMoreBtn.disabled = false;
+        }
+      });
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
     function toggleMob() {
       const ham = document.getElementById('ham'), mob = document.getElementById('mob');
       const o = mob.classList.toggle('open'); ham.classList.toggle('open', o);

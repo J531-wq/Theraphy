@@ -650,7 +650,8 @@ def _voter_key(request):
 
 
 def blog_list(request):
-    """Display all published blog posts, 21 per page."""
+def blog_list(request):
+    """Display all published blog posts, 21 per page. Returns JSON for AJAX requests."""
     category = request.GET.get('category', None)
 
     # Get published blogs
@@ -663,6 +664,32 @@ def blog_list(request):
     paginator = Paginator(blogs, 21)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+
+    # AJAX request — return JSON card data only
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        cards = []
+        for blog in page_obj.object_list:
+            if blog.featured_image:
+                image_url = blog.featured_image.url
+            elif blog.cover_image_url:
+                image_url = blog.cover_image_url
+            else:
+                image_url = None
+            cards.append({
+                'slug': blog.slug,
+                'title': blog.title,
+                'excerpt': ' '.join(blog.excerpt.split()[:30]),
+                'author': blog.author,
+                'views_count': blog.views_count,
+                'category_display': blog.get_category_display(),
+                'created_at': blog.created_at.strftime('%b %d, %Y'),
+                'image_url': image_url,
+            })
+        return JsonResponse({
+            'cards': cards,
+            'has_next': page_obj.has_next(),
+            'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
+        })
 
     # Get all categories for filter pills
     categories = Blog.CATEGORY_CHOICES

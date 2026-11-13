@@ -796,7 +796,7 @@
         button.classList.toggle('liked', data.liked);
         button.querySelector('.post-like-label').textContent = data.liked ? 'Liked' : 'Like this post';
         button.querySelector('.post-like-count').textContent = data.likes;
-      } catch (error) { window.alert(error.message); }
+      } catch (error) { showToast(error.message); }
     });
 
     const commentList = document.querySelector('.comment-list');

@@ -149,6 +149,47 @@
     @media (max-width: 768px) { .nav-center,.nav-right{display:none} .nav-hamburger{display:flex} .mobile-menu{display:flex} }
     @media (max-width: 560px) { .page-shell { padding-left: 16px; padding-right: 16px; padding-top: 90px; } h1 { font-size: 54px; } .filter-bar { align-items: flex-start; flex-direction: column; } .filters { justify-content: flex-start; } .blog-grid { grid-template-columns: 1fr; } .blog-media { height: 190px; } }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast notification ── */
+    .site-toast {
+      position: fixed; right: 22px; bottom: 28px; z-index: 600;
+      max-width: min(380px, calc(100vw - 44px));
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 16px 18px;
+      border-radius: 16px 6px 16px 6px;
+      color: #f0f4f3;
+      background: rgba(14,17,33,.97);
+      border: 1px solid rgba(154,244,209,.3);
+      box-shadow: 8px 10px 0 rgba(46,125,110,.4), 0 24px 60px rgba(0,0,0,.55);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      opacity: 0; transform: translateY(16px) scale(.97);
+      pointer-events: none;
+      transition: opacity .3s ease, transform .3s ease;
+    }
+    .site-toast.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+    .site-toast.error { border-color: rgba(248,113,113,.35); box-shadow: 8px 10px 0 rgba(248,113,113,.25), 0 24px 60px rgba(0,0,0,.55); }
+    .site-toast::before {
+      content: '✦'; flex-shrink: 0;
+      display: grid; width: 32px; height: 32px; place-items: center;
+      border-radius: 10px 50% 50%;
+      background: #2e7d6e; color: #17132c;
+      font-size: 14px; font-weight: 700;
+      box-shadow: 2px 3px 0 #ff7189;
+    }
+    .site-toast.error::before { background: #f87171; color: #17132c; box-shadow: 2px 3px 0 rgba(248,113,113,.4); }
+    .site-toast-body { flex: 1; min-width: 0; }
+    .site-toast-text { font-size: 14px; font-weight: 500; line-height: 1.45; color: #f0f4f3; }
+    .site-toast-progress { height: 3px; border-radius: 999px; margin-top: 10px; background: rgba(154,244,209,.15); overflow: hidden; }
+    .site-toast-bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #2e7d6e, #9af4d1); width: 100%; transition: width linear; }
+    .site-toast.error .site-toast-bar { background: linear-gradient(90deg, #f87171, #fca5a5); }
+    .site-toast-close {
+      flex-shrink: 0; align-self: flex-start; width: 24px; height: 24px;
+      border: none; border-radius: 6px; background: rgba(255,255,255,.07);
+      color: rgba(240,244,243,.5); cursor: pointer; font-size: 14px;
+      display: grid; place-items: center; transition: background .15s, color .15s;
+    }
+    .site-toast-close:hover { background: rgba(255,255,255,.14); color: #fff; }
+    @media (max-width: 480px) { .site-toast { right: 12px; bottom: 16px; left: 12px; max-width: none; } }
   </style>
 </head>
 <body>
@@ -215,6 +256,15 @@
     </div>
     {% endif %}
   </main>
+
+  <!-- Site-wide toast -->
+  <div class="site-toast" id="site-toast" role="status" aria-live="polite">
+    <div class="site-toast-body">
+      <div class="site-toast-text" id="site-toast-text"></div>
+      <div class="site-toast-progress"><div class="site-toast-bar" id="site-toast-bar"></div></div>
+    </div>
+    <button class="site-toast-close" onclick="dismissSiteToast()" aria-label="Dismiss">✕</button>
+  </div>
   {% include "core/includes/monetag_ad.html" %}
   {% include "core/includes/site_footer.html" %}
   <script>
@@ -309,11 +359,13 @@
             loadMoreBtn.disabled = false;
           } else {
             // No more pages — hide the button smoothly
+            showSiteToast('You\'ve reached the end — all articles loaded!');
             loadMoreWrap.style.transition = 'opacity .4s';
             loadMoreWrap.style.opacity = '0';
             setTimeout(() => loadMoreWrap.remove(), 400);
           }
         } catch (err) {
+          showSiteToast('Failed to load more articles. Please try again.', true);
           label.textContent = 'Failed — tap to retry';
           icon.innerHTML = '<polyline points="6 9 12 15 18 9"/>';
           icon.style.animation = '';
@@ -340,7 +392,45 @@
     });
     window.addEventListener('pageshow', () => { document.getElementById('page-loader').classList.add('hidden'); animateCards(); });
 
+    /* ── Site-wide toast ── */
+    const siteToast = document.getElementById('site-toast');
+    const siteToastText = document.getElementById('site-toast-text');
+    const siteToastBar = document.getElementById('site-toast-bar');
+    let siteToastTimer;
+
+    function showSiteToast(message, isError = false) {
+      siteToastText.textContent = message;
+      siteToast.classList.toggle('error', isError);
+      siteToast.classList.add('show');
+      clearTimeout(siteToastTimer);
+      siteToastBar.style.transition = 'none';
+      siteToastBar.style.width = '100%';
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        siteToastBar.style.transition = 'width 7000ms linear';
+        siteToastBar.style.width = '0%';
+      }));
+      siteToastTimer = setTimeout(() => siteToast.classList.remove('show'), 7000);
+    }
+
+    function dismissSiteToast() {
+      clearTimeout(siteToastTimer);
+      siteToast.classList.remove('show');
+    }
+
     /* ── Subscribe via AJAX + success modal ── */
+    function openSubscribeModal() {
+      const modal = document.getElementById('subscribe-modal');
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden', 'false');
+      modal.querySelector('.subscribe-modal-close').focus();
+    }
+
+    function closeSubscribeModal() {
+      const modal = document.getElementById('subscribe-modal');
+      modal.classList.remove('open');
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
     (function() {
       const form = document.getElementById('subscribe-form');
       const modal = document.getElementById('subscribe-modal');
@@ -348,17 +438,6 @@
 
       const btn = form.querySelector('.subscribe-btn');
       const originalBtnText = btn.textContent;
-
-      function openSubscribeModal() {
-        modal.classList.add('open');
-        modal.setAttribute('aria-hidden', 'false');
-        modal.querySelector('.subscribe-modal-close').focus();
-      }
-
-      function closeSubscribeModal() {
-        modal.classList.remove('open');
-        modal.setAttribute('aria-hidden', 'true');
-      }
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -378,10 +457,10 @@
             form.reset();
             openSubscribeModal();
           } else {
-            alert(data.message || 'Something went wrong. Please try again.');
+            showSiteToast(data.message || 'Something went wrong. Please try again.', true);
           }
         } catch (err) {
-          alert('Something went wrong. Please try again.');
+          showSiteToast('Something went wrong. Please try again.', true);
         } finally {
           btn.disabled = false;
           btn.textContent = originalBtnText;

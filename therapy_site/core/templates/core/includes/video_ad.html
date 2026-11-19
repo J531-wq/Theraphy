@@ -22,26 +22,41 @@
   .video-ad-card__inner {
     position: relative;
     width: 100%;
-    min-height: 90px;
+    min-height: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+  }
+  .video-ad-card__slot {
+    width: 100%;
+    min-height: 90px;
+  }
+  .video-ad-card__slot + .video-ad-card__slot {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(46,125,110,0.18);
   }
 </style>
 <aside class="video-ad-card" aria-label="Video Advertisement">
   <div class="video-ad-card__label">Sponsored</div>
   <div class="video-ad-card__inner">
-    <script>
-    (function(aqbmtg){
-      var d = document,
-          s = d.createElement('script'),
-          l = d.currentScript || d.scripts[d.scripts.length - 1];
-      s.settings = aqbmtg || {};
-      s.src = "\/\/unfortunateheart.com\/bzXyV.s\/dMGRlT0RYOWYcH\/pexmS9uuHZrU-lQkJPITVcq2iNZDNAox\/MNTTcHtQNHz\/YZ0UMnDCEgyZMVQk";
-      s.async = true;
-      s.referrerPolicy = 'no-referrer-when-downgrade';
-      l.parentNode.insertBefore(s, l);
-    })({})
-    </script>
+    <div class="video-ad-card__slot" aria-label="Sponsored video">
+      <script async src="https://grandiose-object.com/d/mPFxzYd.GaNlv/Z-GrUI/leqm/9sukZtULlgk/PCTRcE2UNHDkAeyJNNDFEmtPNZzrY/0GMqDSIm0pNlQM"></script>
+    </div>
+    <div class="video-ad-card__slot" aria-label="Sponsored video">
+      <script>
+      (function (settings) {
+        var documentRef = document;
+        var script = documentRef.createElement('script');
+        var anchor = documentRef.currentScript || documentRef.scripts[documentRef.scripts.length - 1];
+        script.settings = settings || {};
+        script.src = 'https://unfortunateheart.com/bzXyV.s/dMGRlT0RYOWYcH/pexmS9uuHZrU-lQkJPITVcq2iNZDNAox/MNTTcHtQNHz/YZ0UMnDCEgyZMVQk';
+        script.async = true;
+        script.referrerPolicy = 'no-referrer-when-downgrade';
+        anchor.parentNode.insertBefore(script, anchor);
+      })({});
+      </script>
+    </div>
   </div>
 </aside>

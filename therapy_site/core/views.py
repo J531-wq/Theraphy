@@ -650,7 +650,6 @@ def _voter_key(request):
 
 
 def blog_list(request):
-def blog_list(request):
     """Display all published blog posts, 21 per page. Returns JSON for AJAX requests."""
     category = request.GET.get('category', None)
 

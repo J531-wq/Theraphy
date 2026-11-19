@@ -1,0 +1,47 @@
+{% comment %}Video ad card — place anywhere in the page body{% endcomment %}
+<style>
+  .video-ad-card {
+    width: min(100% - 32px, 760px);
+    margin: 36px auto;
+    padding: 18px 20px 20px;
+    background: rgba(6,14,12,0.78);
+    border: 1px solid rgba(46,125,110,0.25);
+    border-radius: 16px;
+    overflow: hidden;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .video-ad-card__label {
+    margin-bottom: 10px;
+    color: rgba(173,221,198,0.6);
+    font: 600 10px/1.4 'Inter', Arial, sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .video-ad-card__inner {
+    position: relative;
+    width: 100%;
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+<aside class="video-ad-card" aria-label="Video Advertisement">
+  <div class="video-ad-card__label">Sponsored</div>
+  <div class="video-ad-card__inner">
+    <script>
+    (function(aqbmtg){
+      var d = document,
+          s = d.createElement('script'),
+          l = d.currentScript || d.scripts[d.scripts.length - 1];
+      s.settings = aqbmtg || {};
+      s.src = "\/\/unfortunateheart.com\/bzXyV.s\/dMGRlT0RYOWYcH\/pexmS9uuHZrU-lQkJPITVcq2iNZDNAox\/MNTTcHtQNHz\/YZ0UMnDCEgyZMVQk";
+      s.async = true;
+      s.referrerPolicy = 'no-referrer-when-downgrade';
+      l.parentNode.insertBefore(s, l);
+    })({})
+    </script>
+  </div>
+</aside>
